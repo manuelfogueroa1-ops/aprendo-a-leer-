@@ -1,7 +1,83 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Software Educativo | Inicio</title><link rel="stylesheet" href="/styles.css"></head>
-<body><main class="wrap"><header><h1>Software Educativo</h1><p>Actividades y seguimiento de aprendizaje</p></header>
-<nav><button class="tab active" data-panel="estudiante">Estudiantes</button><button class="tab" data-panel="profesor">Acceso profesor</button></nav>
-<section id="estudiante" class="panel"><div id="studentEntry"><h2>Elige tu nombre</h2><p id="studentStatus" class="status" role="status">Los estudiantes aparecen cuando la profesora los guarda.</p><div id="studentCards" class="student-cards"></div></div><div id="studentActivities" class="hidden"><div class="activities-heading"><div><h2>Mis actividades</h2><p id="studentWelcome" class="status"></p></div><button id="changeStudent" class="secondary-button" type="button">Cambiar estudiante</button></div><div id="activities"></div></div></section>
-<section id="profesor" class="panel hidden"><h2>Panel privado del profesor</h2><form id="teacherForm"><label>Usuario<input name="usuario" autocomplete="username" required></label><label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label><button>Iniciar sesión</button></form><p id="teacherStatus" class="status"></p><div id="report" class="hidden"><section class="student-management"><h3>Estudiantes</h3><form id="studentForm"><label>Nombre<input name="nombre" maxlength="80" required></label><label>Apellido<input name="apellido" maxlength="80" required></label><button>Guardar estudiante</button></form><p id="studentManagementStatus" class="status" role="status"></p><div id="teacherStudentCards" class="student-cards"></div></section><form id="filterForm" class="filters"><label>Nombre (opcional)<input name="nombre"></label><label>Apellido (opcional)<input name="apellido"></label><button>Buscar resultados</button><button type="button" id="logout">Cerrar sesión</button></form><div id="results"></div></div></section>
-<footer>Aplicación para red local · Acceso de profesor protegido por sesión</footer></main><script src="/app.js"></script></body></html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7161d8">
+  <title>Aprendo a Leer | ¡Vamos a aprender!</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="home-page">
+<main class="wrap">
+  <header class="hero hero-home">
+    <div class="hero-copy">
+      <p class="hero-eyebrow"><span aria-hidden="true">✦</span> MI RINCÓN DE LECTURA</p>
+      <h1>¡Aprendo a <span>leer!</span></h1>
+      <p class="hero-description">Cada palabra es una nueva aventura. ¡Vamos a descubrirla juntos!</p>
+      <div class="hero-pills" aria-hidden="true"><span>🌈 Aprende</span><span>⭐ Practica</span><span>🎉 Diviértete</span></div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><span class="art-spark art-spark-one">✦</span><span class="art-book">📖</span><span class="art-letter art-letter-a">A</span><span class="art-letter art-letter-b">a</span><span class="art-spark art-spark-two">✳</span></div>
+  </header>
+
+  <nav class="main-nav" aria-label="Elegir tipo de acceso">
+    <button type="button" class="tab active" data-panel="estudiante">🎒 Soy estudiante</button>
+    <button type="button" class="tab" data-panel="profesor">👩‍🏫 Acceso docente</button>
+  </nav>
+
+  <section id="estudiante" class="panel student-panel">
+    <div id="studentEntry">
+      <div class="section-intro">
+        <span class="section-kicker">👋 ¡HOLA!</span>
+        <h2>¿Cómo te llamas?</h2>
+        <p>Busca tu nombre y selecciónalo para comenzar a jugar y aprender.</p>
+      </div>
+      <p id="studentStatus" class="status" role="status">Los estudiantes aparecen cuando la profesora los guarda.</p>
+      <div id="studentCards" class="student-cards"></div>
+    </div>
+    <div id="studentActivities" class="hidden">
+      <div class="activities-heading">
+        <div>
+          <span class="section-kicker">✨ TUS DESAFÍOS</span>
+          <h2>¡Hora de aprender!</h2>
+          <p id="studentWelcome" class="status"></p>
+        </div>
+        <button id="changeStudent" class="secondary-button" type="button">↩ Cambiar estudiante</button>
+      </div>
+      <div class="activity-section-note">Elige la aventura que quieras comenzar hoy.</div>
+      <div id="activities" class="activities-grid"></div>
+    </div>
+  </section>
+
+  <section id="profesor" class="panel teacher-panel hidden">
+    <div class="section-intro teacher-intro"><span class="section-kicker">🔐 ACCESO DOCENTE</span><h2>Panel de profesores</h2><p>Ingresa para administrar estudiantes y revisar sus avances.</p></div>
+    <form id="teacherForm" class="teacher-login">
+      <label>Usuario<input name="usuario" autocomplete="username" required></label>
+      <label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
+      <button type="submit">Iniciar sesión</button>
+    </form>
+    <p id="teacherStatus" class="status" role="status"></p>
+    <div id="report" class="hidden">
+      <section class="student-management">
+        <h3>Estudiantes</h3>
+        <form id="studentForm">
+          <label>Nombre<input name="nombre" maxlength="80" required></label>
+          <label>Apellido<input name="apellido" maxlength="80" required></label>
+          <button type="submit">Guardar estudiante</button>
+        </form>
+        <p id="studentManagementStatus" class="status" role="status"></p>
+        <div id="teacherStudentCards" class="student-cards"></div>
+      </section>
+      <form id="filterForm" class="filters">
+        <label>Nombre (opcional)<input name="nombre"></label>
+        <label>Apellido (opcional)<input name="apellido"></label>
+        <button type="submit">Buscar resultados</button>
+        <button type="button" id="logout" class="secondary-button">Cerrar sesión</button>
+      </form>
+      <div id="results"></div>
+    </div>
+  </section>
+  <footer>Hecho para descubrir el mundo de las palabras <span aria-hidden="true">💜</span></footer>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>
