@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actividad de demostración | Software Educativo</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body><main class="wrap">
+  <header><h1>Actividad de demostración</h1><p>Ejemplo de actividad HTML conectada a la API</p></header>
+  <p><a href="/" data-back-to-activities>Volver a mis actividades</a></p>
+  <section id="status" class="status">Comprobando sesión y actividad…</section>
+  <form id="quiz" class="hidden">
+    <fieldset><legend>1. ¿Qué etiqueta HTML se utiliza para un párrafo?</legend>
+      <label><input type="radio" name="q1" value="a" required> &lt;h1&gt;</label>
+      <label><input type="radio" name="q1" value="b"> &lt;p&gt;</label>
+      <label><input type="radio" name="q1" value="c"> &lt;img&gt;</label>
+    </fieldset>
+    <fieldset><legend>2. ¿Qué lenguaje se utiliza principalmente para dar estilo a una página?</legend>
+      <label><input type="radio" name="q2" value="a" required> CSS</label>
+      <label><input type="radio" name="q2" value="b"> SQL</label>
+      <label><input type="radio" name="q2" value="c"> JSON</label>
+    </fieldset>
+    <fieldset><legend>3. ¿Qué función de JavaScript puede enviar una solicitud HTTP desde el navegador?</legend>
+      <label><input type="radio" name="q3" value="a" required> fetch()</label>
+      <label><input type="radio" name="q3" value="b"> SELECT()</label>
+      <label><input type="radio" name="q3" value="c"> CREATE TABLE()</label>
+    </fieldset>
+    <button type="submit">Terminar y guardar resultado</button>
+  </form>
+  <p id="result" class="status"></p>
+</main><script src="/actividades/actividad.js"></script><script src="/actividades/ejemplo.js"></script></body></html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aprendo las sílabas | Software Educativo</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body><main class="wrap">
+  <header><h1>Aprendo las sílabas</h1><p>Escucha, mira la imagen y ordena las sílabas para formar la palabra.</p></header>
+  <p><a href="/" data-back-to-activities>Volver a mis actividades</a></p>
+  <section class="panel learning-panel">
+    <p id="status" class="status" role="status">Preparando actividad…</p>
+    <div id="game" class="hidden">
+      <p id="progress"></p><div class="progress-track" aria-label="Progreso"><div id="progressBar" class="progress-bar"></div></div>
+      <div id="picture" class="word-picture" role="img"></div>
+      <h2 id="word" class="word-display" aria-label="Palabra por formar"></h2>
+      <p>Elige las sílabas en el orden correcto:</p>
+      <div id="answer" class="answer-slots" aria-label="Sílabas elegidas"></div>
+      <div id="choices" class="syllable-list"></div>
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+      <button id="check" type="button">Revisar palabra</button>
+    </div>
+    <div id="finished" class="hidden"><h2>¡Actividad terminada!</h2><p id="result"></p><button id="retrySave" class="hidden" type="button">Intentar guardar de nuevo</button><a class="button-link" href="/" data-back-to-activities>Volver a mis actividades</a></div>
+  </section>
+</main>
+<script src="/actividades/actividad.js"></script><script src="/actividades/silabas.js"></script></body></html>

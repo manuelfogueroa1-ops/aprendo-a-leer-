@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Practico la pronunciación | Software Educativo</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body><main class="wrap">
+  <header><h1>Practico la pronunciación</h1><p>Escucha la palabra y practícala en voz alta.</p></header>
+  <p><a href="/" data-back-to-activities>Volver a mis actividades</a></p>
+  <section class="panel learning-panel">
+    <p id="status" class="status" role="status">Preparando actividad…</p>
+    <div id="game" class="hidden">
+      <p id="progress"></p><div class="progress-track" aria-label="Progreso"><div id="progressBar" class="progress-bar"></div></div>
+      <div id="picture" class="word-picture" role="img"></div>
+      <h2 id="word" class="word-display"></h2>
+      <p id="manualNote" class="hidden">El resultado contará las palabras que practiques, pero no evaluará tu pronunciación.</p>
+      <div class="activity-actions"><button id="listen" type="button">🔊 Escuchar palabra</button><button id="speak" type="button">🎙️ Pronunciar</button><button id="practice" class="hidden" type="button">Ya la practiqué</button></div>
+      <p id="feedback" class="feedback" aria-live="polite">Escucha la palabra y repítela en voz alta.</p>
+    </div>
+    <div id="finished" class="hidden"><h2>¡Buen trabajo!</h2><p id="result"></p><button id="retrySave" class="hidden" type="button">Intentar guardar de nuevo</button><a class="button-link" href="/" data-back-to-activities>Volver a mis actividades</a></div>
+  </section>
+</main>
+<script src="/actividades/actividad.js"></script><script src="/actividades/pronunciar.js"></script></body></html>
