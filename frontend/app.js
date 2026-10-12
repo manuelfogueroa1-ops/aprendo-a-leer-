@@ -42,10 +42,12 @@ async function loadStudentCards() {
       return;
     }
     status.textContent = '';
-    cards.innerHTML = data.estudiantes.map(student => `
+    const avatars = ['🦊', '🐼', '🦄', '🐻', '🐸', '🐱'];
+    cards.innerHTML = data.estudiantes.map((student, index) => `
       <button class="student-card" type="button" data-student="${student.EstudianteID}">
-        <span class="student-icon" aria-hidden="true">📚</span>
-        <span>${esc(student.Nombre)} ${esc(student.Apellido)}</span>
+        <span class="student-icon" aria-hidden="true">${avatars[index % avatars.length]}</span>
+        <span class="student-card-name">${esc(student.Nombre)} ${esc(student.Apellido)}</span>
+        <span class="student-enter" aria-hidden="true">→</span>
       </button>`).join('');
     cards.querySelectorAll('[data-student]').forEach(button => {
       button.addEventListener('click', async () => {
@@ -92,75 +94,37 @@ async function loadActivities() {
   box.innerHTML = 'Cargando actividades…';
   try {
     const data = await api('/api/actividades');
-    if (!data.actividades.length) {
-      box.innerHTML = '<p>No hay actividades activas en la base local.</p>';
-      return;
-    }
     const activityPages = {
       'Aprendo las sílabas': '/actividades/silabas.html',
       'Practico la pronunciación': '/actividades/pronunciar.html',
-      'Encuentro la letra': '/actividades/letra.html',
-      'Actividad de ejemplo': '/actividades/ejemplo.html'
+      'Encuentro la letra': '/actividades/letra.html'
     };
-    box.innerHTML = data.actividades.map(activity => `
-      <article class="activity">
+    const activityStyles = {
+      'Aprendo las sílabas': { icon: '🧩', theme: 'theme-yellow' },
+      'Practico la pronunciación': { icon: '🎤', theme: 'theme-blue' },
+      'Encuentro la letra': { icon: '🔤', theme: 'theme-pink' }
+    };
+    // Solo mostramos actividades con juego de lectura implementado.
+    const available = data.actividades.filter(activity => activityPages[activity.Nombre]);
+    if (!available.length) {
+      box.innerHTML = '<p>No hay actividades disponibles por el momento.</p>';
+      return;
+    }
+    box.innerHTML = available.map(activity => {
+      const style = activityStyles[activity.Nombre];
+      const level = activity.NivelDificultad ? `Nivel ${esc(activity.NivelDificultad)}` : 'Actividad';
+      return `<article class="activity ${style.theme}">
+        <div class="activity-top">
+          <span class="activity-icon" aria-hidden="true">${style.icon}</span>
+          <span class="activity-level">${level}</span>
+        </div>
         <h3>${esc(activity.Nombre)}</h3>
-        <p>${esc(activity.Descripcion || '')}${activity.NivelDificultad ? ` · Nivel: ${esc(activity.NivelDificultad)}` : ''}</p>
-        ${activityPages[activity.Nombre]
-          ? `<a class="button-link" href="${activityPages[activity.Nombre]}">Iniciar actividad</a>`
-          : `<button data-start="${activity.ActividadID}">Iniciar actividad</button>`}
-      </article>`).join('');
-    box.querySelectorAll('[data-start]').forEach(button => {
-      button.addEventListener('click', () => startActivity(Number(button.dataset.start), button));
-    });
+        <p>${esc(activity.Descripcion || '¡Descubre un nuevo desafío de lectura!')}</p>
+        <a class="button-link" href="${activityPages[activity.Nombre]}">¡Comenzar! <span aria-hidden="true">→</span></a>
+      </article>`;
+    }).join('');
   } catch (error) {
     box.textContent = error.message;
-  }
-}
-
-async function startActivity(id, button) {
-  button.disabled = true;
-  try {
-    const data = await api(`/api/actividades/${id}/iniciar`, {
-      method: 'POST',
-      body: JSON.stringify({})
-    });
-    const area = document.createElement('div');
-    area.className = 'activity';
-    area.innerHTML = `<h3>Registrar resultado de la actividad</h3>
-      <p>Al guardar, el servidor calculará la duración desde el inicio de este intento.</p>
-      <form>
-        <label>Puntuación (0–100)<input name="puntuacion" type="number" min="0" max="100" step="0.01" required></label>
-        <label>Aciertos<input name="aciertos" type="number" min="0" required></label>
-        <label>Errores<input name="errores" type="number" min="0" required></label>
-        <label>Detalle opcional<textarea name="detalleResultado" maxlength="4000" rows="2"></textarea></label>
-        <button>Finalizar y guardar</button>
-      </form><p class="status"></p>`;
-    button.closest('.activity').after(area);
-    area.querySelector('form').addEventListener('submit', async event => {
-      event.preventDefault();
-      const form = new FormData(event.currentTarget);
-      const status = area.querySelector('.status');
-      const payload = {
-        puntuacion: Number(form.get('puntuacion')),
-        aciertos: Number(form.get('aciertos')),
-        errores: Number(form.get('errores')),
-        detalleResultado: form.get('detalleResultado')
-      };
-      try {
-        await api(`/api/resultados/${data.intento.ResultadoID}/terminar`, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        status.textContent = 'Resultado guardado correctamente.';
-        event.currentTarget.remove();
-      } catch (error) {
-        status.textContent = error.message;
-      }
-    });
-  } catch (error) {
-    alert(error.message);
-    button.disabled = false;
   }
 }
 

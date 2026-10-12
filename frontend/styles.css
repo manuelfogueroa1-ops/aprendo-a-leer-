@@ -1,7 +1,342 @@
-:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1f2937;background:#f3f5f9}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1000px;margin:0 auto;padding:24px}header{padding:22px 24px;background:#172554;color:#fff;border-radius:16px}header h1{margin:0 0 4px}header p{margin:0;color:#dbeafe}nav{display:flex;gap:8px;margin:18px 0}.tab{background:#e2e8f0;color:#0f172a}.tab.active{background:#1d4ed8;color:#fff}.panel{background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px #0f172a0b}h2{margin-top:0}form{display:flex;flex-wrap:wrap;gap:14px;align-items:end}label{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1;font-size:.94rem}input{font:inherit;padding:10px;border:1px solid #cbd5e1;border-radius:8px}button,.button-link{border:0;border-radius:8px;padding:11px 16px;background:#1d4ed8;color:white;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}button:hover,.button-link:hover{filter:brightness(.95)}button:disabled{opacity:.55;cursor:wait}.secondary-button{background:#e2e8f0;color:#0f172a}.hidden{display:none!important}.status{min-height:1.4em;color:#334155}.activities-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.activities-heading h2{margin-bottom:4px}.activity,.result{border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin:10px 0}.activity h3{margin:0 0 6px}.activity p{margin:0 0 10px;color:#475569}.result{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid #e2e8f0;padding:9px;white-space:nowrap}th{background:#f8fafc}.filters{margin:16px 0}footer{text-align:center;color:#64748b;font-size:.85rem;padding:22px}.learning-panel{text-align:center;max-width:700px;margin:24px auto}.word-picture{display:grid;place-items:center;width:170px;height:150px;margin:18px auto;background:#eff6ff;border-radius:24px;font-size:6rem}.word-display{font-size:2rem;font-weight:700;letter-spacing:.12em}.choice-list,.syllable-list,.answer-slots{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:18px 0}.choice-button,.syllable-button,.answer-slot{min-width:64px;min-height:58px;font-size:1.5rem}.answer-slot{background:#e2e8f0;color:#1f2937}.answer-slot.filled{background:#dbeafe}.feedback{min-height:2em;font-weight:600}.feedback.correct{color:#15803d}.feedback.incorrect{color:#b91c1c}.activity-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:16px 0}.progress-track{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden}.progress-bar{height:100%;background:#16a34a;transition:width .2s}fieldset{margin:18px 0;text-align:left;border:1px solid #cbd5e1;border-radius:10px}fieldset label{display:inline-flex;min-width:auto;margin:8px}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}@media(max-width:600px){.wrap{padding:12px}.panel{padding:16px}form{align-items:stretch}form button{width:100%}.activities-heading{align-items:flex-start;flex-direction:column}.activities-heading button{width:100%}.word-picture{width:140px;height:130px;font-size:5rem}.word-display{font-size:1.65rem}}
-.student-management{margin:20px 0;padding:16px;border:1px solid #e2e8f0;border-radius:10px}
-.student-management h3{margin:0 0 14px}
-.student-cards{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
-.student-card{display:flex;align-items:center;gap:10px;min-width:180px;padding:14px;background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe;border-radius:12px;font-weight:600;text-align:left}
-.student-icon{font-size:1.6rem}
-.teacher-student-card{cursor:default}.hidden{display:none!important}.status{min-height:1.4em;color:#334155}.activities-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.activities-heading h2{margin-bottom:4px}.activity,.result{border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin:10px 0}.activity h3{margin:0 0 6px}.activity p{margin:0 0 10px;color:#475569}.result{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid #e2e8f0;padding:9px;white-space:nowrap}th{background:#f8fafc}.filters{margin:16px 0}footer{text-align:center;color:#64748b;font-size:.85rem;padding:22px}.learning-panel{text-align:center;max-width:700px;margin:24px auto}.word-picture{display:grid;place-items:center;width:170px;height:150px;margin:18px auto;background:#eff6ff;border-radius:24px;font-size:6rem}.word-display{font-size:2rem;font-weight:700;letter-spacing:.12em}.choice-list,.syllable-list,.answer-slots{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:18px 0}.choice-button,.syllable-button,.answer-slot{min-width:64px;min-height:58px;font-size:1.5rem}.answer-slot{background:#e2e8f0;color:#1f2937}.answer-slot.filled{background:#dbeafe}.feedback{min-height:2em;font-weight:600}.feedback.correct{color:#15803d}.feedback.incorrect{color:#b91c1c}.activity-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:16px 0}.progress-track{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden}.progress-bar{height:100%;background:#16a34a;transition:width .2s}fieldset{margin:18px 0;text-align:left;border:1px solid #cbd5e1;border-radius:10px}fieldset label{display:inline-flex;min-width:auto;margin:8px}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}@media(max-width:600px){.wrap{padding:12px}.panel{padding:16px}form{align-items:stretch}form button{width:100%}.activities-heading{align-items:flex-start;flex-direction:column}.activities-heading button{width:100%}.word-picture{width:140px;height:130px;font-size:5rem}.word-display{font-size:1.65rem}}
+/* Aprendo a Leer — sistema visual. Conserva los IDs usados por JavaScript. */
+:root {
+  font-family: ui-rounded, "Nunito", "Trebuchet MS", system-ui, -apple-system, Segoe UI, sans-serif;
+  color: #263251;
+  background: #f7f7ff;
+  --ink: #263251;
+  --muted: #64708c;
+  --purple: #6d55cd;
+  --purple-dark: #4e3da1;
+  --sky: #dff3ff;
+  --border: #e6e8f6;
+  --shadow: 0 18px 45px rgba(57, 63, 118, .08);
+}
+* {box-sizing: border-box;}
+html {scroll-behavior: smooth;}
+/* Fondo morado ilustrado: visible en inicio, acceso docente y todos los juegos. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #0b1044;
+  background-image: url("/assets/fondo-morado.png");
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+button, input, textarea {font: inherit;}
+button, .button-link {transition: transform .18s ease, box-shadow .18s ease, background .18s ease;}
+button {border: 0; cursor: pointer;}
+button:disabled {opacity: .58; cursor: not-allowed; transform: none!important;}
+a {color: var(--purple-dark);}
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {outline: 3px solid #f5aa25; outline-offset: 3px;}
+.wrap {width: min(1090px, 100%); margin: 0 auto; padding: 28px 26px 18px;}
+.hidden {display: none!important;}
+
+/* Inicio: portada ilustrada y navegación */
+.hero {position: relative; isolation: isolate; overflow: hidden; border-radius: 30px; padding: 35px 46px; background: linear-gradient(125deg, #7864dc 0%, #6253ca 52%, #4e5cbd 100%); color: #fff; box-shadow: 0 18px 40px rgba(82, 70, 164, .16);}
+.hero::before, .hero::after {position: absolute; content: ""; z-index: -1; border-radius: 50%;}
+.hero::before {width: 370px; height: 370px; right: -95px; top: -175px; background: #ffffff10;}
+.hero::after {width: 225px; height: 225px; right: 115px; bottom: -175px; background: #ffffff13;}
+.hero-home {display: flex; align-items: center; justify-content: space-between; min-height: 270px; gap: 22px;}
+.hero-copy {position: relative; z-index: 1; max-width: 610px;}
+.hero-eyebrow {display: inline-flex; gap: 9px; align-items: center; margin: 0 0 13px; color: #fff5bf; font-size: .78rem; font-weight: 900; letter-spacing: .16em;}
+.hero h1 {margin: 0; font-size: clamp(2.5rem, 5.2vw, 4.05rem); line-height: 1.06; letter-spacing: -.035em; font-weight: 900;}
+.hero h1 span {color: #fff0a6;}
+.hero-description {max-width: 490px; margin: 14px 0 0; color: #f2f0ff; font-size: 1.03rem; line-height: 1.65;}
+.hero-pills {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px;}
+.hero-pills span {padding: 7px 12px; background: #ffffff24; border: 1px solid #ffffff30; color: white; border-radius: 999px; font-size: .84rem; font-weight: 700;}
+.hero-art {position: relative; width: 260px; height: 210px; flex: 0 0 260px; display: grid; place-items: center;}
+.art-book {font-size: 8.2rem; transform: rotate(-10deg); filter: drop-shadow(0 14px 7px #22265c28);}
+.art-letter, .art-spark {position: absolute; font-weight: 1000;}
+.art-letter {width: 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; box-shadow: 0 7px 0 #28296915;}
+.art-letter-a {top: 5px; left: 4px; background: #ffcf66; color: #69411f; transform: rotate(-15deg); font-size: 1.7rem;}
+.art-letter-b {right: 4px; bottom: 18px; background: #8ee6c8; color: #22644f; transform: rotate(13deg); font-size: 1.9rem;}
+.art-spark {color: #ffed9f; font-size: 2.25rem;}
+.art-spark-one {top: 8px; right: 30px;}.art-spark-two {left: 14px; bottom: 4px;}
+.main-nav {display: flex; gap: 10px; margin: 22px 0 16px; padding: 5px; width: fit-content; max-width: 100%; border-radius: 16px; background: #fff; border: 1px solid var(--border); box-shadow: 0 5px 20px #44498a0b;}
+.tab {padding: 12px 19px; background: transparent; color: #5a6381; border-radius: 12px; font-weight: 800; white-space: nowrap;}
+.tab.active {background: var(--purple); color: #fff; box-shadow: 0 5px 12px #7059c942;}
+.tab:not(.active):hover {background: #f0edfc;}
+
+/* Secciones y selector de estudiante */
+.panel {padding: 32px; background: #fff; border-radius: 26px; border: 1px solid var(--border); box-shadow: var(--shadow);}
+.section-intro {text-align: center; max-width: 650px; margin: 4px auto 22px;}
+.section-kicker {display: inline-block; color: var(--purple); background: #f0ecff; border-radius: 999px; padding: 6px 12px; font-size: .76rem; font-weight: 900; letter-spacing: .1em;}
+.section-intro h2, .activities-heading h2 {font-size: clamp(1.65rem, 3.5vw, 2.2rem); letter-spacing: -.035em; margin: 10px 0 8px; line-height: 1.17;}
+.section-intro p {margin: 0; font-size: 1rem; color: var(--muted); line-height: 1.65;}
+.status {color: var(--muted); min-height: 1.3em; line-height: 1.6;}
+#studentEntry > .status {text-align: center; margin: 0 0 12px;}
+.student-cards {display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 14px; margin-top: 18px;}
+.student-card {display: flex; align-items: center; gap: 12px; text-align: left; min-width: 0; min-height: 88px; padding: 14px 16px; color: var(--ink); border: 2px solid #eae9fb; border-radius: 19px; background: linear-gradient(135deg, #fff, #f7f5ff); font-weight: 900; box-shadow: 0 6px 16px #675bbb0c;}
+button.student-card:hover {transform: translateY(-3px); border-color: #b5a6fa; box-shadow: 0 12px 18px #7063b524;}
+.student-icon {display: grid; flex: 0 0 51px; width: 51px; height: 51px; place-items: center; border-radius: 15px; background: #e8e1ff; font-size: 1.65rem;}
+.student-card:nth-child(4n+2) .student-icon {background: #daf4ff;}.student-card:nth-child(4n+3) .student-icon {background: #ffedd9;}.student-card:nth-child(4n) .student-icon {background: #dcf7e8;}
+.student-card-name {flex: 1; min-width: 0; overflow-wrap: anywhere;}
+.student-enter {font-size: 1.45rem; color: var(--purple);}
+.activities-heading {display: flex; align-items: center; justify-content: space-between; gap: 18px;}
+.activities-heading .status {margin: 0;}
+.activity-section-note {color: var(--muted); margin: 21px 0 16px;}
+.secondary-button {background: #f0edfb; color: var(--purple-dark); padding: 11px 17px; border-radius: 12px; font-weight: 800; white-space: nowrap;}
+.secondary-button:hover {background: #e6ddfb; transform: translateY(-2px);}
+
+/* Inicio renovado: fondo lila pastel en el panel principal y las pestañas.
+   Solo se aplican a la página principal; los juegos conservan su panel lila propio. */
+.home-page .main-nav {
+  background: linear-gradient(135deg, #f2ebff 0%, #e7ddff 100%);
+  border: 2px solid #d8c6ff;
+  box-shadow: 0 9px 26px rgba(15, 10, 75, .22), inset 0 1px 0 rgba(255, 255, 255, .9);
+  padding: 6px;
+  border-radius: 18px;
+}
+.home-page .main-nav .tab {color: #41357d;}
+.home-page .main-nav .tab.active {
+  color: #fff;
+  background: linear-gradient(135deg, #7b60df 0%, #654ac9 100%);
+  box-shadow: 0 4px 10px rgba(70, 40, 156, .26);
+}
+.home-page .main-nav .tab:not(.active):hover {
+  background: #dacafb;
+  color: #392b76;
+}
+.home-page .panel {
+  position: relative;
+  color: #30274f;
+  background-color: #eee7ff;
+  background-image:
+    radial-gradient(ellipse 550px 370px at 82% 18%, rgba(255, 255, 255, .48), transparent 80%),
+    radial-gradient(ellipse 420px 310px at 13% 95%, rgba(211, 190, 255, .27), transparent 82%),
+    linear-gradient(145deg, #f4efff 0%, #eee7ff 52%, #e5dcfb 100%);
+  border: 2px solid #d7c8f8;
+  box-shadow: 0 20px 48px rgba(8, 7, 54, .25), inset 0 2px 0 rgba(255, 255, 255, .6);
+}
+.home-page .section-intro p,
+.home-page .activity-section-note,
+.home-page .activities-heading .status,
+.home-page .student-panel > .status {color: #554a7d;}
+.home-page .section-kicker {background: #e7ddff; color: #5f42bd;}
+.home-page .secondary-button {
+  background: #e7ddff;
+  color: #4b35a0;
+  border: 1px solid #d8c7ff;
+  box-shadow: 0 4px 10px rgba(92, 62, 153, .1);
+}
+.home-page .secondary-button:hover {background: #dacefa;}
+.home-page .teacher-login,
+.home-page .student-management {
+  background: rgba(255, 255, 255, .36);
+  border: 1px solid #d8c9f3;
+}
+
+/* Selector de estudiantes: tarjetas, nombres, iconos y flechas en lila pastel.
+   Funciona para cualquier cantidad de usuarios, sin cambiar la lógica JavaScript. */
+.home-page #studentCards {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
+}
+.home-page #studentCards .student-card,
+.home-page #teacherStudentCards .student-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #38276f;
+  background: linear-gradient(135deg, #f9f4ff 0%, #eee4ff 54%, #e2d4fd 100%);
+  border: 2px solid #cdb7fc;
+  border-radius: 21px;
+  box-shadow: 0 8px 20px rgba(86, 59, 155, .14), inset 0 1px 0 rgba(255, 255, 255, .85);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.home-page #studentCards .student-card::before,
+.home-page #teacherStudentCards .student-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 85px;
+  height: 85px;
+  right: -27px;
+  bottom: -57px;
+  border-radius: 50%;
+  background: rgba(177, 145, 245, .14);
+  pointer-events: none;
+}
+.home-page #studentCards button.student-card:hover {
+  transform: translateY(-3px);
+  border-color: #9373e5;
+  background: linear-gradient(135deg, #fbf8ff, #dfccff);
+  box-shadow: 0 12px 26px rgba(87, 57, 166, .22), inset 0 1px 0 rgba(255,255,255,.95);
+}
+.home-page #studentCards button.student-card:active {
+  transform: translateY(0);
+}
+.home-page #studentCards .student-icon,
+.home-page #teacherStudentCards .student-icon {
+  width: 54px;
+  height: 54px;
+  flex-basis: 54px;
+  font-size: 1.75rem;
+  background: linear-gradient(145deg, #ede2ff, #ceb8ff);
+  border: 1px solid #c6adf8;
+  border-radius: 16px;
+  box-shadow: 0 4px 9px rgba(87, 59, 171, .14), inset 0 1px 0 rgba(255,255,255,.78);
+}
+/* Matices sutiles, todos dentro de la misma familia lila. */
+.home-page #studentCards .student-card:nth-child(4n + 2) .student-icon {background: linear-gradient(145deg, #f1e5ff, #d9c4ff);}
+.home-page #studentCards .student-card:nth-child(4n + 3) .student-icon {background: linear-gradient(145deg, #f8e7ff, #e3caff);}
+.home-page #studentCards .student-card:nth-child(4n) .student-icon {background: linear-gradient(145deg, #e8ddff, #cbb8f9);}
+.home-page #studentCards .student-card-name,
+.home-page #teacherStudentCards .student-card > span:not(.student-icon):not(.student-enter) {
+  color: #342365;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: .005em;
+  line-height: 1.4;
+}
+.home-page #studentCards .student-enter {
+  display: grid;
+  place-items: center;
+  flex: 0 0 31px;
+  width: 31px;
+  height: 31px;
+  color: #5e41bb;
+  background: rgba(216, 197, 251, .78);
+  border: 1px solid #c9aff8;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform .2s ease, background .2s ease;
+}
+.home-page #studentCards button.student-card:hover .student-enter {
+  background: #d2bafb;
+  transform: translateX(2px);
+}
+.home-page #teacherStudentCards .teacher-student-card {cursor: default;}
+
+/* Tarjetas de actividades */
+.activities-grid {display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;}
+.activity {position: relative; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 280px; padding: 22px; background: #fcfbff; border: 2px solid #eae4ff; border-radius: 23px; overflow: hidden;}
+.activity:hover {transform: translateY(-2px); box-shadow: 0 12px 28px #57528e13;}
+.activity.theme-yellow {background: #fffdf7; border-color: #fff0c8; --activity-accent: #be7429; --activity-soft: #ffedbd;}
+.activity.theme-blue {background: #f7fcff; border-color: #d7f0ff; --activity-accent: #217da5; --activity-soft: #d3efff;}
+.activity.theme-pink {background: #fff9fc; border-color: #ffe0ed; --activity-accent: #ad4d81; --activity-soft: #ffdced;}
+.activity.theme-purple {background: #fcfaff; border-color: #e7ddff; --activity-accent: #7253c3; --activity-soft: #e9e1ff;}
+.activity-top {display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;}
+.activity-icon {display: grid; width: 65px; height: 65px; place-items: center; background: var(--activity-soft, #eee6ff); border-radius: 19px; font-size: 2.3rem;}
+.activity-level {border-radius: 999px; background: #ffffffd9; color: var(--activity-accent, var(--purple-dark)); padding: 6px 10px; font-size: .79rem; font-weight: 900; border: 1px solid #0000000a;}
+.activity h3 {font-size: 1.29rem; letter-spacing: -.02em; margin: 3px 0 0;}
+.activity p {flex: 1; margin: 0; color: #56617b; line-height: 1.58; font-size: .95rem;}
+.button-link, .activity > button, form button, #check, #next, #listen, #speak, #practice, #retrySave {display: inline-flex; justify-content: center; align-items: center; gap: 8px; width: fit-content; padding: 12px 19px; border-radius: 13px; background: var(--purple); color: #fff; font-weight: 900; text-decoration: none; line-height: 1.25; border: 0; box-shadow: 0 5px 0 #4e3b9c;}
+.activity .button-link, .activity > button {background: var(--activity-accent, var(--purple)); box-shadow: 0 5px 0 #00000017;}
+.button-link:hover, .activity > button:hover, form button:hover, #check:hover, #next:hover, #listen:hover, #speak:hover, #practice:hover, #retrySave:hover {transform: translateY(-2px); filter: brightness(1.03);}
+.button-link:active, .activity > button:active, form button:active, #check:active, #next:active, #listen:active, #speak:active, #practice:active, #retrySave:active {transform: translateY(3px); box-shadow: none;}
+
+/* Acceso y gestión docente */
+.teacher-intro {text-align: left; max-width: none; margin: 0 0 22px;}
+.teacher-login {padding: 20px; background: #f8f8ff; border-radius: 18px;}
+form {display: flex; flex-wrap: wrap; align-items: end; gap: 13px;}
+label {display: flex; flex: 1; flex-direction: column; gap: 7px; min-width: 175px; font-size: .92rem; font-weight: 700;}
+input:not([type="radio"]), textarea {width: 100%; padding: 11px 13px; background: #fff; border: 1.5px solid #cdd2e6; border-radius: 11px; color: var(--ink);}
+input:not([type="radio"]):focus, textarea:focus {border-color: var(--purple);}
+.student-management {margin: 22px 0; padding: 20px; background: #fafbff; border: 1px solid var(--border); border-radius: 18px;}
+.student-management h3 {margin: 0 0 14px;}
+.teacher-student-card {min-height: 72px; cursor: default;}
+.filters {margin: 16px 0;}
+.result {margin-top: 18px; overflow: auto; border: 1px solid var(--border); border-radius: 15px;}
+table {width: 100%; border-collapse: collapse; font-size: .9rem;}
+th, td {text-align: left; padding: 12px; border-bottom: 1px solid var(--border); white-space: nowrap;}
+th {background: #f3f1ff;}
+footer {padding: 25px 0 12px; text-align: center; font-size: .9rem; color: #f0edff; text-shadow: 0 1px 2px #060a2b;}
+
+/* Actividades: cabecera y zona de juego */
+.game-page .wrap {max-width: 930px;}
+.hero-activity {min-height: 165px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 27px 37px;}
+.hero-activity h1 {font-size: clamp(1.9rem, 4vw, 2.75rem);}
+.hero-activity .hero-description {margin-top: 9px; max-width: 610px;}
+.hero-activity .hero-illustration {font-size: 5.2rem; flex: 0 0 auto; filter: drop-shadow(0 12px 10px #201b6628);}
+.back-link {display: inline-flex; align-items: center; gap: 8px; margin: 18px 0; padding: 10px 15px; font-weight: 800; border: 1px solid #e5e3f4; border-radius: 12px; background: white; text-decoration: none;}
+.back-link:hover {background: #f2edff;}
+/* Panel lila pastel: solamente la zona de juego, sin cambiar el inicio ni el acceso docente. */
+.game-page .learning-panel {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 380px;
+  padding: 26px 35px 34px;
+  text-align: center;
+  color: #342955;
+  background-color: #ede6ff;
+  background-image:
+    radial-gradient(circle at 9% 10%, rgba(255, 255, 255, .47) 0, rgba(255, 255, 255, 0) 145px),
+    radial-gradient(circle at 92% 90%, rgba(165, 132, 234, .19) 0, rgba(165, 132, 234, 0) 180px),
+    linear-gradient(160deg, #f0eaff 0%, #ede6ff 58%, #e5d9fd 100%);
+  border: 2px solid #d3c3f4;
+  border-radius: 28px;
+  box-shadow: 0 20px 48px rgba(5, 6, 42, .27), inset 0 2px 0 rgba(255, 255, 255, .68);
+}
+.game-page .learning-panel #progress {font-weight: 900; color: #554090; margin: 6px 0 12px;}
+.game-page .learning-panel .status,
+.game-page .learning-panel #game > p:not(.feedback):not(.status),
+.game-page .learning-panel #manualNote,
+.game-page .learning-panel #finished #result {color: #594b79;}
+.game-page .learning-panel .word-display {color: #30254f;}
+.progress-track {height: 15px; background: #d6c8f1; border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(76, 52, 145, .12);}
+.progress-bar {height: 100%; background: linear-gradient(90deg, #57cfba, #71c77d); border-radius: inherit; transition: width .25s ease;}
+.word-picture {display: grid; place-items: center; width: 180px; height: 155px; margin: 24px auto 13px; border-radius: 28px; background: #ecf8ff; border: 2px dashed #c7e9f9; font-size: 6.3rem;}
+.page-syllables .word-picture {background: #fff9e7; border-color: #f5dc9e;}
+.page-letters .word-picture {background: #fff1f7; border-color: #f8cadd;}
+.word-display {font-size: clamp(2.25rem, 6vw, 3.2rem); font-weight: 1000; letter-spacing: .12em; margin: 10px 0 14px; overflow-wrap: anywhere;}
+.learning-panel #game > p:not(.feedback):not(.status), .learning-panel #manualNote {color: var(--muted); line-height: 1.5;}
+.choice-list, .syllable-list, .answer-slots {display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin: 20px 0;}
+.choice-button, .syllable-button, .answer-slot {min-width: 72px; min-height: 66px; padding: 8px 15px; border-radius: 17px; font-size: 1.65rem; font-weight: 900; background: #7862d7; color: #fff; border: 2px solid #6a53d0; box-shadow: 0 5px 0 #5744a9;}
+.choice-button:hover:not(:disabled), .syllable-button:hover:not(:disabled) {transform: translateY(-3px); background: #6551c3;}
+.answer-slot {background: #f2f1fa; border: 2px dashed #c9c5e5; color: #6a7192; box-shadow: none;}
+.answer-slot.filled {background: #dff4fc; color: #245d84; border: 2px solid #a6ddf2;}
+.feedback {min-height: 2.7em; margin: 15px auto; color: #52637f; font-weight: 800; line-height: 1.55;}
+.feedback.correct, .feedback.incorrect {padding: 12px 16px; border-radius: 14px; width: fit-content; max-width: 100%;}
+.feedback.correct {color: #176448; background: #e6faed;}
+.feedback.incorrect {color: #a43a48; background: #fff0f1;}
+.activity-actions {display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px 0;}
+#listen {background: #378bc9; box-shadow: 0 5px 0 #2376ad;}
+#practice {background: #279b79; box-shadow: 0 5px 0 #197658;}
+#finished {padding: 45px 8px 22px;}
+#finished::before {content: "🏆"; display: block; font-size: 5rem;}
+#finished h2 {font-size: 2rem; margin-bottom: 8px;}
+#finished #result {line-height: 1.6; color: var(--muted); margin: 10px 0 22px;}
+#finished .button-link {margin: 5px;}
+@media (prefers-reduced-motion: reduce) {*, *::before, *::after {scroll-behavior: auto!important; transition-duration: .01ms!important; animation-duration: .01ms!important;}}
+@media (max-width: 900px) {
+  .activities-grid {grid-template-columns: repeat(2, minmax(0, 1fr));}
+}
+@media (max-width: 760px) {
+  body {background-attachment: scroll;}
+  .wrap {padding: 15px 13px;}
+  .hero {border-radius: 24px; padding: 28px 23px;}
+  .hero-home {min-height: 228px;}
+  .hero-art {flex-basis: 125px; width: 125px; height: 125px;}
+  .art-book {font-size: 5.8rem;}
+  .art-letter {width: 32px; height: 32px; border-radius: 10px; font-size: 1.15rem;}
+  .art-letter-b {font-size: 1.2rem;}
+  .art-spark {font-size: 1.5rem;}
+  .panel {padding: 22px;}
+  .activities-grid {gap: 13px;}
+  .activity {padding: 18px;}
+  .hero-activity .hero-illustration {font-size: 4rem;}
+}
+@media (max-width: 560px) {
+  .hero-home {align-items: flex-start;}
+  .hero-art {display: none;}
+  .hero h1 {font-size: 2.65rem;}
+  .hero-description {font-size: .95rem;}
+  .hero-activity {min-height: auto; padding: 25px 21px;}
+  .hero-activity h1 {font-size: 2rem;}
+  .hero-activity .hero-illustration {font-size: 3rem;}
+  .main-nav {width: 100%;}
+  .tab {flex: 1; padding: 11px 8px; font-size: .84rem;}
+  .activities-grid {grid-template-columns: 1fr;}
+  .activities-heading {align-items: stretch; flex-direction: column;}
+  .activities-heading .secondary-button {align-self: start;}
+  .student-cards {grid-template-columns: 1fr;}
+  .student-card {min-height: 78px;}
+  .game-page .learning-panel {padding: 21px 15px 29px;}
+  .word-picture {width: 145px; height: 126px; font-size: 5rem;}
+  .choice-button, .syllable-button, .answer-slot {min-width: 60px; min-height: 60px; padding: 7px 12px; font-size: 1.45rem;}
+  form {align-items: stretch;}
+  .teacher-login button, .filters button {width: 100%;}
+}

@@ -63,7 +63,9 @@ CREATE INDEX IF NOT EXISTS IX_Resultados_Actividad
   ON ResultadosActividades(ActividadID);
 
 INSERT OR IGNORE INTO Actividades (Nombre, Descripcion, NivelDificultad) VALUES
-  ('Actividad de ejemplo', 'Cuestionario de demostración de conexión con la API.', 'Inicial'),
   ('Aprendo las sílabas', 'Ordena las sílabas y forma la palabra representada en la imagen.', 'Inicial'),
   ('Practico la pronunciación', 'Escucha y practica en voz alta palabras acompañadas de imágenes.', 'Inicial'),
   ('Encuentro la letra', 'Mira la imagen y elige la letra que falta para completar la palabra.', 'Inicial');
+
+-- Desactiva la antigua demostración en bases ya creadas; conserva el historial de resultados.
+UPDATE Actividades SET Activa = 0 WHERE Nombre = 'Actividad de ejemplo';
