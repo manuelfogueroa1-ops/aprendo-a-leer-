@@ -34,6 +34,11 @@ function cleanName(value) {
   return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';
 }
 
+// Preferencias del estudiante: solo se aceptan los valores que ofrece la pantalla de elección.
+const COLORES_PERMITIDOS = [0, 25, 48, 130, 175, 215, 270, 330];
+const TEMAS_PERMITIDOS = ['Animales', 'Dinosaurios', 'Piratas', 'Fútbol', 'Princesas', 'Unicornios', 'Hadas'];
+const COLUMNAS_ESTUDIANTE = 'EstudianteID, Nombre, Apellido, ColorFavorito, TemaInteres, ModoOscuro';
+
 function respondDatabaseError(res, error, message) {
   console.error(error);
   res.status(500).json({ error: message });
@@ -76,7 +81,7 @@ app.post('/api/estudiantes/:id/ingresar', (req, res) => {
   }
 
   try {
-    const estudiante = db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
+    const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
       WHERE EstudianteID = ? AND Activo = 1`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró este estudiante.' });
     req.session.studentId = estudiante.EstudianteID;
@@ -126,12 +131,49 @@ app.get('/api/estudiantes/me', (req, res) => {
   if (!studentId) return res.status(401).json({ error: 'No hay un estudiante ingresado.' });
 
   try {
-    const estudiante = db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
+    const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
       WHERE EstudianteID = ?`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró al estudiante de esta sesión.' });
     res.json({ estudiante });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo recuperar la sesión del estudiante.');
+  }
+});
+
+app.put('/api/estudiantes/me/preferencias', (req, res) => {
+  const studentId = req.session.studentId;
+  if (!studentId) return res.status(401).json({ error: 'No hay un estudiante ingresado.' });
+
+  const { colorFavorito, temaInteres, modoOscuro } = req.body || {};
+  if (colorFavorito !== undefined && !COLORES_PERMITIDOS.includes(colorFavorito)) {
+    return res.status(400).json({ error: 'Color no válido.' });
+  }
+  if (temaInteres !== undefined && !TEMAS_PERMITIDOS.includes(temaInteres)) {
+    return res.status(400).json({ error: 'Tema no válido.' });
+  }
+  if (modoOscuro !== undefined && typeof modoOscuro !== 'boolean') {
+    return res.status(400).json({ error: 'Modo no válido.' });
+  }
+
+  try {
+    // Solo se actualizan los campos enviados; los demás conservan su valor.
+    db.prepare(`UPDATE Estudiantes SET
+        ColorFavorito = COALESCE(?, ColorFavorito),
+        TemaInteres = COALESCE(?, TemaInteres),
+        ModoOscuro = COALESCE(?, ModoOscuro)
+      WHERE EstudianteID = ? AND Activo = 1`)
+      .run(
+        colorFavorito ?? null,
+        temaInteres ?? null,
+        modoOscuro === undefined ? null : (modoOscuro ? 1 : 0),
+        studentId
+      );
+    const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
+      WHERE EstudianteID = ?`).get(studentId);
+    if (!estudiante) return res.status(404).json({ error: 'No se encontró al estudiante de esta sesión.' });
+    res.json({ estudiante });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudieron guardar tus preferencias.');
   }
 });
 

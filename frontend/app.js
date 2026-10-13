@@ -23,12 +23,107 @@ document.querySelectorAll('.tab').forEach(button => button.addEventListener('cli
   document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('hidden', panel.id !== button.dataset.panel));
 }));
 
-function showStudentActivities(student) {
-  $('#studentWelcome').textContent = `Bienvenido/a, ${student.Nombre} ${student.Apellido}.`;
-  $('#studentEntry').classList.add('hidden');
-  $('#studentActivities').classList.remove('hidden');
+// ---------- Pantallas del estudiante ----------
+const PANTALLAS = { entry: '#studentEntry', setup: '#studentSetup', activities: '#studentActivities' };
+function showScreen(name) {
+  Object.entries(PANTALLAS).forEach(([key, selector]) => $(selector).classList.toggle('hidden', key !== name));
+}
+
+function updateModeButton() {
+  const oscuro = window.Tema?.actual().ModoOscuro;
+  $('#toggleMode').textContent = oscuro ? '☀️ Modo día' : '🌙 Modo noche';
+}
+
+// Estado de la pantalla de elección: paso actual ('color' | 'tema') y si el estudiante la abrió desde "Mis colores".
+let setupStep = 'color';
+let setupEditing = false;
+
+function showSetup(step, { editing = setupEditing } = {}) {
+  setupStep = step;
+  setupEditing = editing;
+  const actual = window.Tema.actual();
+  const box = $('#setupOptions');
+  $('#setupStatus').textContent = '';
+  if (step === 'color') {
+    $('#setupKicker').textContent = '🎨 PASO 1';
+    $('#setupTitle').textContent = '¿Cuál es tu color favorito?';
+    $('#setupHint').textContent = 'Toca el color que más te guste.';
+    box.innerHTML = Tema.COLORES.map(([nombre, matiz]) => `
+      <button type="button" class="setup-tile" data-color="${matiz}" aria-pressed="${actual.ColorFavorito === matiz}">
+        <span class="setup-swatch" style="--tono:${matiz}" aria-hidden="true"></span>
+        <span>${esc(nombre)}</span>
+      </button>`).join('');
+  } else {
+    $('#setupKicker').textContent = '⭐ PASO 2';
+    $('#setupTitle').textContent = '¿Qué te gusta más?';
+    $('#setupHint').textContent = 'Elige un tema para decorar tus juegos.';
+    box.innerHTML = Object.entries(Tema.TEMAS).map(([nombre, emojis]) => `
+      <button type="button" class="setup-tile" data-tema="${esc(nombre)}" aria-pressed="${actual.TemaInteres === nombre}">
+        <span class="setup-emoji" aria-hidden="true">${emojis[0]}</span>
+        <span>${esc(nombre)}</span>
+      </button>`).join('');
+  }
+  // "Volver" aparece al editar, o en el paso 2 para regresar al color.
+  $('#setupActions').classList.toggle('hidden', !(editing || step === 'tema'));
+  showScreen('setup');
+}
+
+function showActivities() {
+  updateModeButton();
+  showScreen('activities');
   loadActivities();
 }
+
+function showStudentActivities(student) {
+  $('#studentWelcome').textContent = `Bienvenido/a, ${student.Nombre} ${student.Apellido}.`;
+  Tema.aplicar(student);
+  if (Tema.actual().ColorFavorito === null) showSetup('color', { editing: false });
+  else if (Tema.actual().TemaInteres === null) showSetup('tema', { editing: false });
+  else showActivities();
+}
+
+$('#setupOptions').addEventListener('click', async event => {
+  const tile = event.target.closest('.setup-tile');
+  if (!tile) return;
+  const cambios = tile.dataset.color !== undefined
+    ? { colorFavorito: Number(tile.dataset.color) }
+    : { temaInteres: tile.dataset.tema };
+  $('#setupOptions').querySelectorAll('button').forEach(button => { button.disabled = true; });
+  try {
+    await Tema.guardar(cambios);
+    if (setupStep === 'color') showSetup('tema');
+    else showActivities();
+  } catch (error) {
+    if (error.status === 401) {
+      // La sesión del estudiante venció: volvemos a la lista de nombres.
+      showScreen('entry');
+      await loadStudentCards();
+      return;
+    }
+    $('#setupStatus').textContent = error.message;
+    $('#setupOptions').querySelectorAll('button').forEach(button => { button.disabled = false; });
+  }
+});
+
+$('#setupBack').addEventListener('click', () => {
+  if (setupStep === 'tema') showSetup('color');
+  else showActivities();
+});
+
+$('#editColors').addEventListener('click', () => showSetup('color', { editing: true }));
+
+$('#toggleMode').addEventListener('click', async () => {
+  const boton = $('#toggleMode');
+  boton.disabled = true;
+  try {
+    await Tema.guardar({ modoOscuro: !Tema.actual().ModoOscuro });
+  } catch (error) {
+    $('#studentWelcome').textContent = error.message;
+  } finally {
+    boton.disabled = false;
+    updateModeButton();
+  }
+});
 
 async function loadStudentCards() {
   const cards = $('#studentCards');
@@ -72,8 +167,8 @@ async function loadStudentCards() {
 $('#changeStudent').addEventListener('click', async () => {
   try {
     await api('/api/estudiantes/logout', { method: 'POST', body: JSON.stringify({}) });
-    $('#studentActivities').classList.add('hidden');
-    $('#studentEntry').classList.remove('hidden');
+    Tema.reiniciar();
+    showScreen('entry');
     $('#studentWelcome').textContent = '';
     $('#activities').innerHTML = '';
     await loadStudentCards();

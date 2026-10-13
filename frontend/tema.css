@@ -1,0 +1,277 @@
+/* Personalización por estudiante: color favorito, tema de interés y modo oscuro.
+   Se carga DESPUÉS de styles.css y solo sobrescribe colores; no cambia la estructura.
+   Sin color elegido, la app se ve prácticamente igual que antes (morado). */
+
+:root {
+  --h: 262;                       /* matiz del color favorito (lo cambia tema.js) */
+  --giro: 0deg;                   /* cuánto gira el color de los círculos del fondo */
+  --purple: hsl(var(--h) 52% 57%);
+  --purple-dark: hsl(var(--h) 42% 40%);
+
+  /* Colores que cambian con el favorito */
+  --titulo: hsl(var(--h) 50% 26%);
+  --acento-texto: hsl(var(--h) 46% 42%);
+  --borde-panel: hsl(var(--h) 66% 87%);
+  --borde-tarjeta: hsl(var(--h) 90% 85%);
+  --borde-hover: hsl(var(--h) 66% 66%);
+  --kicker-bg: hsl(var(--h) 90% 93%);
+  --boton: hsl(var(--h) 58% 62%);
+  --boton-borde: hsl(var(--h) 52% 52%);
+  --boton-sombra: hsl(var(--h) 42% 40%);
+  --boton-hover: hsl(var(--h) 48% 50%);
+  --slot-lleno-bg: hsl(var(--h) 80% 93%);
+  --slot-lleno-borde: hsl(var(--h) 60% 72%);
+  --slot-lleno-texto: hsl(var(--h) 55% 28%);
+
+  /* Superficies lilas (modo claro) */
+  --texto: #30274f;
+  --texto-suave: #554a7d;
+  --panel-1: #f4efff;
+  --panel-2: #eee7ff;
+  --panel-3: #e5dcfb;
+  --brillo-1: rgba(255, 255, 255, .48);
+  --brillo-2: rgba(211, 190, 255, .27);
+  --card-1: #f9f4ff;
+  --card-2: #eee4ff;
+  --card-3: #e2d4fd;
+  --icon-1: #ede2ff;
+  --icon-2: #ceb8ff;
+  --enter-bg: rgba(216, 197, 251, .78);
+  --sec-bg: hsl(var(--h) 90% 93%);
+  --sec-hover: hsl(var(--h) 80% 88%);
+  --track: #d6c8f1;
+  --slot-bg: #f2f1fa;
+  --slot-borde: #c9c5e5;
+  --slot-texto: #6a7192;
+}
+
+/* Modo oscuro: solo para las zonas del estudiante (panel de inicio y juegos). */
+:root[data-modo="oscuro"] .student-panel,
+:root[data-modo="oscuro"] .learning-panel {
+  --titulo: hsl(var(--h) 90% 90%);
+  --acento-texto: hsl(var(--h) 88% 82%);
+  --borde-panel: hsl(var(--h) 42% 40%);
+  --borde-tarjeta: hsl(var(--h) 40% 44%);
+  --borde-hover: hsl(var(--h) 70% 65%);
+  --kicker-bg: hsl(var(--h) 34% 26%);
+  --slot-lleno-bg: hsl(var(--h) 45% 30%);
+  --slot-lleno-borde: hsl(var(--h) 55% 50%);
+  --slot-lleno-texto: hsl(var(--h) 90% 92%);
+  --texto: #f1ebff;
+  --texto-suave: #c9bdf0;
+  --panel-1: hsl(262 34% 19%);
+  --panel-2: hsl(262 36% 16%);
+  --panel-3: hsl(262 38% 13%);
+  --brillo-1: rgba(255, 255, 255, .06);
+  --brillo-2: rgba(150, 110, 240, .14);
+  --card-1: hsl(262 30% 25%);
+  --card-2: hsl(262 32% 21%);
+  --card-3: hsl(262 34% 18%);
+  --icon-1: hsl(262 36% 34%);
+  --icon-2: hsl(262 38% 28%);
+  --enter-bg: hsl(var(--h) 36% 30%);
+  --sec-bg: hsl(var(--h) 32% 27%);
+  --sec-hover: hsl(var(--h) 34% 33%);
+  --track: hsl(262 28% 28%);
+  --slot-bg: hsl(262 24% 25%);
+  --slot-borde: hsl(262 22% 44%);
+  --slot-texto: #cfc6ea;
+}
+
+/* ---------- Fondo en dos capas: imagen original + formas que cambian de color ---------- */
+:root { background: #0b1044; }
+body { background: transparent; }
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+body::before {
+  z-index: -2;
+  background: url("/assets/fondo-morado.png") center center / cover no-repeat;
+}
+body::after {
+  z-index: -1;
+  background: url("/assets/fondo-formas.png") center center / cover no-repeat;
+}
+/* Solo se tiñe cuando el estudiante eligió un color. */
+:root[data-color] body::after {
+  filter: hue-rotate(var(--giro)) saturate(.8) brightness(1.1);
+}
+.wrap { position: relative; z-index: 1; }
+
+/* Emojis del tema de interés (decoran los costados; no tapan ni reciben clics) */
+.tema-deco {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.tema-deco span {
+  position: absolute;
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  opacity: 1;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+  animation: tema-flota 7s ease-in-out infinite;
+}
+.tema-deco span:nth-child(1) {left: 4%; top: 26%;}
+.tema-deco span:nth-child(2) {left: 10%; top: 58%; animation-delay: -2s;}
+.tema-deco span:nth-child(3) {right: 5%; top: 30%; animation-delay: -4s;}
+.tema-deco span:nth-child(4) {right: 11%; top: 62%; animation-delay: -1s;}
+.tema-deco span:nth-child(5) {left: 22%; bottom: 5%; animation-delay: -3s;}
+.tema-deco span:nth-child(6) {right: 3%; bottom: 7%; animation-delay: -5s;}
+@keyframes tema-flota {
+  0%, 100% {transform: translateY(0) rotate(-4deg);}
+  50% {transform: translateY(-14px) rotate(4deg);}
+}
+
+/* ---------- Inicio: navegación, paneles y textos ---------- */
+.home-page .main-nav {border-color: var(--borde-panel);}
+.home-page .main-nav .tab {color: var(--titulo);}
+.home-page .main-nav .tab.active {
+  color: #fff;
+  background: linear-gradient(135deg, hsl(var(--h) 62% 64%) 0%, hsl(var(--h) 52% 52%) 100%);
+}
+.home-page .panel {
+  color: var(--texto);
+  border-color: var(--borde-panel);
+  background-color: var(--panel-1);
+  background-image:
+    radial-gradient(ellipse 550px 370px at 82% 18%, var(--brillo-1), transparent 80%),
+    radial-gradient(ellipse 420px 310px at 13% 95%, var(--brillo-2), transparent 82%),
+    linear-gradient(145deg, var(--panel-1) 0%, var(--panel-2) 52%, var(--panel-3) 100%);
+}
+.home-page .section-intro h2,
+.home-page .activities-heading h2 {color: var(--titulo);}
+.home-page .section-intro p,
+.home-page .activity-section-note,
+.home-page .activities-heading .status,
+.home-page .student-panel > .status {color: var(--texto-suave);}
+.home-page .section-kicker {background: var(--kicker-bg); color: var(--acento-texto);}
+.home-page .secondary-button {
+  background: var(--sec-bg);
+  color: var(--acento-texto);
+  border-color: var(--borde-panel);
+}
+.home-page .secondary-button:hover {background: var(--sec-hover);}
+.home-page .teacher-login,
+.home-page .student-management {border-color: var(--borde-panel);}
+
+/* Tarjetas de estudiantes */
+.home-page #studentCards .student-card,
+.home-page #teacherStudentCards .student-card {
+  color: var(--titulo);
+  border-color: var(--borde-tarjeta);
+  background: linear-gradient(135deg, var(--card-1) 0%, var(--card-2) 54%, var(--card-3) 100%);
+}
+.home-page #studentCards button.student-card:hover {
+  border-color: var(--borde-hover);
+  background: linear-gradient(135deg, var(--card-1), var(--card-3));
+}
+.home-page #studentCards .student-card:nth-child(n) .student-icon,
+.home-page #teacherStudentCards .student-card .student-icon {
+  background: linear-gradient(145deg, var(--icon-1), var(--icon-2));
+  border-color: var(--borde-tarjeta);
+}
+.home-page #studentCards .student-card-name,
+.home-page #teacherStudentCards .student-card > span:not(.student-icon):not(.student-enter) {color: var(--titulo);}
+.home-page #studentCards .student-enter {
+  color: var(--acento-texto);
+  background: var(--enter-bg);
+  border-color: var(--borde-tarjeta);
+}
+.home-page #studentCards button.student-card:hover .student-enter {background: var(--sec-hover);}
+
+/* Botones principales */
+.button-link, form button, #check, #next, #retrySave {box-shadow: 0 5px 0 var(--boton-sombra);}
+.activity .button-link, .activity > button {box-shadow: 0 5px 0 #00000017;}
+.button-link:active, form button:active, #check:active, #next:active, #retrySave:active {box-shadow: none;}
+.activity .button-link:active, .activity > button:active {box-shadow: none;}
+
+/* Actividades en modo oscuro */
+:root[data-modo="oscuro"] .student-panel .activity {
+  background: hsl(262 28% 21%);
+  border-color: var(--borde-tarjeta);
+}
+:root[data-modo="oscuro"] .student-panel .activity p {color: var(--texto-suave);}
+:root[data-modo="oscuro"] .student-panel .activity-icon {background: rgba(255, 255, 255, .13);}
+:root[data-modo="oscuro"] .student-panel .activity-level {
+  background: rgba(255, 255, 255, .12);
+  color: var(--texto);
+  border-color: rgba(255, 255, 255, .14);
+}
+
+/* ---------- Elección de color y gustos ---------- */
+.heading-actions {display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px;}
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+.setup-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 10px;
+  color: var(--titulo);
+  font-weight: 900;
+  font-size: 1.05rem;
+  border-radius: 22px;
+  border: 3px solid var(--borde-tarjeta);
+  background: linear-gradient(135deg, var(--card-1) 0%, var(--card-3) 100%);
+  box-shadow: 0 8px 18px rgba(86, 59, 155, .14);
+}
+.setup-tile:hover {transform: translateY(-3px); border-color: var(--borde-hover);}
+.setup-tile[aria-pressed="true"] {border-color: var(--acento-texto); box-shadow: 0 0 0 4px var(--borde-tarjeta);}
+.setup-swatch {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: hsl(var(--tono) 75% 55%);
+  border: 5px solid #fff;
+  box-shadow: 0 0 0 2px var(--borde-tarjeta), 0 6px 12px rgba(0, 0, 0, .18);
+}
+.setup-emoji {font-size: 3.2rem; line-height: 1.1;}
+.setup-actions {display: flex; justify-content: center; margin-top: 22px;}
+@media (max-width: 560px) {
+  .heading-actions {justify-content: flex-start;}
+  .setup-grid {grid-template-columns: repeat(2, minmax(0, 1fr));}
+}
+
+/* ---------- Juegos ---------- */
+.game-page .learning-panel {
+  color: var(--texto);
+  border-color: var(--borde-panel);
+  background-color: var(--panel-1);
+  background-image:
+    radial-gradient(circle at 9% 10%, var(--brillo-1) 0, transparent 145px),
+    radial-gradient(circle at 92% 90%, var(--brillo-2) 0, transparent 180px),
+    linear-gradient(160deg, var(--panel-1) 0%, var(--panel-2) 58%, var(--panel-3) 100%);
+}
+.game-page .learning-panel #progress {color: var(--acento-texto);}
+.game-page .learning-panel .status,
+.game-page .learning-panel #game > p:not(.feedback):not(.status),
+.game-page .learning-panel #manualNote,
+.game-page .learning-panel #finished #result {color: var(--texto-suave);}
+.game-page .learning-panel .word-display,
+.game-page .learning-panel #finished h2 {color: var(--titulo);}
+.progress-track {background: var(--track);}
+.choice-button, .syllable-button, .answer-slot {border-color: var(--boton-borde);}
+.choice-button, .syllable-button {background: var(--boton); box-shadow: 0 5px 0 var(--boton-sombra);}
+.choice-button:hover:not(:disabled), .syllable-button:hover:not(:disabled) {background: var(--boton-hover);}
+.answer-slot {background: var(--slot-bg); border-color: var(--slot-borde); color: var(--slot-texto); box-shadow: none;}
+.answer-slot.filled {background: var(--slot-lleno-bg); border-color: var(--slot-lleno-borde); color: var(--slot-lleno-texto);}
+.feedback {color: var(--texto-suave);}
+:root[data-modo="oscuro"] .learning-panel .feedback.correct {background: #12382b; color: #8fe3b9;}
+:root[data-modo="oscuro"] .learning-panel .feedback.incorrect {background: #3d1a25; color: #ffa9b3;}
+:root[data-modo="oscuro"] .game-page .back-link {
+  background: hsl(262 30% 22%);
+  color: hsl(var(--h) 85% 86%);
+  border-color: hsl(var(--h) 40% 38%);
+}
+:root[data-modo="oscuro"] .game-page .back-link:hover {background: hsl(262 32% 28%);}

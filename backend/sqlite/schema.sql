@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS Estudiantes (
   Apellido TEXT NOT NULL CHECK (length(trim(Apellido)) BETWEEN 1 AND 80),
   FechaRegistro TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   Activo INTEGER NOT NULL DEFAULT 1 CHECK (Activo IN (0, 1)),
+  ColorFavorito INTEGER CHECK (ColorFavorito IS NULL OR ColorFavorito BETWEEN 0 AND 359),
+  TemaInteres TEXT CHECK (TemaInteres IS NULL OR length(TemaInteres) <= 30),
+  ModoOscuro INTEGER NOT NULL DEFAULT 0 CHECK (ModoOscuro IN (0, 1)),
   UNIQUE (Nombre, Apellido)
 );
 

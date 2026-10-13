@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#7161d8">
   <title>Aprendo a Leer | ¡Vamos a aprender!</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/tema.css">
+  <script src="/tema.js"></script>
 </head>
 <body class="home-page">
 <main class="wrap">
@@ -34,6 +36,18 @@
       <p id="studentStatus" class="status" role="status">Los estudiantes aparecen cuando la profesora los guarda.</p>
       <div id="studentCards" class="student-cards"></div>
     </div>
+    <div id="studentSetup" class="hidden">
+      <div class="section-intro">
+        <span id="setupKicker" class="section-kicker"></span>
+        <h2 id="setupTitle"></h2>
+        <p id="setupHint"></p>
+      </div>
+      <p id="setupStatus" class="status" role="status"></p>
+      <div id="setupOptions" class="setup-grid"></div>
+      <div id="setupActions" class="setup-actions hidden">
+        <button id="setupBack" class="secondary-button" type="button">← Volver</button>
+      </div>
+    </div>
     <div id="studentActivities" class="hidden">
       <div class="activities-heading">
         <div>
@@ -41,7 +55,11 @@
           <h2>¡Hora de aprender!</h2>
           <p id="studentWelcome" class="status"></p>
         </div>
-        <button id="changeStudent" class="secondary-button" type="button">↩ Cambiar estudiante</button>
+        <div class="heading-actions">
+          <button id="editColors" class="secondary-button" type="button">🎨 Mis colores</button>
+          <button id="toggleMode" class="secondary-button" type="button">🌙 Modo noche</button>
+          <button id="changeStudent" class="secondary-button" type="button">↩ Cambiar estudiante</button>
+        </div>
       </div>
       <div class="activity-section-note">Elige la aventura que quieras comenzar hoy.</div>
       <div id="activities" class="activities-grid"></div>
