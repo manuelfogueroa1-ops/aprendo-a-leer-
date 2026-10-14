@@ -100,7 +100,7 @@ if (SpeechRecognition) {
     const expected = words[round].word.normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}]/gu, '');
     const matches = said === expected;
-    attempts.push({ correcta: matches });
+    attempts.push({ correcta: matches, escuchado: String(transcript).slice(0, 60) });
     if (matches) $('#practice').classList.add('hidden');
     $('#feedback').textContent = matches ? '¡Muy bien! Pronunciaste la palabra.' : `Escuché “${event.results[0][0].transcript}”. Vuelve a escuchar e inténtalo otra vez.`;
     $('#feedback').classList.add(matches ? 'correct' : 'incorrect');

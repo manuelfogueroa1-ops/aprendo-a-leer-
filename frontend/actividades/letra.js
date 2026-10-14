@@ -44,7 +44,7 @@ function choose(letter) {
   locked = true;
   const question = questions[round];
   const isCorrect = letter === question.word[question.missing];
-  responses.push({ palabra: question.word, letraElegida: letter, correcta: isCorrect });
+  responses.push({ palabra: question.word, letraElegida: letter, letraCorrecta: question.word[question.missing], correcta: isCorrect });
   if (isCorrect) correct++;
   $('#word').textContent = [...question.word].map((character, index) =>
     index === question.missing ? letter.toLocaleUpperCase('es-CL') : character

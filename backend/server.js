@@ -377,6 +377,46 @@ app.get('/api/profesor/me', requireTeacher, (req, res) => {
   res.json({ nombre: req.session.teacherName });
 });
 
+// Lista de estudiantes con un resumen corto (para las tarjetas del panel docente).
+app.get('/api/profesor/resumen', requireTeacher, (_req, res) => {
+  try {
+    const estudiantes = db.prepare(`SELECT E.EstudianteID, E.Nombre, E.Apellido,
+        SUM(CASE WHEN R.Estado = 'Completada' THEN 1 ELSE 0 END) AS Completadas,
+        AVG(CASE WHEN R.Estado = 'Completada' THEN R.Puntuacion END) AS Promedio,
+        MAX(R.FechaInicio) AS UltimaVez
+      FROM Estudiantes E
+      LEFT JOIN ResultadosActividades R ON R.EstudianteID = E.EstudianteID
+      WHERE E.Activo = 1
+      GROUP BY E.EstudianteID ORDER BY E.Nombre, E.Apellido`).all();
+    res.json({ estudiantes });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo cargar el resumen de estudiantes.');
+  }
+});
+
+// Actividades y respuestas de un solo estudiante, con el detalle de cada intento.
+app.get('/api/profesor/estudiantes/:id/resultados', requireTeacher, (req, res) => {
+  const studentId = Number(req.params.id);
+  if (!Number.isInteger(studentId) || studentId < 1) return res.status(400).json({ error: 'Estudiante no válido.' });
+  try {
+    const estudiante = db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
+      WHERE EstudianteID = ? AND Activo = 1`).get(studentId);
+    if (!estudiante) return res.status(404).json({ error: 'No se encontró este estudiante.' });
+    const filas = db.prepare(`SELECT R.ResultadoID, A.Nombre AS Actividad, R.FechaInicio, R.FechaTermino,
+        R.DuracionSegundos, R.Puntuacion, R.Aciertos, R.Errores, R.Estado, R.DetalleResultado
+      FROM ResultadosActividades R JOIN Actividades A ON A.ActividadID = R.ActividadID
+      WHERE R.EstudianteID = ? ORDER BY R.FechaInicio DESC LIMIT 200`).all(studentId);
+    const resultados = filas.map(({ DetalleResultado, ...fila }) => {
+      let detalle = null;
+      try { detalle = DetalleResultado ? JSON.parse(DetalleResultado) : null; } catch { /* detalle ilegible */ }
+      return { ...fila, detalle };
+    });
+    res.json({ estudiante, resultados });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudieron consultar los resultados del estudiante.');
+  }
+});
+
 app.get('/api/profesor/resultados', requireTeacher, (req, res) => {
   const nombre = typeof req.query.nombre === 'string' ? req.query.nombre.trim().slice(0, 80) : '';
   const apellido = typeof req.query.apellido === 'string' ? req.query.apellido.trim().slice(0, 80) : '';

@@ -381,3 +381,39 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
 .teacher-login label.remember {flex-direction: row; align-items: center; gap: 9px; font-weight: 600;}
 .teacher-login label.remember input {width: 1.1rem; height: 1.1rem; accent-color: var(--purple);}
 .teacher-login #teacherSubmit {width: 100%; padding: 14px 19px; font-size: 1.05rem;}
+
+
+/* ===== Panel docente por estudiante ===== */
+.list-head {display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 8px;}
+.list-head input[type="search"] {flex: 1 1 220px; min-width: 0; width: auto; padding: 12px 14px; border-radius: 12px;}
+.home-page #teacherStudentCards button.teacher-student-card {cursor: pointer; text-align: left;}
+.home-page #teacherStudentCards button.teacher-student-card:hover {transform: translateY(-3px); border-color: #9373e5; box-shadow: 0 12px 26px rgba(87, 57, 166, .22);}
+.tcard-text {flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;}
+.tcard-text small {font-size: .82rem; font-weight: 700; color: #5d5287;}
+.home-page #teacherStudentCards .student-enter {margin-left: auto; font-size: 1.3rem; color: #5e41bb;}
+.detail-name {font-size: 1.7rem; margin: 6px 0 12px; letter-spacing: -.02em;}
+.detail-chips {display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;}
+.detail-chips span {padding: 9px 14px; background: #fff; border: 1px solid #d8c9f3; border-radius: 999px; font-size: .92rem;}
+#detailContent h4 {margin: 22px 0 10px; font-size: 1.1rem;}
+.reinforce {padding: 18px 20px; background: #fff8e6; border: 2px solid #f5dc9e; border-radius: 18px;}
+.reinforce h4 {margin-top: 0;}
+.reinforce h5 {margin: 14px 0 6px; font-size: .95rem;}
+.reinforce ul {margin: 0; padding-left: 20px; line-height: 1.6;}
+.reinforce-ok {background: #e9faf0; border-color: #b9e8cd;}
+.weak-words li small {display: block; color: #6b5a2b; font-weight: 600;}
+.tag {display: inline-block; padding: 1px 9px; border-radius: 999px; background: #ffe8a8; font-size: .76rem; font-weight: 800; color: #6b4a00;}
+.reinforce .note, .attempt .note {margin: 12px 0 0; font-size: .84rem; color: #6a6a80;}
+.attempt {margin-bottom: 10px; background: #fff; border: 1px solid #d8c9f3; border-radius: 14px; overflow: hidden;}
+.attempt summary {display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 13px 16px; cursor: pointer; font-weight: 700; list-style-position: inside;}
+.attempt summary:hover {background: #f6f1ff;}
+.attempt-name {flex: 1 1 160px; font-weight: 900;}
+.attempt .score {font-weight: 900; color: #4b35a0;}
+.attempt .score small {font-weight: 600; color: #6a6a80;}
+.answers {margin: 0; padding: 4px 18px 8px 36px; line-height: 1.9;}
+.answers .ans-ok {color: #176448;}
+.answers .ans-bad {color: #a43a48;}
+.answers .ans-warn {color: #7a5200;}
+.attempt .note {padding: 0 18px 14px;}
+
+.viewing-student > .back-student[data-panel], .viewing-student > #teacherStatus {display: none;}
+.home-page #teacherStudentCards {grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));}

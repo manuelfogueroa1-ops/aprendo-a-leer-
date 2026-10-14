@@ -63,7 +63,7 @@
   </section>
 
   <section id="profesor" class="panel teacher-panel hidden">
-    <button type="button" class="back-student" data-panel="estudiante">← Volver a los estudiantes</button>
+    <button type="button" class="back-student" data-panel="estudiante">← Salir al inicio de estudiantes</button>
     <div id="teacherLogin">
       <div class="section-intro teacher-intro"><span class="section-kicker">🔐 ACCESO DOCENTE</span><h2>Panel de profesores</h2><p>Ingresa para administrar estudiantes y revisar sus avances.</p></div>
       <form id="teacherForm" class="teacher-login" novalidate>
@@ -86,23 +86,27 @@
     </div>
     <p id="teacherStatus" class="status" role="status"></p>
     <div id="report" class="hidden">
-      <section class="student-management">
-        <h3>Estudiantes</h3>
-        <form id="studentForm">
-          <label>Nombre<input name="nombre" maxlength="80" required></label>
-          <label>Apellido<input name="apellido" maxlength="80" required></label>
-          <button type="submit">Guardar estudiante</button>
-        </form>
-        <p id="studentManagementStatus" class="status" role="status"></p>
+      <div id="studentList">
+        <div class="list-head">
+          <input type="search" id="studentSearch" placeholder="Buscar estudiante" aria-label="Buscar estudiante" autocomplete="off">
+          <button type="button" id="toggleAddStudent" class="secondary-button">+ Agregar estudiante</button>
+          <button type="button" id="logout" class="secondary-button">Cerrar sesión</button>
+        </div>
+        <section id="addStudentBox" class="student-management hidden">
+          <form id="studentForm">
+            <label>Nombre<input name="nombre" maxlength="80" required></label>
+            <label>Apellido<input name="apellido" maxlength="80" required></label>
+            <button type="submit">Guardar estudiante</button>
+          </form>
+          <p id="studentManagementStatus" class="status" role="status"></p>
+        </section>
+        <p class="activity-section-note">Toca un estudiante para ver sus actividades y en qué puede mejorar.</p>
         <div id="teacherStudentCards" class="student-cards"></div>
-      </section>
-      <form id="filterForm" class="filters">
-        <label>Nombre (opcional)<input name="nombre"></label>
-        <label>Apellido (opcional)<input name="apellido"></label>
-        <button type="submit">Buscar resultados</button>
-        <button type="button" id="logout" class="secondary-button">Cerrar sesión</button>
-      </form>
-      <div id="results"></div>
+      </div>
+      <div id="studentDetail" class="hidden">
+        <button type="button" id="backToList" class="back-student">← Volver a los estudiantes</button>
+        <div id="detailContent"></div>
+      </div>
     </div>
   </section>
   <footer>
