@@ -287,17 +287,68 @@ app.post('/api/resultados/:id/terminar', (req, res) => {
   }
 });
 
+// Límite de intentos del acceso docente: tras 5 fallos seguidos (mismo usuario y mismo equipo)
+// se bloquea ese acceso por 60 segundos. Vive en memoria: se reinicia al reiniciar el servidor.
+const INTENTOS_MAX = 5;
+const BLOQUEO_MS = 60 * 1000;
+const VENTANA_MS = 15 * 60 * 1000;
+const intentosFallidos = new Map();
+
+function segundosDeBloqueo(clave) {
+  const registro = intentosFallidos.get(clave);
+  if (!registro?.bloqueadoHasta) return 0;
+  const resto = registro.bloqueadoHasta - Date.now();
+  if (resto <= 0) { intentosFallidos.delete(clave); return 0; }
+  return Math.ceil(resto / 1000);
+}
+
+// Devuelve cuántos intentos quedan (0 = recién bloqueado).
+function registrarFallo(clave) {
+  const ahora = Date.now();
+  const previo = intentosFallidos.get(clave);
+  const registro = previo && ahora - previo.desde < VENTANA_MS ? previo : { conteo: 0, desde: ahora };
+  registro.conteo += 1;
+  if (registro.conteo >= INTENTOS_MAX) {
+    registro.bloqueadoHasta = ahora + BLOQUEO_MS;
+    intentosFallidos.set(clave, registro);
+    return 0;
+  }
+  intentosFallidos.set(clave, registro);
+  return INTENTOS_MAX - registro.conteo;
+}
+
+setInterval(() => {
+  const ahora = Date.now();
+  for (const [clave, registro] of intentosFallidos) {
+    if (ahora - registro.desde > VENTANA_MS && !(registro.bloqueadoHasta > ahora)) intentosFallidos.delete(clave);
+  }
+}, 5 * 60 * 1000).unref();
+
 app.post('/api/profesor/login', async (req, res) => {
   const usuario = typeof req.body?.usuario === 'string' ? req.body.usuario.trim() : '';
   const password = typeof req.body?.password === 'string' ? req.body.password : '';
   if (!usuario || !password) return res.status(400).json({ error: 'Ingresa usuario y contraseña.' });
 
+  const claveIntento = `${req.ip}|${usuario.toLowerCase()}`;
+  const espera = segundosDeBloqueo(claveIntento);
+  if (espera) {
+    res.set('Retry-After', String(espera));
+    return res.status(429).json({ error: `Demasiados intentos. Espera ${espera} segundos.`, retryAfter: espera });
+  }
+
   try {
     const profesor = db.prepare(`SELECT ProfesorID, Nombre, Apellido, PasswordHash
       FROM Profesores WHERE Usuario = ? AND Activo = 1`).get(usuario);
     if (!profesor || !(await bcrypt.compare(password, profesor.PasswordHash))) {
-      return res.status(401).json({ error: 'Credenciales incorrectas.' });
+      const intentosRestantes = registrarFallo(claveIntento);
+      if (intentosRestantes === 0) {
+        const retryAfter = Math.ceil(BLOQUEO_MS / 1000);
+        res.set('Retry-After', String(retryAfter));
+        return res.status(429).json({ error: `Demasiados intentos. Espera ${retryAfter} segundos.`, retryAfter });
+      }
+      return res.status(401).json({ error: 'Credenciales incorrectas.', intentosRestantes });
     }
+    intentosFallidos.delete(claveIntento);
     req.session.regenerate(error => {
       if (error) {
         console.error(error);

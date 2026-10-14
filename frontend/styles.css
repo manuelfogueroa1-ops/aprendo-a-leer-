@@ -340,3 +340,44 @@ footer {padding: 25px 0 12px; text-align: center; font-size: .9rem; color: #f0ed
   form {align-items: stretch;}
   .teacher-login button, .filters button {width: 100%;}
 }
+
+
+/* ===== Inicio centrado en estudiantes y acceso docente discreto ===== */
+/* Portada más baja: los nombres quedan a la vista sin bajar la pantalla. */
+.home-page .hero-home {min-height: 170px; padding: 26px 40px;}
+.home-page .hero-pills {display: none;}
+.home-page .hero-description {margin-top: 10px;}
+.home-page .main-nav {display: none;}
+
+/* Botón de voz */
+.listen-intro {display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 12px; padding: 11px 20px; border-radius: 999px; background: #fff; color: #4b35a0; font-weight: 900; font-size: 1.05rem; border: 2px solid #cdb7fc; box-shadow: 0 5px 0 #cdb7fc;}
+.listen-intro:hover {transform: translateY(-2px);}
+.listen-intro:active {transform: translateY(3px); box-shadow: none;}
+
+/* Tarjetas de estudiantes más grandes para niños de prekínder y kínder */
+.home-page #studentCards {grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 18px;}
+.home-page #studentCards .student-card {min-height: 112px; padding: 16px 18px;}
+.home-page #studentCards .student-icon {width: 72px; height: 72px; flex-basis: 72px; font-size: 2.4rem; border-radius: 20px;}
+.home-page #studentCards .student-card-name {font-size: 1.3rem; line-height: 1.25;}
+
+/* Enlace docente al pie */
+footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px;}
+.teacher-link {background: transparent; color: #f0edff; opacity: .8; padding: 8px 12px; border-radius: 10px; font-size: .88rem; font-weight: 700; text-shadow: 0 1px 2px #060a2b;}
+.teacher-link:hover {opacity: 1; background: #ffffff1f;}
+
+/* Panel docente */
+.back-student {margin: 0 0 16px; padding: 10px 15px; background: #e7ddff; color: #4b35a0; border: 1px solid #d8c7ff; border-radius: 12px; font-weight: 800;}
+.back-student:hover {background: #dacefa;}
+.teacher-login {flex-direction: column; align-items: stretch; max-width: 430px; margin: 0 auto;}
+.teacher-login label {flex: none; min-width: 0;}
+.teacher-login input[aria-invalid="true"] {border-color: #b3261e; background: #fdecea;}
+.password-field {position: relative; display: block;}
+.password-field input {padding-right: 92px;}
+.password-field .toggle-password {position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: auto; padding: 7px 11px; background: transparent; color: var(--purple-dark); border-radius: 8px; font-size: .86rem; font-weight: 800; box-shadow: none; filter: none;}
+.password-field .toggle-password:hover, .password-field .toggle-password:active {background: #ece6ff; transform: translateY(-50%); box-shadow: none; filter: none;}
+.caps-hint {color: #7a5200; font-weight: 800;}
+.field-error {color: #b3261e; font-weight: 800;}
+.teacher-alert {padding: 12px 14px; background: #fdecea; border: 1px solid #f0b8b3; border-left: 5px solid #b3261e; border-radius: 10px; color: #8f1d17; font-weight: 800; line-height: 1.45;}
+.teacher-login label.remember {flex-direction: row; align-items: center; gap: 9px; font-weight: 600;}
+.teacher-login label.remember input {width: 1.1rem; height: 1.1rem; accent-color: var(--purple);}
+.teacher-login #teacherSubmit {width: 100%; padding: 14px 19px; font-size: 1.05rem;}

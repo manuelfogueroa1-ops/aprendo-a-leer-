@@ -13,15 +13,34 @@ async function api(url, options = {}) {
   if (!response.ok) {
     const error = new Error(data.error || 'Ocurrió un error.');
     error.status = response.status;
+    error.data = data;
     throw error;
   }
   return data;
 }
 
-document.querySelectorAll('.tab').forEach(button => button.addEventListener('click', () => {
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab === button));
-  document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('hidden', panel.id !== button.dataset.panel));
-}));
+// El inicio es para los estudiantes; el acceso docente es un enlace discreto al pie.
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('hidden', panel.id !== id));
+  $('#teacherLink').classList.toggle('hidden', id === 'profesor');
+  window.scrollTo({ top: 0 });
+  if (id === 'profesor') {
+    restoreTeacherSession();
+    if (!$('#teacherLogin').classList.contains('hidden')) $('#teacherForm').elements.usuario.focus();
+  }
+}
+document.querySelectorAll('[data-panel]').forEach(button => button.addEventListener('click', () => showPanel(button.dataset.panel)));
+
+// Voz del navegador: ayuda a quienes todavía no leen de corrido. Si no existe, no pasa nada.
+function decir(texto) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const voz = new SpeechSynthesisUtterance(texto);
+  voz.lang = 'es-CL';
+  voz.rate = 0.85;
+  window.speechSynthesis.speak(voz);
+}
+$('#listenIntro').addEventListener('click', () => decir('¿Cómo te llamas? Toca tu nombre.'));
 
 // ---------- Pantallas del estudiante ----------
 const PANTALLAS = { entry: '#studentEntry', setup: '#studentSetup', activities: '#studentActivities' };
@@ -152,6 +171,7 @@ async function loadStudentCards() {
             method: 'POST',
             body: JSON.stringify({})
           });
+          decir(`Hola, ${result.estudiante.Nombre}`);
           showStudentActivities(result.estudiante);
         } catch (error) {
           status.textContent = error.message;
@@ -258,19 +278,119 @@ $('#studentForm').addEventListener('submit', async event => {
   }
 });
 
-$('#teacherForm').addEventListener('submit', async event => {
+// ---------- Acceso docente ----------
+const teacherForm = $('#teacherForm');
+const CLAVE_USUARIO = 'usuario-docente';
+let bloqueoTimer = null;
+
+try {
+  const guardado = localStorage.getItem(CLAVE_USUARIO);
+  if (guardado) { teacherForm.elements.usuario.value = guardado; $('#rememberUser').checked = true; }
+} catch { /* almacenamiento bloqueado: no es grave */ }
+
+function showTeacherAlert(texto) {
+  const caja = $('#teacherAlert');
+  caja.textContent = texto;
+  caja.classList.toggle('hidden', !texto);
+}
+function markField(nombre, falla) {
+  teacherForm.elements[nombre].setAttribute('aria-invalid', String(falla));
+  teacherForm.querySelector(`[data-error="${nombre}"]`).classList.toggle('hidden', !falla);
+}
+function setTeacherBusy(ocupado) {
+  const boton = $('#teacherSubmit');
+  boton.disabled = ocupado;
+  boton.textContent = ocupado ? 'Verificando…' : 'Iniciar sesión';
+}
+
+// Bloqueo temporal con cuenta regresiva (el servidor responde 429 con los segundos de espera).
+function lockTeacherForm(segundos) {
+  clearInterval(bloqueoTimer);
+  let resto = segundos;
+  const boton = $('#teacherSubmit');
+  const pintar = () => {
+    boton.disabled = true;
+    boton.textContent = `Espera ${resto} s`;
+    showTeacherAlert(`Demasiados intentos. Podrás volver a intentar en ${resto} segundos.`);
+  };
+  pintar();
+  bloqueoTimer = setInterval(() => {
+    resto -= 1;
+    if (resto <= 0) {
+      clearInterval(bloqueoTimer);
+      boton.disabled = false;
+      boton.textContent = 'Iniciar sesión';
+      showTeacherAlert('');
+    } else pintar();
+  }, 1000);
+}
+
+$('#togglePassword').addEventListener('click', event => {
+  const campo = teacherForm.elements.password;
+  const oculto = campo.type === 'password';
+  campo.type = oculto ? 'text' : 'password';
+  event.currentTarget.textContent = oculto ? 'Ocultar' : 'Mostrar';
+  event.currentTarget.setAttribute('aria-pressed', String(oculto));
+  campo.focus();
+});
+
+['keydown', 'keyup'].forEach(tipo => teacherForm.elements.password.addEventListener(tipo, event => {
+  $('#capsHint').classList.toggle('hidden', !event.getModifierState?.('CapsLock'));
+}));
+teacherForm.elements.password.addEventListener('blur', () => $('#capsHint').classList.add('hidden'));
+['usuario', 'password'].forEach(nombre => teacherForm.elements[nombre].addEventListener('input', () => markField(nombre, false)));
+
+function showTeacherPanel(nombre) {
+  $('#teacherLogin').classList.add('hidden');
+  $('#teacherStatus').textContent = `Sesión iniciada: ${nombre}`;
+  $('#report').classList.remove('hidden');
+  return Promise.all([loadResults(), loadTeacherStudents()]);
+}
+
+// Si la profesora ya tenía sesión abierta (por ejemplo, tras recargar la página), no vuelve a escribir su clave.
+async function restoreTeacherSession() {
+  if (!$('#report').classList.contains('hidden')) return;
+  try {
+    const data = await api('/api/profesor/me');
+    await showTeacherPanel(data.nombre);
+  } catch { /* sin sesión: se queda el formulario */ }
+}
+
+teacherForm.addEventListener('submit', async event => {
   event.preventDefault();
-  const form = new FormData(event.currentTarget);
+  showTeacherAlert('');
+  const form = new FormData(teacherForm);
+  const usuario = String(form.get('usuario') || '').trim();
+  const password = String(form.get('password') || '');
+  markField('usuario', !usuario);
+  markField('password', !password);
+  if (!usuario) return teacherForm.elements.usuario.focus();
+  if (!password) return teacherForm.elements.password.focus();
+
+  setTeacherBusy(true);
   try {
     const data = await api('/api/profesor/login', {
       method: 'POST',
-      body: JSON.stringify({ usuario: form.get('usuario'), password: form.get('password') })
+      body: JSON.stringify({ usuario, password })
     });
-    $('#teacherStatus').textContent = `Sesión iniciada: ${data.profesor.nombre}`;
-    $('#report').classList.remove('hidden');
-    await Promise.all([loadResults(), loadTeacherStudents()]);
+    try {
+      if ($('#rememberUser').checked) localStorage.setItem(CLAVE_USUARIO, usuario);
+      else localStorage.removeItem(CLAVE_USUARIO);
+    } catch { /* ignorar */ }
+    teacherForm.elements.password.value = '';
+    setTeacherBusy(false);
+    await showTeacherPanel(data.profesor.nombre);
   } catch (error) {
-    $('#teacherStatus').textContent = error.message;
+    setTeacherBusy(false);
+    if (error.status === 429) return lockTeacherForm(Number(error.data?.retryAfter) || 60);
+    teacherForm.elements.password.value = '';
+    teacherForm.elements.password.focus();
+    if (error.status === 401) {
+      const quedan = error.data?.intentosRestantes;
+      showTeacherAlert(`Usuario o contraseña incorrectos.${Number.isInteger(quedan) ? ` Te quedan ${quedan} ${quedan === 1 ? 'intento' : 'intentos'}.` : ''}`);
+    } else {
+      showTeacherAlert(error.message || 'No se pudo iniciar sesión. Intenta de nuevo.');
+    }
   }
 });
 
@@ -310,6 +430,7 @@ $('#logout').addEventListener('click', async () => {
   try {
     await api('/api/profesor/logout', { method: 'POST', body: JSON.stringify({}) });
     $('#report').classList.add('hidden');
+    $('#teacherLogin').classList.remove('hidden');
     $('#teacherStatus').textContent = 'Sesión cerrada.';
     $('#results').innerHTML = '';
     $('#teacherStudentCards').innerHTML = '';

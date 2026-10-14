@@ -21,17 +21,13 @@
     <div class="hero-art" aria-hidden="true"><span class="art-spark art-spark-one">✦</span><span class="art-book">📖</span><span class="art-letter art-letter-a">A</span><span class="art-letter art-letter-b">a</span><span class="art-spark art-spark-two">✳</span></div>
   </header>
 
-  <nav class="main-nav" aria-label="Elegir tipo de acceso">
-    <button type="button" class="tab active" data-panel="estudiante">🎒 Soy estudiante</button>
-    <button type="button" class="tab" data-panel="profesor">👩‍🏫 Acceso docente</button>
-  </nav>
-
   <section id="estudiante" class="panel student-panel">
     <div id="studentEntry">
       <div class="section-intro">
         <span class="section-kicker">👋 ¡HOLA!</span>
         <h2>¿Cómo te llamas?</h2>
-        <p>Busca tu nombre y selecciónalo para comenzar a jugar y aprender.</p>
+        <button type="button" id="listenIntro" class="listen-intro">🔊 Escuchar</button>
+        <p>Toca tu nombre para comenzar a jugar y aprender.</p>
       </div>
       <p id="studentStatus" class="status" role="status">Los estudiantes aparecen cuando la profesora los guarda.</p>
       <div id="studentCards" class="student-cards"></div>
@@ -67,12 +63,27 @@
   </section>
 
   <section id="profesor" class="panel teacher-panel hidden">
-    <div class="section-intro teacher-intro"><span class="section-kicker">🔐 ACCESO DOCENTE</span><h2>Panel de profesores</h2><p>Ingresa para administrar estudiantes y revisar sus avances.</p></div>
-    <form id="teacherForm" class="teacher-login">
-      <label>Usuario<input name="usuario" autocomplete="username" required></label>
-      <label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
-      <button type="submit">Iniciar sesión</button>
-    </form>
+    <button type="button" class="back-student" data-panel="estudiante">← Volver a los estudiantes</button>
+    <div id="teacherLogin">
+      <div class="section-intro teacher-intro"><span class="section-kicker">🔐 ACCESO DOCENTE</span><h2>Panel de profesores</h2><p>Ingresa para administrar estudiantes y revisar sus avances.</p></div>
+      <form id="teacherForm" class="teacher-login" novalidate>
+        <div id="teacherAlert" class="teacher-alert hidden" role="alert"></div>
+        <label>Usuario
+          <input name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+          <small class="field-error hidden" data-error="usuario">Escribe tu usuario.</small>
+        </label>
+        <label>Contraseña
+          <span class="password-field">
+            <input type="password" name="password" autocomplete="current-password" required>
+            <button type="button" id="togglePassword" class="toggle-password" aria-pressed="false">Mostrar</button>
+          </span>
+          <small id="capsHint" class="caps-hint hidden">Tienes las mayúsculas activadas.</small>
+          <small class="field-error hidden" data-error="password">Escribe tu contraseña.</small>
+        </label>
+        <label class="remember"><input type="checkbox" id="rememberUser"> Recordar mi usuario</label>
+        <button type="submit" id="teacherSubmit">Iniciar sesión</button>
+      </form>
+    </div>
     <p id="teacherStatus" class="status" role="status"></p>
     <div id="report" class="hidden">
       <section class="student-management">
@@ -94,7 +105,10 @@
       <div id="results"></div>
     </div>
   </section>
-  <footer>Hecho para descubrir el mundo de las palabras <span aria-hidden="true">💜</span></footer>
+  <footer>
+    <span>Hecho para descubrir el mundo de las palabras <span aria-hidden="true">💜</span></span>
+    <button type="button" id="teacherLink" class="teacher-link" data-panel="profesor">🔒 Acceso docente</button>
+  </footer>
 </main>
 <script src="/app.js"></script>
 </body>
