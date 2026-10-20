@@ -2,14 +2,13 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS Estudiantes (
   EstudianteID INTEGER PRIMARY KEY,
-  Nombre TEXT NOT NULL CHECK (length(trim(Nombre)) BETWEEN 1 AND 80),
-  Apellido TEXT NOT NULL CHECK (length(trim(Apellido)) BETWEEN 1 AND 80),
+  Nombre TEXT NOT NULL,
+  Apellido TEXT NOT NULL,
   FechaRegistro TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   Activo INTEGER NOT NULL DEFAULT 1 CHECK (Activo IN (0, 1)),
   ColorFavorito INTEGER CHECK (ColorFavorito IS NULL OR ColorFavorito BETWEEN 0 AND 359),
   TemaInteres TEXT CHECK (TemaInteres IS NULL OR length(TemaInteres) <= 30),
-  ModoOscuro INTEGER NOT NULL DEFAULT 0 CHECK (ModoOscuro IN (0, 1)),
-  UNIQUE (Nombre, Apellido)
+  ModoOscuro INTEGER NOT NULL DEFAULT 0 CHECK (ModoOscuro IN (0, 1))
 );
 
 CREATE TABLE IF NOT EXISTS Profesores (
@@ -66,9 +65,36 @@ CREATE INDEX IF NOT EXISTS IX_Resultados_Actividad
   ON ResultadosActividades(ActividadID);
 
 INSERT OR IGNORE INTO Actividades (Nombre, Descripcion, NivelDificultad) VALUES
+  ('Reconozco las letras', 'Aprende a reconocer una por una las letras del alfabeto y relaciónalas con palabras e imágenes.', '1'),
+  ('Formo sílabas', 'Combina consonantes y vocales para leer sílabas como PA, PE, PI, PO y PU.', '2'),
+  ('Uno la palabra con su imagen', 'Une cada palabra con la imagen que la representa.', '3'),
   ('Aprendo las sílabas', 'Ordena las sílabas y forma la palabra representada en la imagen.', 'Inicial'),
   ('Practico la pronunciación', 'Escucha y practica en voz alta palabras acompañadas de imágenes.', 'Inicial'),
   ('Encuentro la letra', 'Mira la imagen y elige la letra que falta para completar la palabra.', 'Inicial');
 
+UPDATE Actividades SET NivelDificultad = CASE Nombre
+  WHEN 'Reconozco las letras' THEN '1'
+  WHEN 'Formo sílabas' THEN '2'
+  WHEN 'Uno la palabra con su imagen' THEN '3'
+  WHEN 'Encuentro la letra' THEN '4'
+  WHEN 'Aprendo las sílabas' THEN '5'
+  WHEN 'Practico la pronunciación' THEN '6'
+  ELSE NivelDificultad
+END
+WHERE Nombre IN (
+  'Reconozco las letras', 'Formo sílabas', 'Uno la palabra con su imagen',
+  'Encuentro la letra', 'Aprendo las sílabas', 'Practico la pronunciación'
+);
+
 -- Desactiva la antigua demostración en bases ya creadas; conserva el historial de resultados.
 UPDATE Actividades SET Activa = 0 WHERE Nombre = 'Actividad de ejemplo';
+CREATE TABLE IF NOT EXISTS AudiosPronunciacion (
+  AudioID INTEGER PRIMARY KEY,
+  ResultadoID INTEGER NOT NULL REFERENCES ResultadosActividades(ResultadoID) ON DELETE CASCADE,
+  EstudianteID INTEGER NOT NULL REFERENCES Estudiantes(EstudianteID) ON DELETE CASCADE,
+  Palabra TEXT NOT NULL CHECK (length(Palabra) BETWEEN 1 AND 40),
+  TipoMime TEXT NOT NULL,
+  Datos BLOB NOT NULL,
+  FechaRegistro TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+CREATE INDEX IF NOT EXISTS IX_Audios_Estudiante ON AudiosPronunciacion(EstudianteID, FechaRegistro DESC);

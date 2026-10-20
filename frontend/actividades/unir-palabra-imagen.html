@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Uno la palabra con su imagen | Software Educativo</title><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css"><script src="/tema.js"></script>
+</head>
+<body class="game-page page-word-match"><main class="wrap">
+  <header class="hero hero-activity"><div class="hero-copy"><p class="hero-eyebrow">✦ MI RINCÓN DE LECTURA · NIVEL 3</p><h1>Uno la palabra con su imagen</h1><p class="hero-description">Mira cada dibujo y encuentra la palabra que le corresponde.</p></div><span class="hero-illustration" aria-hidden="true">🖼️</span></header>
+  <p><a class="back-link" href="/" data-back-to-activities>← Volver a mis actividades</a></p>
+  <section class="panel learning-panel">
+    <p id="status" class="status" role="status">Preparando actividad…</p>
+    <div id="game" class="hidden">
+      <p id="progress">Parejas unidas: 0 de 6</p><div class="progress-track" aria-label="Progreso"><div id="progressBar" class="progress-bar"></div></div>
+      <p>Primero toca una imagen y después la palabra que la representa.</p>
+      <div class="match-board">
+        <div id="images" class="match-column" role="group" aria-label="Imágenes"></div>
+        <div id="words" class="match-column" role="group" aria-label="Palabras"></div>
+      </div>
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+    </div>
+    <div id="finished" class="hidden"><h2>¡Actividad terminada!</h2><p id="result"></p><button id="retrySave" class="hidden" type="button">Intentar guardar de nuevo</button><a class="button-link" href="/" data-back-to-activities>Volver a mis actividades</a></div>
+  </section>
+</main>
+<script src="/actividades/actividad.js"></script><script src="/actividades/unir-palabra-imagen.js"></script><script src="/kids.js"></script></body></html>

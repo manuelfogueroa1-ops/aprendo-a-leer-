@@ -6,7 +6,19 @@ const questions = [
   { word: 'pato', image: '🦆', missing: 3, choices: ['o', 'a', 'e'] },
   { word: 'mano', image: '✋', missing: 0, choices: ['m', 'n', 't'] },
   { word: 'casa', image: '🏠', missing: 2, choices: ['l', 's', 'c'] },
-  { word: 'dado', image: '🎲', missing: 0, choices: ['b', 'd', 'g'] }
+  { word: 'dado', image: '🎲', missing: 0, choices: ['b', 'd', 'g'] },
+  { word: 'oso', image: '🐻', missing: 0, choices: ['o', 'u', 'a'] },
+  { word: 'sol', image: '☀️', missing: 1, choices: ['o', 'a', 'e'] },
+  { word: 'pan', image: '🍞', missing: 0, choices: ['p', 'b', 'd'] },
+  { word: 'pez', image: '🐟', missing: 2, choices: ['z', 'n', 'l'] },
+  { word: 'flor', image: '🌸', missing: 1, choices: ['l', 'r', 'n'] },
+  { word: 'tren', image: '🚂', missing: 0, choices: ['t', 'd', 'p'] },
+  { word: 'queso', image: '🧀', missing: 0, choices: ['q', 'g', 'p'] },
+  { word: 'barco', image: '🚢', missing: 0, choices: ['b', 'd', 'p'] },
+  { word: 'leche', image: '🥛', missing: 0, choices: ['l', 'm', 'n'] },
+  { word: 'libro', image: '📖', missing: 0, choices: ['l', 'r', 'd'] },
+  { word: 'conejo', image: '🐰', missing: 0, choices: ['c', 'm', 't'] },
+  { word: 'perro', image: '🐶', missing: 0, choices: ['p', 't', 'b'] }
 ];
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
@@ -54,7 +66,14 @@ function choose(letter) {
     : `La letra correcta es ${question.word[question.missing].toLocaleUpperCase('es-CL')}.`;
   $('#feedback').classList.add(isCorrect ? 'correct' : 'incorrect');
   $('#choices').querySelectorAll('button').forEach(button => { button.disabled = true; });
-  $('#next').textContent = round === questions.length - 1 ? 'Ver mi resultado' : 'Siguiente palabra';
+  if (round === questions.length - 1) {
+    $('#next').textContent = 'Volviendo a tus actividades…';
+    $('#next').disabled = true;
+    window.setTimeout(finish, 1200);
+    $('#next').classList.remove('hidden');
+    return;
+  }
+  $('#next').textContent = 'Siguiente palabra';
   $('#next').classList.remove('hidden');
 }
 
@@ -65,7 +84,7 @@ async function finish() {
   try {
     const saved = await window.actividadLectura.guardar(resultadoId, correct, questions.length, {
       actividad: 'letras',
-      respuestas
+      respuestas: responses
     });
     $('#result').textContent = `Elegiste ${correct} de ${questions.length} letras correctamente. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {

@@ -218,6 +218,8 @@ button.student-card:hover {transform: translateY(-3px); border-color: #b5a6fa; b
 .activity.theme-blue {background: #f7fcff; border-color: #d7f0ff; --activity-accent: #217da5; --activity-soft: #d3efff;}
 .activity.theme-pink {background: #fff9fc; border-color: #ffe0ed; --activity-accent: #ad4d81; --activity-soft: #ffdced;}
 .activity.theme-purple {background: #fcfaff; border-color: #e7ddff; --activity-accent: #7253c3; --activity-soft: #e9e1ff;}
+.activity-locked {filter: saturate(.72);}
+.activity-locked > button:disabled {width: 100%; line-height: 1.45;}
 .activity-top {display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;}
 .activity-icon {display: grid; width: 65px; height: 65px; place-items: center; background: var(--activity-soft, #eee6ff); border-radius: 19px; font-size: 2.3rem;}
 .activity-level {border-radius: 999px; background: #ffffffd9; color: var(--activity-accent, var(--purple-dark)); padding: 6px 10px; font-size: .79rem; font-weight: 900; border: 1px solid #0000000a;}
@@ -282,6 +284,12 @@ footer {padding: 25px 0 12px; text-align: center; font-size: .9rem; color: #f0ed
 .page-syllables .word-picture {background: #fff9e7; border-color: #f5dc9e;}
 .page-letters .word-picture {background: #fff1f7; border-color: #f8cadd;}
 .word-display {font-size: clamp(2.25rem, 6vw, 3.2rem); font-weight: 1000; letter-spacing: .12em; margin: 10px 0 14px; overflow-wrap: anywhere;}
+.letter-pair, .syllable-equation {display: flex; align-items: center; justify-content: center; gap: 20px; margin: 22px auto 8px; color: #342955; font-weight: 1000;}
+.letter-pair span:first-child, .letter-pair span:last-child,
+.syllable-equation span:not([aria-hidden="true"]) {display: grid; min-width: 82px; min-height: 82px; place-items: center; padding: 8px 14px; border: 2px solid #d3c3f4; border-radius: 20px; background: #fff; box-shadow: 0 5px 0 #c7b6e8; font-size: 3.3rem; line-height: 1;}
+.letter-pair span:last-child {background: #fff8e7; border-color: #f2daa0; box-shadow: 0 5px 0 #e8d08e;}
+.syllable-equation {font-size: 2rem;}
+.page-syllables-initial .syllable-equation span:not([aria-hidden="true"]) {background: #fff8e7; border-color: #f2daa0; box-shadow: 0 5px 0 #e8d08e;}
 .learning-panel #game > p:not(.feedback):not(.status), .learning-panel #manualNote {color: var(--muted); line-height: 1.5;}
 .choice-list, .syllable-list, .answer-slots {display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin: 20px 0;}
 .choice-button, .syllable-button, .answer-slot {min-width: 72px; min-height: 66px; padding: 8px 15px; border-radius: 17px; font-size: 1.65rem; font-weight: 900; background: #7862d7; color: #fff; border: 2px solid #6a53d0; box-shadow: 0 5px 0 #5744a9;}
@@ -292,6 +300,16 @@ footer {padding: 25px 0 12px; text-align: center; font-size: .9rem; color: #f0ed
 .feedback.correct, .feedback.incorrect {padding: 12px 16px; border-radius: 14px; width: fit-content; max-width: 100%;}
 .feedback.correct {color: #176448; background: #e6faed;}
 .feedback.incorrect {color: #a43a48; background: #fff0f1;}
+.page-word-match .match-board {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 720px; margin: 22px auto;}
+.page-word-match .match-column {display: grid; gap: 10px; align-content: start; padding: 12px; border: 1px solid var(--borde-panel); border-radius: 18px; background: var(--panel-2);}
+.page-word-match .match-image, .page-word-match .match-word {min-height: 68px; border: 2px solid var(--borde-tarjeta); border-radius: 14px; background: var(--panel-1); color: var(--texto); font-weight: 900; box-shadow: 0 4px 0 var(--panel-3); transition: transform .18s ease, border-color .18s ease, background .18s ease;}
+.page-word-match .match-image {font-size: 2.2rem;}
+.page-word-match .match-word {font-size: 1.2rem; letter-spacing: .08em;}
+.page-word-match .match-image:hover:not(:disabled), .page-word-match .match-word:hover:not(:disabled) {transform: translateY(-2px); border-color: var(--borde-hover);}
+.page-word-match .match-image.selected {border-color: var(--boton-borde); background: var(--sec-bg); box-shadow: 0 0 0 3px var(--boton-borde);}
+.page-word-match .match-image.matched, .page-word-match .match-word.matched {border-color: var(--slot-lleno-borde); background: var(--slot-lleno-bg); color: var(--slot-lleno-texto); box-shadow: 0 4px 0 var(--panel-3);}
+.page-word-match .match-image:disabled, .page-word-match .match-word:disabled {opacity: 1; cursor: default;}
+.page-pronunciation #recordedAudio {display: block; width: min(100%, 360px); margin: 12px auto;}
 .activity-actions {display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px 0;}
 #listen {background: #378bc9; box-shadow: 0 5px 0 #2376ad;}
 #practice {background: #279b79; box-shadow: 0 5px 0 #197658;}
@@ -334,6 +352,11 @@ footer {padding: 25px 0 12px; text-align: center; font-size: .9rem; color: #f0ed
   .activities-heading .secondary-button {align-self: start;}
   .student-cards {grid-template-columns: 1fr;}
   .student-card {min-height: 78px;}
+  .page-word-match .match-board {gap: 8px;}
+  .page-word-match .match-column {gap: 8px; padding: 8px;}
+  .page-word-match .match-image, .page-word-match .match-word {min-height: 58px; border-radius: 12px;}
+  .page-word-match .match-image {font-size: 1.85rem;}
+  .page-word-match .match-word {font-size: 1rem; letter-spacing: .04em;}
   .game-page .learning-panel {padding: 21px 15px 29px;}
   .word-picture {width: 145px; height: 126px; font-size: 5rem;}
   .choice-button, .syllable-button, .answer-slot {min-width: 60px; min-height: 60px; padding: 7px 12px; font-size: 1.45rem;}
@@ -391,6 +414,9 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
 .tcard-text {flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;}
 .tcard-text small {font-size: .82rem; font-weight: 700; color: #5d5287;}
 .home-page #teacherStudentCards .student-enter {margin-left: auto; font-size: 1.3rem; color: #5e41bb;}
+.record-actions {display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 14px;}
+.record-actions .back-student {margin: 0;}
+#recordsRefreshStatus {min-height: 1.4em; margin-bottom: 0;}
 .detail-name {font-size: 1.7rem; margin: 6px 0 12px; letter-spacing: -.02em;}
 .detail-chips {display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;}
 .detail-chips span {padding: 9px 14px; background: #fff; border: 1px solid #d8c9f3; border-radius: 999px; font-size: .92rem;}
@@ -409,11 +435,129 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
 .attempt-name {flex: 1 1 160px; font-weight: 900;}
 .attempt .score {font-weight: 900; color: #4b35a0;}
 .attempt .score small {font-weight: 600; color: #6a6a80;}
+.attempt .attempt-state {display: inline-block; padding: 3px 9px; border-radius: 999px; background: #fff1cc; color: #745000; font-size: .82rem;}
 .answers {margin: 0; padding: 4px 18px 8px 36px; line-height: 1.9;}
 .answers .ans-ok {color: #176448;}
 .answers .ans-bad {color: #a43a48;}
 .answers .ans-warn {color: #7a5200;}
+.answers .ans-none {color: #64708c;}
 .attempt .note {padding: 0 18px 14px;}
 
 .viewing-student > .back-student[data-panel], .viewing-student > #teacherStatus {display: none;}
 .home-page #teacherStudentCards {grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));}
+
+/* Indicaciones y botones más grandes para lectores que recién comienzan. */
+.page-letters-initial #game > p:not(#progress):not(#feedback) {
+  color: #30254f;
+  font-size: clamp(1.3rem, 3vw, 1.7rem);
+  font-weight: 900;
+  line-height: 1.5;
+}
+.page-letters-initial .choice-button {
+  min-width: 88px;
+  min-height: 88px;
+  font-size: 2.25rem;
+}
+.page-letters-initial .letter-choice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px;
+  border: 2px solid #d8c4f2;
+  border-radius: 20px;
+  background: #f6efff;
+  box-shadow: 0 5px 0 #d7c3ed;
+}
+.page-letters-initial .letter-choice .choice-button {
+  box-shadow: none;
+}
+.page-letters-initial .letter-speak-button {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  padding: 0;
+  border: 2px solid #3584b7;
+  border-radius: 15px;
+  background: #e3f5ff;
+  color: #174e70;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 0 #b9dfef;
+}
+.page-letters-initial .letter-speak-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #cdeeff;
+}
+.page-letters-initial .letter-pair {gap: 24px; margin: 22px auto 16px;}
+.page-letters-initial .letter-pair span:first-child,
+.page-letters-initial .letter-pair span:last-child {
+  min-width: 110px;
+  min-height: 110px;
+  border: 4px solid #a25be0;
+  border-radius: 25px;
+  background: #f5eaff;
+  color: #542181;
+  box-shadow: 0 8px 0 #d1a9ed, 0 0 0 7px #f3e7ff;
+  font-size: 4.6rem;
+}
+.page-letters-initial .letter-pair span:last-child {
+  border-color: #de8a00;
+  background: #fff3cd;
+  color: #784800;
+  box-shadow: 0 8px 0 #f1cf79, 0 0 0 7px #fff6dd;
+}
+.page-letters-initial .word-initial {
+  display: inline-block;
+  padding: 0 .08em;
+  border-radius: .16em;
+  background: #ffe16b;
+  color: #6b3500;
+  text-decoration: underline;
+  text-decoration-thickness: .09em;
+  text-underline-offset: .08em;
+  transform: scale(1.15);
+}
+.page-letters-initial .oral-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  max-width: 610px;
+  margin: 16px auto;
+  padding: 15px 20px;
+  border: 3px solid #8c61d5;
+  border-radius: 20px;
+  background: #f3eaff;
+  color: #38205d;
+  box-shadow: 0 5px 0 #d1b6f2;
+}
+.page-letters-initial .oral-prompt > span {
+  flex: 0 0 auto;
+  font-size: 2.5rem;
+}
+.page-letters-initial .oral-prompt p {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.8vw, 1.55rem);
+  font-weight: 900;
+  line-height: 1.45;
+}
+.page-letters-initial #listen {font-size: 1.1rem; padding: 15px 22px;}
+.page-letters-initial .feedback {
+  font-size: 1.2rem;
+}
+@media (max-width: 560px) {
+  .page-letters-initial .choice-button {
+    min-width: 76px;
+    min-height: 76px;
+    font-size: 2rem;
+  }
+  .page-letters-initial .letter-pair span:first-child,
+  .page-letters-initial .letter-pair span:last-child {
+    min-width: 88px;
+    min-height: 88px;
+    font-size: 3.7rem;
+  }
+  .page-letters-initial .oral-prompt {padding: 12px; gap: 9px;}
+  .page-letters-initial .oral-prompt > span {font-size: 2rem;}
+}

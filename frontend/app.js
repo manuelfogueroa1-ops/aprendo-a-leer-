@@ -210,17 +210,25 @@ async function loadActivities() {
   try {
     const data = await api('/api/actividades');
     const activityPages = {
+      'Reconozco las letras': '/actividades/letras-iniciales.html',
+      'Formo sílabas': '/actividades/silabas-iniciales.html',
+      'Uno la palabra con su imagen': '/actividades/unir-palabra-imagen.html',
       'Aprendo las sílabas': '/actividades/silabas.html',
       'Practico la pronunciación': '/actividades/pronunciar.html',
       'Encuentro la letra': '/actividades/letra.html'
     };
     const activityStyles = {
+      'Reconozco las letras': { icon: '🔠', theme: 'theme-purple' },
+      'Formo sílabas': { icon: '🔡', theme: 'theme-yellow' },
+      'Uno la palabra con su imagen': { icon: '🖼️', theme: 'theme-blue' },
       'Aprendo las sílabas': { icon: '🧩', theme: 'theme-yellow' },
       'Practico la pronunciación': { icon: '🎤', theme: 'theme-blue' },
       'Encuentro la letra': { icon: '🔤', theme: 'theme-pink' }
     };
     // Solo mostramos actividades con juego de lectura implementado.
-    const available = data.actividades.filter(activity => activityPages[activity.Nombre]);
+    const available = data.actividades
+      .filter(activity => activityPages[activity.Nombre])
+      .sort((a, b) => Number(a.NivelDificultad) - Number(b.NivelDificultad));
     if (!available.length) {
       box.innerHTML = '<p>No hay actividades disponibles por el momento.</p>';
       return;
@@ -228,14 +236,17 @@ async function loadActivities() {
     box.innerHTML = available.map(activity => {
       const style = activityStyles[activity.Nombre];
       const level = activity.NivelDificultad ? `Nivel ${esc(activity.NivelDificultad)}` : 'Actividad';
-      return `<article class="activity ${style.theme}">
+      const locked = activity.Bloqueada;
+      return `<article class="activity ${style.theme}${locked ? ' activity-locked' : ''}">
         <div class="activity-top">
           <span class="activity-icon" aria-hidden="true">${style.icon}</span>
           <span class="activity-level">${level}</span>
         </div>
         <h3>${esc(activity.Nombre)}</h3>
         <p>${esc(activity.Descripcion || '¡Descubre un nuevo desafío de lectura!')}</p>
-        <a class="button-link" href="${activityPages[activity.Nombre]}">¡Comenzar! <span aria-hidden="true">→</span></a>
+        ${locked
+          ? `<button type="button" disabled>🔒 Completa "${esc(activity.ActividadPrevia)}" primero</button>`
+          : `<a class="button-link" href="${activityPages[activity.Nombre]}">¡Comenzar! <span aria-hidden="true">→</span></a>`}
       </article>`;
     }).join('');
   } catch (error) {
@@ -243,8 +254,15 @@ async function loadActivities() {
   }
 }
 
+window.addEventListener('pageshow', event => {
+  if (event.persisted && !$('#studentActivities').classList.contains('hidden')) {
+    loadActivities();
+  }
+});
+
 // ---------- Estudiantes y detalle por estudiante (panel docente) ----------
 let teacherStudents = [];
+let activeStudentId = null;
 
 function fechaCorta(iso) {
   const fecha = iso ? new Date(iso) : null;
@@ -274,12 +292,37 @@ async function loadTeacherStudents() {
   try {
     teacherStudents = (await api('/api/profesor/resumen')).estudiantes;
     pintarEstudiantes();
+    return true;
   } catch (error) {
     cards.textContent = error.message;
+    return false;
+  }
+}
+
+async function refreshTeacherRecords() {
+  const buttons = [$('#refreshRecords'), $('#refreshStudentRecords')];
+  const status = $('#recordsRefreshStatus');
+  buttons.forEach(button => { button.disabled = true; });
+  status.textContent = 'Actualizando registros…';
+  try {
+    const currentStudentId = activeStudentId;
+    const [studentsLoaded, detailLoaded] = await Promise.all([
+      loadTeacherStudents(),
+      currentStudentId ? openStudentDetail(currentStudentId) : Promise.resolve(true)
+    ]);
+    if (!studentsLoaded || !detailLoaded) {
+      status.textContent = 'No se pudieron actualizar todos los registros. Revisa los mensajes de error e inténtalo de nuevo.';
+      return;
+    }
+    status.textContent = 'Registros actualizados.';
+  } finally {
+    buttons.forEach(button => { button.disabled = false; });
   }
 }
 
 $('#studentSearch').addEventListener('input', pintarEstudiantes);
+$('#refreshRecords').addEventListener('click', refreshTeacherRecords);
+$('#refreshStudentRecords').addEventListener('click', refreshTeacherRecords);
 $('#toggleAddStudent').addEventListener('click', () => {
   const caja = $('#addStudentBox');
   caja.classList.toggle('hidden');
@@ -290,6 +333,7 @@ $('#teacherStudentCards').addEventListener('click', event => {
   if (tarjeta) openStudentDetail(Number(tarjeta.dataset.id));
 });
 $('#backToList').addEventListener('click', () => {
+  activeStudentId = null;
   $('#profesor').classList.remove('viewing-student');
   $('#studentDetail').classList.add('hidden');
   $('#studentList').classList.remove('hidden');
@@ -315,9 +359,13 @@ function analizarErrores(resultados) {
     const tipo = r.detalle?.actividad;
     for (const x of Array.isArray(r.detalle?.respuestas) ? r.detalle.respuestas : []) {
       if (tipo === 'silabas' && x.correcta === false) anotar(tipo, x.palabra, `formó “${x.respuesta}”`);
-      if (tipo === 'letras' && x.correcta === false) {
+      if (tipo === 'silabas_iniciales' && x.correcta === false) anotar(tipo, x.palabra, `eligió “${x.respuesta}”`);
+      if ((tipo === 'letras' || tipo === 'letras_iniciales') && x.correcta === false) {
         anotar(tipo, x.palabra, `eligió “${x.letraElegida}”${x.letraCorrecta ? `, era “${x.letraCorrecta}”` : ''}`);
         if (x.letraCorrecta && esParConfuso(x.letraElegida, x.letraCorrecta)) confusiones.add([x.letraElegida, x.letraCorrecta].sort().join('/'));
+      }
+      if (tipo === 'unir-palabra-imagen' && x.correctaPrimerIntento === false) {
+        anotar(tipo, x.palabra, `la unió después de ${x.intentos} intentos`);
       }
       if (tipo === 'pronunciacion') {
         const fallos = (x.intentos || []).filter(i => i.correcta === false);
@@ -329,7 +377,13 @@ function analizarErrores(resultados) {
   return { palabras: [...palabras.values()].sort((a, b) => b.veces - a.veces), confusiones: [...confusiones] };
 }
 
-const NOMBRE_ACTIVIDAD = { silabas: 'Sílabas', letras: 'Letras', pronunciacion: 'Pronunciación' };
+const NOMBRE_ACTIVIDAD = {
+  silabas: 'Sílabas',
+  silabas_iniciales: 'Sílabas iniciales',
+  letras: 'Letras',
+  pronunciacion: 'Pronunciación',
+  'unir-palabra-imagen': 'Unir palabra e imagen'
+};
 function bloqueRefuerzo(resultados) {
   if (!resultados.length) return '';
   const { palabras, confusiones } = analizarErrores(resultados);
@@ -337,7 +391,9 @@ function bloqueRefuerzo(resultados) {
   const tipos = new Set(palabras.map(p => p.actividad));
   const ideas = [];
   if (tipos.has('silabas')) ideas.push('<b>Sílabas:</b> separa la palabra con palmadas (ca-sa) y deja que la arme con tarjetas antes de repetir la actividad.');
-  if (tipos.has('letras')) ideas.push(confusiones.length
+  if (tipos.has('silabas_iniciales')) ideas.push('<b>Sílabas iniciales:</b> practiquen una familia de consonante a la vez (pa-pe-pi-po-pu), leyendo cada combinación en voz alta.');
+  if (tipos.has('unir-palabra-imagen')) ideas.push('<b>Unir palabra e imagen:</b> lean la palabra en voz alta, nombren el dibujo y después busquen juntos las letras que aparecen en ambos.');
+  if (tipos.has('letras') || tipos.has('letras_iniciales')) ideas.push(confusiones.length
     ? `<b>Letras:</b> confunde ${confusiones.map(esc).join(' y ')}. Trabaja una letra a la vez, con su sonido y su trazo (letras de lija o escritas en arena), y evita enseñar juntas las que se parecen.`
     : '<b>Letras:</b> pídele que diga la palabra completa en voz alta antes de elegir la letra que falta.');
   if (tipos.has('pronunciacion')) ideas.push('<b>Pronunciación:</b> di la palabra despacio y repítanla juntos, por sílabas. Si el micrófono no la reconoce, escúchalo tú: puede ser el equipo y no el niño.');
@@ -354,7 +410,8 @@ function lineasRespuesta(detalle) {
   return lista.map(x => {
     const palabra = `<b>${esc(x.palabra)}</b>`;
     if (tipo === 'silabas') return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>` : `<li class="ans-bad">✗ ${palabra} — formó “${esc(x.respuesta)}”</li>`;
-    if (tipo === 'letras') return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>`
+    if (tipo === 'silabas_iniciales') return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>` : `<li class="ans-bad">✗ ${palabra} — eligió “${esc(x.respuesta)}”</li>`;
+    if (tipo === 'letras' || tipo === 'letras_iniciales') return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>`
       : `<li class="ans-bad">✗ ${palabra} — eligió “${esc(x.letraElegida)}”${x.letraCorrecta ? `, era “${esc(x.letraCorrecta)}”` : ''}</li>`;
     if (tipo === 'pronunciacion') {
       const fallos = (x.intentos || []).filter(i => i.correcta === false);
@@ -362,37 +419,67 @@ function lineasRespuesta(detalle) {
       if (x.confirmadaComoPracticada) return `<li class="ans-warn">⚠ ${palabra} — la marcó como practicada, el micrófono no la confirmó${oidos ? ` (escuchó ${oidos})` : ''}</li>`;
       return `<li class="ans-ok">✓ ${palabra}${fallos.length ? ` — a la ${fallos.length + 1}.ª vez${oidos ? ` (antes escuchó ${oidos})` : ''}` : ''}</li>`;
     }
+    if (tipo === 'unir-palabra-imagen') {
+      return x.correctaPrimerIntento
+        ? `<li class="ans-ok">✓ ${palabra} — unió la imagen correcta al primer intento</li>`
+        : `<li class="ans-warn">✓ ${palabra} — la unió correctamente al intento ${esc(x.intentos)}</li>`;
+    }
     return `<li>${palabra}</li>`;
   }).join('');
 }
 
+function bloqueAudios(audios) {
+  if (!audios?.length) return '';
+  return `<h4>🎙️ Grabaciones de pronunciación</h4><ul class="audio-list">${audios.map(a =>
+    `<li><span><b>${esc(a.Palabra)}</b> <small>${esc(fechaCorta(a.FechaRegistro))}</small></span><audio controls preload="none" src="/api/profesor/audios/${esc(a.AudioID)}"></audio></li>`).join('')}</ul>`;
+}
+
 async function openStudentDetail(id) {
+  activeStudentId = id;
   $('#studentList').classList.add('hidden');
   $('#studentDetail').classList.remove('hidden');
   $('#profesor').classList.add('viewing-student');
   const box = $('#detailContent');
   box.textContent = 'Cargando…';
   try {
-    const { estudiante, resultados } = await api(`/api/profesor/estudiantes/${id}/resultados`);
+    const { estudiante, resultados, audios } = await api(`/api/profesor/estudiantes/${id}/resultados`);
     const hechos = resultados.filter(r => r.Estado === 'Completada');
+    const enCurso = resultados.filter(r => r.Estado === 'En progreso');
     const promedio = hechos.length ? Math.round(hechos.reduce((t, r) => t + (r.Puntuacion || 0), 0) / hechos.length) : null;
     box.innerHTML = `<h3 class="detail-name">${esc(estudiante.Nombre)} ${esc(estudiante.Apellido)}</h3>
       <div class="detail-chips">
-        <span><b>${hechos.length}</b> ${hechos.length === 1 ? 'actividad completada' : 'actividades completadas'}</span>
+        <span><b>${hechos.length}</b> ${hechos.length === 1 ? 'intento completado' : 'intentos completados'}</span>
+        <span><b>${enCurso.length}</b> ${enCurso.length === 1 ? 'intento en progreso' : 'intentos en progreso'}</span>
         <span>Promedio <b>${promedio === null ? '—' : `${promedio} %`}</b></span>
         <span>Última vez <b>${esc(fechaCorta(resultados[0]?.FechaInicio)) || '—'}</b></span>
       </div>
       ${bloqueRefuerzo(hechos)}
-      <h4>Actividades realizadas</h4>
-      ${hechos.length ? hechos.map(r => `<details class="attempt">
+      ${bloqueAudios(audios)}
+      <h4>Registro de actividades</h4>
+      ${resultados.length ? resultados.map(r => {
+        const completado = r.Estado === 'Completada';
+        const enProgreso = r.Estado === 'En progreso';
+        const estado = completado ? 'Completada' : enProgreso ? 'En progreso' : r.Estado;
+        const resultado = completado
+          ? `${esc(Math.round(r.Puntuacion ?? 0))} % <small>(${esc(r.Aciertos)}/${esc(Number(r.Aciertos) + Number(r.Errores))})</small>`
+          : `<span class="attempt-state">${esc(estado)}</span>`;
+        const detalle = completado
+          ? lineasRespuesta(r.detalle)
+          : `<li class="ans-none">${enProgreso
+            ? 'El estudiante comenzó esta actividad, pero aún no la ha terminado. El resultado se guardará al completarla.'
+            : 'Esta actividad no se completó.'}</li>`;
+        return `<details class="attempt">
         <summary><span class="attempt-name">${esc(r.Actividad)}</span><span>${esc(fechaCorta(r.FechaInicio))}</span>
-          <span class="score">${esc(Math.round(r.Puntuacion ?? 0))} % <small>(${esc(r.Aciertos)}/${esc(Number(r.Aciertos) + Number(r.Errores))})</small></span></summary>
-        <ul class="answers">${lineasRespuesta(r.detalle)}</ul>
-        <p class="note">Duración: ${esc(r.DuracionSegundos ?? '—')} s</p>
-      </details>`).join('') : '<p>Todavía no completa ninguna actividad.</p>'}`;
+          <span class="score">${resultado}</span></summary>
+        <ul class="answers">${detalle}</ul>
+        ${completado ? `<p class="note">Duración: ${esc(r.DuracionSegundos ?? '—')} s</p>` : ''}
+      </details>`;
+      }).join('') : '<p>Todavía no hay actividades registradas.</p>'}`;
     window.scrollTo({ top: 0 });
+    return true;
   } catch (error) {
     box.textContent = error.message;
+    return false;
   }
 }
 
@@ -482,6 +569,7 @@ teacherForm.elements.password.addEventListener('blur', () => $('#capsHint').clas
 ['usuario', 'password'].forEach(nombre => teacherForm.elements[nombre].addEventListener('input', () => markField(nombre, false)));
 
 function showTeacherPanel(nombre) {
+  activeStudentId = null;
   $('#teacherLogin').classList.add('hidden');
   $('#teacherStatus').textContent = `Sesión iniciada: ${nombre}`;
   $('#report').classList.remove('hidden');
@@ -541,6 +629,7 @@ teacherForm.addEventListener('submit', async event => {
 $('#logout').addEventListener('click', async () => {
   try {
     await api('/api/profesor/logout', { method: 'POST', body: JSON.stringify({}) });
+    activeStudentId = null;
     $('#report').classList.add('hidden');
     $('#teacherLogin').classList.remove('hidden');
     $('#teacherStatus').textContent = 'Sesión cerrada.';
@@ -550,5 +639,24 @@ $('#logout').addEventListener('click', async () => {
     $('#teacherStudentCards').innerHTML = '';
   } catch (error) {
     $('#teacherStatus').textContent = error.message;
+  }
+});
+
+$('#removeStudent').addEventListener('click', async () => {
+  const id = activeStudentId;
+  if (!id) return;
+  const est = teacherStudents.find(s => s.EstudianteID === id);
+  const nombre = est ? `${est.Nombre} ${est.Apellido}` : 'este estudiante';
+  if (!confirm(`¿Quitar a ${nombre}?\n\nSe borrarán también todos sus resultados y su progreso. Esta acción no se puede deshacer.`)) return;
+  const boton = $('#removeStudent');
+  boton.disabled = true;
+  try {
+    await api(`/api/profesor/estudiantes/${id}`, { method: 'DELETE' });
+    $('#backToList').click();
+    $('#recordsRefreshStatus').textContent = `${nombre} fue quitado de la lista.`;
+  } catch (error) {
+    $('#recordsRefreshStatus').textContent = error.message;
+  } finally {
+    boton.disabled = false;
   }
 });

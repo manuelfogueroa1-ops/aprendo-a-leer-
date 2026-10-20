@@ -1,0 +1,106 @@
+/* Capa visual infantil: se carga después de tema.css y reutiliza sus variables
+   (color favorito y modo noche siguen funcionando). */
+:root{--rebote:cubic-bezier(.34,1.56,.64,1);--letra:'Fredoka','Baloo 2','Nunito','Trebuchet MS','Comic Sans MS',sans-serif}
+body,button,input,textarea{font-family:var(--letra)}
+h1,h2,h3,.word-display,.choice-button,.syllable-button{font-weight:700}
+.wrap{padding-top:22px}
+
+/* Paneles y encabezado: más redondos, con borde grueso tipo sticker */
+.home-page .panel,.game-page .learning-panel{border-width:4px;border-radius:38px;box-shadow:0 10px 0 hsl(var(--h) 40% 40%/.35),0 24px 40px rgba(20,10,70,.25)}
+.hero{border-radius:40px;border:4px solid rgba(255,255,255,.55)}
+.hero h1{font-weight:700;letter-spacing:-.01em;text-shadow:0 4px 0 rgba(60,30,140,.35)}
+.hero-eyebrow{font-weight:600;letter-spacing:.04em}
+.hero-pills span{font-size:1.05rem;font-weight:600;padding:9px 16px;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.art-book{animation:kd-flota 4s ease-in-out infinite}
+.art-letter-a{animation:kd-salta 2.8s var(--rebote) infinite}
+.art-letter-b{animation:kd-salta 2.8s var(--rebote) .9s infinite}
+.art-spark{animation:kd-brilla 2s ease-in-out infinite}
+.hero-illustration{animation:kd-flota 3.5s ease-in-out infinite}
+@keyframes kd-flota{50%{transform:translateY(-12px) rotate(-6deg)}}
+@keyframes kd-salta{0%,60%,100%{translate:0 0}30%{translate:0 -14px}}
+@keyframes kd-brilla{50%{transform:scale(1.35) rotate(25deg);opacity:.7}}
+
+/* Botones grandes y "apretables" */
+.button-link,.activity>button,form button,#check,#next,#listen,#speak,#practice,#retrySave,.secondary-button{min-height:56px;padding:12px 24px;font-size:1.15rem;font-weight:600;border-radius:20px}
+.secondary-button{min-height:48px;font-size:1.02rem;padding:10px 18px;box-shadow:0 4px 0 rgba(0,0,0,.14)}
+button:not(:disabled):hover,.button-link:hover{transform:translateY(-3px) scale(1.03)}
+button:not(:disabled):active,.button-link:active{transform:translateY(3px) scale(.98)}
+:focus-visible{outline:4px solid #ffd23f!important;outline-offset:3px}
+
+/* Tarjetas de estudiantes */
+.student-card{border-width:3px;border-radius:26px;min-height:96px;font-size:1.25rem;font-weight:600}
+.student-icon{width:62px;height:62px;flex-basis:62px;font-size:2rem;border-radius:22px;transition:transform .3s var(--rebote)}
+button.student-card:hover .student-icon{transform:rotate(-12deg) scale(1.18)}
+.student-enter{font-size:1.8rem;transition:transform .3s var(--rebote)}
+button.student-card:hover .student-enter{transform:translateX(6px)}
+.section-intro h2,.activities-heading h2{font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem)}
+.section-kicker{font-weight:600;font-size:1rem;padding:7px 16px}
+.listen-intro{font-size:1.05rem}
+
+/* Tarjetas de actividades: cada nivel con su color, inclinación suave y gran icono */
+.activities-grid{gap:24px;counter-reset:nivel}
+.activity{border-width:4px;border-radius:32px;padding:24px;box-shadow:0 8px 0 rgba(0,0,0,.09);transition:transform .3s var(--rebote),box-shadow .3s ease}
+.activity:nth-child(odd){transform:rotate(-1deg)}.activity:nth-child(even){transform:rotate(1deg)}
+.activity:hover{transform:translateY(-8px) rotate(0) scale(1.03);box-shadow:0 16px 0 rgba(0,0,0,.1),0 22px 30px rgba(30,20,90,.22)}
+.activity-icon{width:84px;height:84px;font-size:2.6rem;border-radius:28px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.09),0 5px 0 rgba(0,0,0,.08);transition:transform .4s var(--rebote)}
+.activity:hover .activity-icon{transform:rotate(-10deg) scale(1.12)}
+.activity-level{font-weight:700;font-size:.95rem;padding:7px 14px;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+.activity h3{font-size:1.5rem;font-weight:700}
+.activity p{font-size:1.05rem;line-height:1.5}
+.activity-locked{filter:grayscale(.55) saturate(.7);opacity:.88}
+.activity-locked:hover{transform:none;box-shadow:0 8px 0 rgba(0,0,0,.09)}
+.activity-locked::after{content:"🔒";position:absolute;top:14px;right:16px;font-size:1.6rem}
+
+/* Juegos */
+.game-page .wrap{max-width:980px}
+#progress{font-size:1.2rem;font-weight:600}
+.progress-track{height:26px;border:3px solid rgba(255,255,255,.7);box-shadow:inset 0 3px 0 rgba(0,0,0,.12)}
+.progress-bar{position:relative;background:repeating-linear-gradient(135deg,#ffd23f 0 14px,#ffb627 14px 28px);transition:width .6s var(--rebote)}
+.progress-bar::after{content:"⭐";position:absolute;right:-4px;top:50%;translate:0 -50%;font-size:1.5rem;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2))}
+.word-picture{width:min(260px,70%);height:220px;font-size:6.5rem;border-width:5px;border-radius:44px;box-shadow:0 8px 0 rgba(0,0,0,.1);animation:kd-pop .5s var(--rebote)}
+.word-display{font-size:clamp(2.8rem,8vw,4.4rem);text-shadow:0 4px 0 rgba(0,0,0,.08)}
+.letter-pair span,.syllable-equation span:not([aria-hidden=true]){border-width:4px;border-radius:30px;font-size:3.4rem;animation:kd-pop .5s var(--rebote) both}
+.oral-prompt{font-size:1.15rem;border-radius:26px}
+.choice-list,.syllable-list,.answer-slots{gap:16px}
+.choice-button,.syllable-button,.answer-slot{min-width:92px;min-height:88px;font-size:2.3rem;border-radius:28px;border-width:4px;transition:transform .25s var(--rebote),box-shadow .2s}
+.choice-button,.syllable-button{box-shadow:0 8px 0 var(--boton-sombra)}
+.choice-button:hover:not(:disabled),.syllable-button:hover:not(:disabled){transform:translateY(-6px) rotate(-3deg) scale(1.07)}
+.choice-button:active:not(:disabled),.syllable-button:active:not(:disabled){transform:translateY(5px);box-shadow:0 2px 0 var(--boton-sombra)}
+.answer-slot.filled{animation:kd-pop .35s var(--rebote)}
+.page-word-match .match-image,.page-word-match .match-word{border-width:4px;border-radius:24px;min-height:84px;font-weight:600}
+.page-word-match .match-image{font-size:3rem}.page-word-match .match-word{font-size:1.5rem}
+.feedback{font-size:1.3rem;min-height:3.2em}
+.feedback.correct{animation:kd-pop .5s var(--rebote);border:3px solid #54c98a}
+.feedback.incorrect{animation:kd-tiembla .45s;border:3px solid #ff8a95}
+#finished{text-align:center}
+#finished h2{font-size:clamp(2rem,5vw,3rem);animation:kd-pop .7s var(--rebote)}
+#finished h2::before{content:"🏆";display:block;font-size:5rem;animation:kd-salta 1.6s var(--rebote) infinite}
+.back-link{font-size:1.1rem;font-weight:600;border-radius:18px;padding:12px 18px}
+@keyframes kd-pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes kd-tiembla{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+
+/* Confeti (kids.js) */
+.kd-confeti{position:fixed;top:-60px;z-index:50;pointer-events:none;font-size:2rem;animation:kd-cae linear forwards}
+@keyframes kd-cae{to{transform:translateY(112vh) rotate(540deg)}}
+
+@media (max-width:700px){.activities-grid{grid-template-columns:1fr}.activity{transform:none!important}.choice-button,.syllable-button,.answer-slot{min-width:76px;min-height:76px;font-size:2rem}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.kd-confeti{display:none}}
+
+/* Docente: botón de quitar */
+.danger-button{background:#ffe3e6!important;color:#a1273a!important}
+.danger-button:hover{background:#ffd0d6!important}
+/* Juegos: detalles */
+.word-initial{color:#ff7a59;display:inline-block;font-size:1.15em;animation:kd-salta 2s var(--rebote) infinite}
+.letter-speak-button{width:54px;height:54px;border-radius:50%;font-size:1.5rem;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+/* Mascota Lulu */
+.kd-mascota{position:fixed;left:14px;bottom:10px;z-index:40;pointer-events:none;display:flex;align-items:flex-end;gap:6px}
+.kd-buho{font-size:4.2rem;filter:drop-shadow(0 6px 4px rgba(0,0,0,.3));animation:kd-flota 3.5s ease-in-out infinite}
+.kd-globo{max-width:220px;margin-bottom:46px;padding:10px 16px;background:#fff;color:#3b2a6b;border:3px solid #ffd23f;border-radius:20px 20px 20px 4px;font-weight:600;font-size:1.05rem;box-shadow:0 5px 0 rgba(0,0,0,.15);transform-origin:bottom left;transition:transform .35s var(--rebote),opacity .3s}
+.kd-mascota:not(.habla) .kd-globo{transform:scale(0);opacity:0}
+.kd-mascota[data-animo=mal] .kd-buho{animation:kd-tiembla .45s}
+@media (max-width:900px){.kd-mascota{display:none}}
+
+/* Docente: lista de grabaciones */
+.audio-list{list-style:none;padding:0;display:grid;gap:10px}
+.audio-list li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.7);border:2px solid rgba(0,0,0,.08)}
+.audio-list audio{max-width:100%}

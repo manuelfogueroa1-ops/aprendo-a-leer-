@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#7161d8">
   <title>Aprendo a Leer | ¡Vamos a aprender!</title>
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/tema.css">
+  <link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css">
   <script src="/tema.js"></script>
 </head>
 <body class="home-page">
@@ -89,6 +89,7 @@
       <div id="studentList">
         <div class="list-head">
           <input type="search" id="studentSearch" placeholder="Buscar estudiante" aria-label="Buscar estudiante" autocomplete="off">
+          <button type="button" id="refreshRecords" class="secondary-button">↻ Actualizar registros</button>
           <button type="button" id="toggleAddStudent" class="secondary-button">+ Agregar estudiante</button>
           <button type="button" id="logout" class="secondary-button">Cerrar sesión</button>
         </div>
@@ -104,9 +105,14 @@
         <div id="teacherStudentCards" class="student-cards"></div>
       </div>
       <div id="studentDetail" class="hidden">
-        <button type="button" id="backToList" class="back-student">← Volver a los estudiantes</button>
+        <div class="record-actions">
+          <button type="button" id="backToList" class="back-student">← Volver a los estudiantes</button>
+          <button type="button" id="refreshStudentRecords" class="secondary-button">↻ Actualizar registros</button>
+          <button type="button" id="removeStudent" class="secondary-button danger-button">🗑️ Quitar estudiante</button>
+        </div>
         <div id="detailContent"></div>
       </div>
+      <p id="recordsRefreshStatus" class="status" role="status" aria-live="polite"></p>
     </div>
   </section>
   <footer>
@@ -115,5 +121,5 @@
   </footer>
 </main>
 <script src="/app.js"></script>
-</body>
+<script src="/kids.js"></script></body>
 </html>

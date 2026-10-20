@@ -14,6 +14,7 @@ let round = 0;
 let correct = 0;
 let locked = false;
 let syllables = [];
+let intentos = 0;
 
 function renderQuestion() {
   const question = questions[round];
@@ -81,37 +82,52 @@ async function finish() {
       actividad: 'silabas',
       respuestas: responses
     });
-    $('#result').textContent = `Formaste ${correct} de ${questions.length} palabras. Duración: ${saved.duracionSegundos} segundos.`;
+    $('#result').textContent = `Formaste ${correct} de ${questions.length} palabras al primer intento. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
     $('#retrySave').classList.remove('hidden');
   }
 }
 
-$('#check').addEventListener('click', async () => {
-  if (locked || answer.length !== questions[round].syllables.length) {
-    $('#feedback').textContent = 'Elige todas las sílabas antes de revisar.';
+$('#check').addEventListener('click', () => {
+  if (locked) return;
+  const question = questions[round];
+  const feedback = $('#feedback');
+  if (answer.length !== question.syllables.length) {
+    feedback.textContent = 'Elige todas las sílabas antes de revisar.';
+    return;
+  }
+  const isCorrect = answer.join('') === question.word;
+  intentos++;
+  responses.push({ palabra: question.word, respuesta: answer.join(''), correcta: isCorrect, intento: intentos });
+  feedback.className = 'feedback';
+  void feedback.offsetWidth; // reinicia la animación aunque se repita el mismo mensaje
+  if (!isCorrect) {
+    feedback.textContent = 'Casi. ¡Inténtalo otra vez! 💪';
+    feedback.classList.add('incorrect');
+    answer.length = 0;
+    renderChoices();
+    renderAnswer();
     return;
   }
   locked = true;
-  const question = questions[round];
-  const isCorrect = answer.join('') === question.word;
-  responses.push({ palabra: question.word, respuesta: answer.join(''), correcta: isCorrect });
-  if (isCorrect) correct++;
-  $('#feedback').textContent = isCorrect ? '¡Muy bien! Las sílabas están en orden.' : `Casi. La palabra se forma así: ${question.syllables.join(' - ')}.`;
-  $('#feedback').classList.add(isCorrect ? 'correct' : 'incorrect');
-  $('#check').textContent = round === questions.length - 1 ? 'Ver mi resultado' : 'Siguiente palabra';
-  $('#check').onclick = async () => {
-    $('#check').onclick = null;
+  if (intentos === 1) correct++;
+  feedback.textContent = '¡Muy bien! Las sílabas están en orden.';
+  feedback.classList.add('correct');
+  renderAnswer();
+  $('#check').disabled = true;
+  if (round === questions.length - 1) {
+    $('#check').textContent = 'Volviendo a tus actividades…';
+    window.setTimeout(finish, 1200);
+    return;
+  }
+  window.setTimeout(() => {
     round++;
+    intentos = 0;
     locked = false;
-    $('#check').textContent = 'Revisar palabra';
-    if (round === questions.length) {
-      await finish();
-      return;
-    }
+    $('#check').disabled = false;
     renderQuestion();
-  };
+  }, 1300);
 });
 
 $('#retrySave').addEventListener('click', finish);

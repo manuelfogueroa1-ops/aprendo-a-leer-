@@ -5,9 +5,18 @@ const session = require('express-session');
 const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const db = require('./database');
+const { encryptStudentName, decryptStudent, encryptBinary, decryptBinary} = require('./student-name-crypto');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+const ACTIVIDADES_PROGRESIVAS = [
+  'Reconozco las letras',
+  'Formo sílabas',
+  'Uno la palabra con su imagen',
+  'Encuentro la letra',
+  'Aprendo las sílabas',
+  'Practico la pronunciación'
+];
 
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 24) {
   console.error('Configura SESSION_SECRET con al menos 24 caracteres en .env');
@@ -32,6 +41,12 @@ function requireTeacher(req, res, next) {
 
 function cleanName(value) {
   return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';
+}
+
+function ordenarEstudiantes(estudiantes) {
+  return estudiantes
+    .map(decryptStudent)
+    .sort((a, b) => `${a.Nombre} ${a.Apellido}`.localeCompare(`${b.Nombre} ${b.Apellido}`, 'es'));
 }
 
 // Preferencias del estudiante: solo se aceptan los valores que ofrece la pantalla de elección.
@@ -67,8 +82,8 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/estudiantes', (_req, res) => {
   try {
     const estudiantes = db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
-      WHERE Activo = 1 ORDER BY Nombre, Apellido`).all();
-    res.json({ estudiantes });
+      WHERE Activo = 1`).all();
+    res.json({ estudiantes: ordenarEstudiantes(estudiantes) });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron cargar los estudiantes.');
   }
@@ -84,6 +99,7 @@ app.post('/api/estudiantes/:id/ingresar', (req, res) => {
     const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
       WHERE EstudianteID = ? AND Activo = 1`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró este estudiante.' });
+    Object.assign(estudiante, decryptStudent(estudiante));
     req.session.studentId = estudiante.EstudianteID;
     res.json({ estudiante });
   } catch (error) {
@@ -105,10 +121,16 @@ app.post('/api/profesor/estudiantes', requireTeacher, (req, res) => {
 
   try {
     const estudiante = withTransaction(() => {
-      db.prepare(`INSERT INTO Estudiantes (Nombre, Apellido)
-        VALUES (?, ?) ON CONFLICT(Nombre, Apellido) DO NOTHING`).run(nombre, apellido);
-      return db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
-        WHERE Nombre = ? AND Apellido = ?`).get(nombre, apellido);
+      const existente = db.prepare('SELECT EstudianteID, Nombre, Apellido FROM Estudiantes')
+        .all()
+        .map(decryptStudent)
+        .find(registro => registro.Nombre === nombre && registro.Apellido === apellido);
+      if (existente) return existente;
+
+      const insert = db.prepare('INSERT INTO Estudiantes (Nombre, Apellido) VALUES (?, ?)')
+        .run(encryptStudentName(nombre, 'nombre'), encryptStudentName(apellido, 'apellido'));
+      return decryptStudent(db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
+        WHERE EstudianteID = ?`).get(insert.lastInsertRowid));
     });
     res.json({ estudiante });
   } catch (error) {
@@ -116,11 +138,28 @@ app.post('/api/profesor/estudiantes', requireTeacher, (req, res) => {
   }
 });
 
+app.delete('/api/profesor/estudiantes/:id', requireTeacher, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Estudiante no válido.' });
+  try {
+    const eliminados = withTransaction(() => {
+      db.prepare('DELETE FROM AudiosPronunciacion WHERE EstudianteID = ?').run(id);
+      db.prepare('DELETE FROM ResultadosActividades WHERE EstudianteID = ?').run(id);
+      db.prepare('DELETE FROM ProgresoEstudiante WHERE EstudianteID = ?').run(id);
+      return db.prepare('DELETE FROM Estudiantes WHERE EstudianteID = ?').run(id).changes;
+    });
+    if (!eliminados) return res.status(404).json({ error: 'No se encontró al estudiante.' });
+    res.json({ eliminado: true });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo quitar al estudiante.');
+  }
+});
+
 app.get('/api/profesor/estudiantes', requireTeacher, (_req, res) => {
   try {
     const estudiantes = db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
-      WHERE Activo = 1 ORDER BY Nombre, Apellido`).all();
-    res.json({ estudiantes });
+      WHERE Activo = 1`).all();
+    res.json({ estudiantes: ordenarEstudiantes(estudiantes) });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron cargar los estudiantes.');
   }
@@ -134,6 +173,7 @@ app.get('/api/estudiantes/me', (req, res) => {
     const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
       WHERE EstudianteID = ?`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró al estudiante de esta sesión.' });
+    Object.assign(estudiante, decryptStudent(estudiante));
     res.json({ estudiante });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo recuperar la sesión del estudiante.');
@@ -171,17 +211,41 @@ app.put('/api/estudiantes/me/preferencias', (req, res) => {
     const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
       WHERE EstudianteID = ?`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró al estudiante de esta sesión.' });
+    Object.assign(estudiante, decryptStudent(estudiante));
     res.json({ estudiante });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron guardar tus preferencias.');
   }
 });
 
-app.get('/api/actividades', (_req, res) => {
+app.get('/api/actividades', (req, res) => {
   try {
     const actividades = db.prepare(`SELECT ActividadID, Nombre, Descripcion, NivelDificultad
-      FROM Actividades WHERE Activa = 1 ORDER BY Nombre`).all();
-    res.json({ actividades });
+      FROM Actividades WHERE Activa = 1`).all();
+    const completadas = new Set(req.session.studentId
+      ? db.prepare(`SELECT A.Nombre FROM ResultadosActividades R
+          JOIN Actividades A ON A.ActividadID = R.ActividadID
+          WHERE R.EstudianteID = ? AND R.Estado = 'Completada'`)
+        .all(req.session.studentId).map(resultado => resultado.Nombre)
+      : []);
+    res.json({
+      actividades: actividades
+        .map(actividad => {
+          const indice = ACTIVIDADES_PROGRESIVAS.indexOf(actividad.Nombre);
+          const actividadPrevia = indice > 0 ? ACTIVIDADES_PROGRESIVAS[indice - 1] : null;
+          return {
+            ...actividad,
+            ActividadPrevia: actividadPrevia,
+            Bloqueada: Boolean(actividadPrevia && !completadas.has(actividadPrevia))
+          };
+        })
+        .sort((a, b) => {
+          const indiceA = ACTIVIDADES_PROGRESIVAS.indexOf(a.Nombre);
+          const indiceB = ACTIVIDADES_PROGRESIVAS.indexOf(b.Nombre);
+          return (indiceA === -1 ? ACTIVIDADES_PROGRESIVAS.length : indiceA)
+            - (indiceB === -1 ? ACTIVIDADES_PROGRESIVAS.length : indiceB);
+        })
+    });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron cargar las actividades.');
   }
@@ -197,9 +261,18 @@ app.post('/api/actividades/:id/iniciar', (req, res) => {
 
   try {
     const intento = withTransaction(() => {
-      const actividad = db.prepare(`SELECT ActividadID FROM Actividades
+      const actividad = db.prepare(`SELECT ActividadID, Nombre FROM Actividades
         WHERE ActividadID = ? AND Activa = 1`).get(actividadId);
       if (!actividad) return null;
+      const indiceActividad = ACTIVIDADES_PROGRESIVAS.indexOf(actividad.Nombre);
+      const actividadPrevia = indiceActividad > 0 ? ACTIVIDADES_PROGRESIVAS[indiceActividad - 1] : null;
+      if (actividadPrevia) {
+        const actividadPreviaCompletada = db.prepare(`SELECT 1 AS completado FROM ResultadosActividades R
+          JOIN Actividades A ON A.ActividadID = R.ActividadID
+          WHERE R.EstudianteID = ? AND A.Nombre = ? AND R.Estado = 'Completada' LIMIT 1`)
+          .get(studentId, actividadPrevia);
+        if (!actividadPreviaCompletada) return { bloqueada: true, actividadPrevia };
+      }
 
       const result = db.prepare(`INSERT INTO ResultadosActividades
         (EstudianteID, ActividadID, FechaInicio, Estado)
@@ -218,9 +291,68 @@ app.post('/api/actividades/:id/iniciar', (req, res) => {
     });
 
     if (!intento) return res.status(404).json({ error: 'Actividad no encontrada.' });
+    if (intento.bloqueada) {
+      return res.status(403).json({
+        error: `Primero completa "${intento.actividadPrevia}" para desbloquear esta actividad.`
+      });
+    }
     res.json({ intento });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo iniciar la actividad.');
+  }
+});
+
+const audioParser = express.raw({ type: 'audio/*', limit: '2mb' });
+app.post('/api/resultados/:id/audio', audioParser, (req, res) => {
+  const studentId = req.session.studentId;
+  const resultadoId = Number(req.params.id);
+  const palabra = typeof req.query.palabra === 'string' ? req.query.palabra.trim().toLocaleLowerCase('es-CL') : '';
+  const tipo = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+  if (!studentId) return res.status(401).json({ error: 'Primero ingresa nombre y apellido.' });
+  if (!Number.isSafeInteger(resultadoId) || resultadoId < 1 || !/^[\p{L} ]{1,40}$/u.test(palabra)) {
+    return res.status(400).json({ error: 'Datos del audio no válidos.' });
+  }
+  if (!/^audio\/(webm|ogg|mp4|mpeg|wav|x-wav|aac)$/.test(tipo)) return res.status(415).json({ error: 'Formato de audio no permitido.' });
+  if (!Buffer.isBuffer(req.body) || req.body.length < 500) return res.status(400).json({ error: 'El audio está vacío.' });
+  try {
+    const guardado = withTransaction(() => {
+      const intento = db.prepare(`SELECT R.ResultadoID FROM ResultadosActividades R
+        JOIN Actividades A ON A.ActividadID = R.ActividadID
+        WHERE R.ResultadoID = ? AND R.EstudianteID = ? AND R.Estado = 'En progreso'
+          AND A.Nombre = 'Practico la pronunciación'`).get(resultadoId, studentId);
+      if (!intento) return false;
+      db.prepare('DELETE FROM AudiosPronunciacion WHERE ResultadoID = ? AND Palabra = ?').run(resultadoId, palabra);
+      db.prepare(`INSERT INTO AudiosPronunciacion (ResultadoID, EstudianteID, Palabra, TipoMime, Datos)
+        VALUES (?, ?, ?, ?, ?)`).run(resultadoId, studentId, palabra, tipo, encryptBinary(req.body));
+      return true;
+    });
+    if (!guardado) return res.status(404).json({ error: 'No se encontró la actividad en progreso.' });
+    res.status(201).json({ guardado: true });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo guardar el audio.');
+  }
+});
+
+app.get('/api/profesor/audios/:id', requireTeacher, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ error: 'Audio no válido.' });
+  try {
+    const fila = db.prepare('SELECT TipoMime, Datos FROM AudiosPronunciacion WHERE AudioID = ?').get(id);
+    if (!fila) return res.status(404).json({ error: 'No se encontró el audio.' });
+    const datos = decryptBinary(Buffer.from(fila.Datos));
+    const total = datos.length;
+    const cabeceras = { 'Content-Type': fila.TipoMime, 'Cache-Control': 'private, no-store', 'Accept-Ranges': 'bytes' };
+    const rango = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+    if (rango && (rango[1] || rango[2])) {
+      const inicio = rango[1] ? Number(rango[1]) : Math.max(0, total - Number(rango[2]));
+      const fin = rango[1] && rango[2] ? Math.min(Number(rango[2]), total - 1) : total - 1;
+      if (inicio > fin || inicio >= total) return res.status(416).set('Content-Range', `bytes */${total}`).end();
+      return res.status(206).set({ ...cabeceras, 'Content-Range': `bytes ${inicio}-${fin}/${total}`, 'Content-Length': fin - inicio + 1 })
+        .end(datos.subarray(inicio, fin + 1));
+    }
+    res.set(cabeceras).send(datos);
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo cargar el audio.');
   }
 });
 
@@ -248,7 +380,17 @@ app.post('/api/resultados/:id/terminar', (req, res) => {
             DetalleResultado = ?, FechaEnvio = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
         WHERE ResultadoID = ? AND EstudianteID = ? AND Estado = 'En progreso'`)
         .run(puntuacion, aciertos, errores, detalle, resultadoId, studentId);
-      if (update.changes === 0) return null;
+      if (update.changes === 0) {
+        const existente = db.prepare(`SELECT EstudianteID, FechaTermino, DuracionSegundos,
+            Estado, Puntuacion, Aciertos, Errores, DetalleResultado
+          FROM ResultadosActividades WHERE ResultadoID = ?`).get(resultadoId);
+        if (existente?.EstudianteID === studentId && existente.Estado === 'Completada'
+            && existente.Puntuacion === puntuacion && existente.Aciertos === aciertos
+            && existente.Errores === errores && existente.DetalleResultado === detalle) {
+          return { ...existente, yaGuardado: true };
+        }
+        return null;
+      }
 
       const guardado = db.prepare(`SELECT EstudianteID, FechaTermino, DuracionSegundos
         FROM ResultadosActividades WHERE ResultadoID = ?`).get(resultadoId);
@@ -270,7 +412,7 @@ app.post('/api/resultados/:id/terminar', (req, res) => {
           UltimaActividad = excluded.UltimaActividad,
           FechaActualizacion = excluded.FechaActualizacion`)
         .run(studentId, progreso.Iniciadas, completadas, porcentaje);
-      return guardado;
+      return { ...guardado, yaGuardado: false };
     });
 
     if (!resultado) {
@@ -278,6 +420,7 @@ app.post('/api/resultados/:id/terminar', (req, res) => {
     }
     res.json({
       guardado: true,
+      yaGuardado: resultado.yaGuardado,
       duracionSegundos: resultado.DuracionSegundos,
       fechaTermino: resultado.FechaTermino,
       mensaje: 'Resultado guardado correctamente.'
@@ -387,8 +530,8 @@ app.get('/api/profesor/resumen', requireTeacher, (_req, res) => {
       FROM Estudiantes E
       LEFT JOIN ResultadosActividades R ON R.EstudianteID = E.EstudianteID
       WHERE E.Activo = 1
-      GROUP BY E.EstudianteID ORDER BY E.Nombre, E.Apellido`).all();
-    res.json({ estudiantes });
+      GROUP BY E.EstudianteID`).all();
+    res.json({ estudiantes: ordenarEstudiantes(estudiantes) });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo cargar el resumen de estudiantes.');
   }
@@ -402,6 +545,7 @@ app.get('/api/profesor/estudiantes/:id/resultados', requireTeacher, (req, res) =
     const estudiante = db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
       WHERE EstudianteID = ? AND Activo = 1`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró este estudiante.' });
+    Object.assign(estudiante, decryptStudent(estudiante));
     const filas = db.prepare(`SELECT R.ResultadoID, A.Nombre AS Actividad, R.FechaInicio, R.FechaTermino,
         R.DuracionSegundos, R.Puntuacion, R.Aciertos, R.Errores, R.Estado, R.DetalleResultado
       FROM ResultadosActividades R JOIN Actividades A ON A.ActividadID = R.ActividadID
@@ -411,7 +555,9 @@ app.get('/api/profesor/estudiantes/:id/resultados', requireTeacher, (req, res) =
       try { detalle = DetalleResultado ? JSON.parse(DetalleResultado) : null; } catch { /* detalle ilegible */ }
       return { ...fila, detalle };
     });
-    res.json({ estudiante, resultados });
+    const audios = db.prepare(`SELECT AudioID, Palabra, FechaRegistro FROM AudiosPronunciacion
+      WHERE EstudianteID = ? ORDER BY FechaRegistro DESC LIMIT 200`).all(studentId);
+    res.json({ estudiante, resultados, audios });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron consultar los resultados del estudiante.');
   }
@@ -421,16 +567,20 @@ app.get('/api/profesor/resultados', requireTeacher, (req, res) => {
   const nombre = typeof req.query.nombre === 'string' ? req.query.nombre.trim().slice(0, 80) : '';
   const apellido = typeof req.query.apellido === 'string' ? req.query.apellido.trim().slice(0, 80) : '';
   try {
-    const resultados = db.prepare(`SELECT E.Nombre, E.Apellido, A.Nombre AS Actividad,
+    const filas = db.prepare(`SELECT E.Nombre, E.Apellido, A.Nombre AS Actividad,
         R.FechaInicio, R.FechaTermino, R.DuracionSegundos, R.Puntuacion, R.Aciertos,
         R.Errores, R.Estado, R.FechaEnvio
       FROM ResultadosActividades R
       JOIN Estudiantes E ON E.EstudianteID = R.EstudianteID
       JOIN Actividades A ON A.ActividadID = R.ActividadID
-      WHERE (? = '' OR E.Nombre LIKE '%' || ? || '%')
-        AND (? = '' OR E.Apellido LIKE '%' || ? || '%')
-      ORDER BY R.FechaInicio DESC LIMIT 500`)
-      .all(nombre, nombre, apellido, apellido);
+      ORDER BY R.FechaInicio DESC`).all();
+    const consultaNombre = nombre.toLocaleLowerCase('es-CL');
+    const consultaApellido = apellido.toLocaleLowerCase('es-CL');
+    const resultados = filas
+      .map(fila => decryptStudent(fila))
+      .filter(fila => fila.Nombre.toLocaleLowerCase('es-CL').includes(consultaNombre)
+        && fila.Apellido.toLocaleLowerCase('es-CL').includes(consultaApellido))
+      .slice(0, 500);
     res.json({ resultados });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron consultar los resultados.');

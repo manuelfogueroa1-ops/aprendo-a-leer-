@@ -4,7 +4,7 @@
   "private": true,
   "description": "Aplicación web educativa con Node.js, Express y SQLite",
   "main": "backend/server.js",
-  "scripts": {"start": "node backend/server.js", "dev": "node --watch backend/server.js", "crear-profesor": "node backend/crear-profesor.js"},
+  "scripts": {"start": "node backend/server.js", "dev": "node --watch backend/server.js", "crear-profesor": "node backend/crear-profesor.js", "verificar-cifrado": "node backend/verificar-cifrado.js"},
   "engines": {"node": ">=22.5.0"},
   "dependencies": {
     "bcryptjs": "^2.4.3",
