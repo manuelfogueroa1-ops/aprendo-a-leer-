@@ -3,7 +3,22 @@ const questions = [
   { word: 'pelota', image: '⚽', syllables: ['pe', 'lo', 'ta'] },
   { word: 'mariposa', image: '🦋', syllables: ['ma', 'ri', 'po', 'sa'] },
   { word: 'tomate', image: '🍅', syllables: ['to', 'ma', 'te'] },
-  { word: 'caballo', image: '🐴', syllables: ['ca', 'ba', 'llo'] }
+  { word: 'caballo', image: '🐴', syllables: ['ca', 'ba', 'llo'] },
+  { word: 'gato', image: '🐱', syllables: ['ga', 'to'] },
+  { word: 'luna', image: '🌙', syllables: ['lu', 'na'] },
+  { word: 'sapo', image: '🐸', syllables: ['sa', 'po'] },
+  { word: 'pato', image: '🦆', syllables: ['pa', 'to'] },
+  { word: 'mono', image: '🐒', syllables: ['mo', 'no'] },
+  { word: 'conejo', image: '🐰', syllables: ['co', 'ne', 'jo'] },
+  { word: 'jirafa', image: '🦒', syllables: ['ji', 'ra', 'fa'] },
+  { word: 'zapato', image: '👞', syllables: ['za', 'pa', 'to'] },
+  { word: 'manzana', image: '🍎', syllables: ['man', 'za', 'na'] },
+  { word: 'helado', image: '🍦', syllables: ['he', 'la', 'do'] },
+  { word: 'regalo', image: '🎁', syllables: ['re', 'ga', 'lo'] },
+  { word: 'escoba', image: '🧹', syllables: ['es', 'co', 'ba'] },
+  { word: 'estrella', image: '⭐', syllables: ['es', 'tre', 'lla'] },
+  { word: 'caracol', image: '🐌', syllables: ['ca', 'ra', 'col'] },
+  { word: 'elefante', image: '🐘', syllables: ['e', 'le', 'fan', 'te'] }
 ];
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
