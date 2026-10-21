@@ -249,15 +249,26 @@ $('#speak').addEventListener('click', async () => {
     }
   }
 });
+let fallosSubida = 0;
 $('#practice').addEventListener('click', async () => {
   if (waiting) return;
   const blob = recordedBlob;
   if (blob) {
     $('#practice').disabled = true;
+    $('#speak').disabled = true;
+    $('#feedback').className = 'feedback';
     $('#feedback').textContent = 'Guardando tu grabación…';
     const guardado = await subirAudio(words[round].word, blob);
-    attempts.push({ audio: true, audioGuardado: guardado });
     $('#practice').disabled = false;
+    $('#speak').disabled = false;
+    if (!guardado && fallosSubida < 2) {
+      fallosSubida++;
+      $('#feedback').textContent = 'No se pudo guardar tu grabación. Presiona “Ya la practiqué” para intentarlo otra vez.';
+      $('#feedback').className = 'feedback incorrect';
+      return;
+    }
+    fallosSubida = 0;
+    attempts.push({ audio: true, audioGuardado: guardado });
   }
   nextWord(true, true);
 });

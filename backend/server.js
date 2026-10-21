@@ -15,7 +15,8 @@ const ACTIVIDADES_PROGRESIVAS = [
   'Uno la palabra con su imagen',
   'Encuentro la letra',
   'Aprendo las sílabas',
-  'Practico la pronunciación'
+  'Practico la pronunciación',
+  'Completo el cuento'
 ];
 
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 24) {
@@ -555,7 +556,7 @@ app.get('/api/profesor/estudiantes/:id/resultados', requireTeacher, (req, res) =
       try { detalle = DetalleResultado ? JSON.parse(DetalleResultado) : null; } catch { /* detalle ilegible */ }
       return { ...fila, detalle };
     });
-    const audios = db.prepare(`SELECT AudioID, Palabra, FechaRegistro FROM AudiosPronunciacion
+    const audios = db.prepare(`SELECT AudioID, ResultadoID, Palabra, FechaRegistro FROM AudiosPronunciacion
       WHERE EstudianteID = ? ORDER BY FechaRegistro DESC LIMIT 200`).all(studentId);
     res.json({ estudiante, resultados, audios });
   } catch (error) {

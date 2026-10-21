@@ -86,6 +86,10 @@ WHERE Nombre IN (
   'Encuentro la letra', 'Aprendo las sílabas', 'Practico la pronunciación'
 );
 
+INSERT OR IGNORE INTO Actividades (Nombre, Descripcion, NivelDificultad) VALUES
+  ('Completo el cuento', 'Lee un cuento corto y elige las letras que faltan en sus palabras.', '7');
+UPDATE Actividades SET NivelDificultad = '7' WHERE Nombre = 'Completo el cuento';
+
 -- Desactiva la antigua demostración en bases ya creadas; conserva el historial de resultados.
 UPDATE Actividades SET Activa = 0 WHERE Nombre = 'Actividad de ejemplo';
 CREATE TABLE IF NOT EXISTS AudiosPronunciacion (

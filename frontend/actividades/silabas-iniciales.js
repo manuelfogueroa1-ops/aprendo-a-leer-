@@ -1,10 +1,38 @@
-const families = ['p', 'm', 'l', 's', 't', 'n'];
-const vowels = ['a', 'e', 'i', 'o', 'u'];
-const questions = families.flatMap(consonant => vowels.map(vowel => ({
-  consonant,
-  vowel,
-  syllable: consonant + vowel
-})));
+const V5 = ['a', 'e', 'i', 'o', 'u'];
+// Cada familia forma sus sílabas con: base + vocal (ej.: "qu" + "e" = "que").
+// "extras" son sílabas distintas para completar las opciones cuando la familia tiene pocas vocales.
+const groups = [
+  { name: 'Grupo 1', families: [
+    { base: 'p', vowels: V5 }, { base: 'm', vowels: V5 }, { base: 'l', vowels: V5 },
+    { base: 's', vowels: V5 }, { base: 't', vowels: V5 }, { base: 'n', vowels: V5 }
+  ] },
+  { name: 'Grupo 2', families: [
+    { base: 'd', vowels: V5 }, { base: 'b', vowels: V5 }, { base: 'f', vowels: V5 },
+    { base: 'r', vowels: V5 }, { base: 'v', vowels: V5 }, { base: 'j', vowels: V5 }
+  ] },
+  { name: 'Grupo 3', families: [
+    { base: 'c', vowels: V5 }, { base: 'g', vowels: V5 }, { base: 'z', vowels: V5 },
+    { base: 'ñ', vowels: V5 }, { base: 'y', vowels: V5 }, { base: 'll', vowels: V5 }, { base: 'ch', vowels: V5 }
+  ] },
+  { name: 'Grupo 4', families: [
+    { base: 'rr', vowels: V5 }, { base: 'h', vowels: V5 }, { base: 'k', vowels: V5 },
+    { base: 'qu', vowels: ['e', 'i'], extras: ['gue', 'gui'] },
+    { base: 'gu', vowels: ['e', 'i'], extras: ['que', 'qui'] },
+    { base: 'gü', vowels: ['e', 'i'], extras: ['gue', 'gui'] }
+  ] }
+];
+groups.forEach(group => {
+  group.label = group.families.map(family => family.base.toLocaleUpperCase('es-CL')).join(' · ');
+  group.questions = group.families.flatMap(family => family.vowels.map(vowel => ({
+    consonant: family.base,
+    vowel,
+    syllable: family.base + vowel,
+    // Opciones equivocadas: primero las de su misma familia y, si faltan, las "extras".
+    pool: [...family.vowels.filter(other => other !== vowel).map(other => family.base + other), ...(family.extras || [])]
+  })));
+});
+let questions = [];
+let groupNumber = 0;
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
 let resultadoId;
@@ -33,23 +61,19 @@ function renderQuestion() {
   locked = false;
   $('#progress').textContent = `Sílaba ${round + 1} de ${questions.length}`;
   $('#progressBar').style.width = `${(round / questions.length) * 100}%`;
-  $('#familyPrompt').textContent = `Familia de la letra ${question.consonant.toLocaleUpperCase('es-CL')}`;
+  $('#familyPrompt').textContent = `Familia de ${question.consonant.length > 1 ? 'las letras' : 'la letra'} ${question.consonant.toLocaleUpperCase('es-CL')}`;
   $('#consonant').textContent = question.consonant.toLocaleUpperCase('es-CL');
   $('#vowel').textContent = question.vowel.toLocaleUpperCase('es-CL');
   $('#feedback').textContent = '';
   $('#feedback').className = 'feedback';
   $('#listen').hidden = !('speechSynthesis' in window);
-  const sameFamily = families
-    .filter(consonant => consonant === question.consonant)
-    .flatMap(consonant => vowels.map(vowel => ({ consonant, vowel, syllable: consonant + vowel })))
-    .filter(item => item.syllable !== question.syllable);
-  const distractors = mezclar(sameFamily).slice(0, 2);
-  $('#choices').replaceChildren(...mezclar([question, ...distractors]).map(item => {
+  const distractors = mezclar(question.pool).slice(0, 2);
+  $('#choices').replaceChildren(...mezclar([question.syllable, ...distractors]).map(syllable => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'syllable-button';
-    button.textContent = item.syllable.toLocaleUpperCase('es-CL');
-    button.addEventListener('click', () => choose(item.syllable));
+    button.textContent = syllable.toLocaleUpperCase('es-CL');
+    button.addEventListener('click', () => choose(syllable));
     return button;
   }));
   const turnoActual = round;
@@ -154,6 +178,7 @@ async function finish() {
   try {
     const saved = await window.actividadLectura.guardar(resultadoId, correct, questions.length, {
       actividad: 'silabas_iniciales',
+      grupo: groupNumber + 1,
       respuestas: responses
     });
     $('#result').textContent = `Formaste correctamente ${correct} de ${questions.length} sílabas. Duración: ${saved.duracionSegundos} segundos.`;
@@ -166,11 +191,31 @@ async function finish() {
 $('#listen').addEventListener('click', escuchar);
 $('#retrySave').addEventListener('click', finish);
 
+function startGroup(index) {
+  groupNumber = index;
+  questions = groups[index].questions;
+  round = 0;
+  $('#groupPicker').classList.add('hidden');
+  game.classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderGroupPicker() {
+  $('#groupButtons').replaceChildren(...groups.map((group, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'group-button';
+    button.innerHTML = `<b>${group.name}</b><span>${group.label}</span>`;
+    button.addEventListener('click', () => startGroup(index));
+    return button;
+  }));
+  $('#groupPicker').classList.remove('hidden');
+}
+
 (async () => {
   try {
     resultadoId = await window.actividadLectura.iniciar('Formo sílabas');
-    renderQuestion();
-    game.classList.remove('hidden');
+    renderGroupPicker();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }

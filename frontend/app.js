@@ -215,7 +215,8 @@ async function loadActivities() {
       'Uno la palabra con su imagen': '/actividades/unir-palabra-imagen.html',
       'Aprendo las sílabas': '/actividades/silabas.html',
       'Practico la pronunciación': '/actividades/pronunciar.html',
-      'Encuentro la letra': '/actividades/letra.html'
+      'Encuentro la letra': '/actividades/letra.html',
+      'Completo el cuento': '/actividades/cuento.html'
     };
     const activityStyles = {
       'Reconozco las letras': { icon: '🔠', theme: 'theme-purple' },
@@ -223,7 +224,8 @@ async function loadActivities() {
       'Uno la palabra con su imagen': { icon: '🖼️', theme: 'theme-blue' },
       'Aprendo las sílabas': { icon: '🧩', theme: 'theme-yellow' },
       'Practico la pronunciación': { icon: '🎤', theme: 'theme-blue' },
-      'Encuentro la letra': { icon: '🔤', theme: 'theme-pink' }
+      'Encuentro la letra': { icon: '🔤', theme: 'theme-pink' },
+      'Completo el cuento': { icon: '📖', theme: 'theme-purple' }
     };
     // Solo mostramos actividades con juego de lectura implementado.
     const available = data.actividades
@@ -367,8 +369,14 @@ function analizarErrores(resultados) {
       if (tipo === 'unir-palabra-imagen' && x.correctaPrimerIntento === false) {
         anotar(tipo, x.palabra, `la unió después de ${x.intentos} intentos`);
       }
+      if (tipo === 'cuento' && x.correcta === false) {
+        anotar(tipo, x.palabra, `eligió “${x.letraElegida}”, era “${x.letraCorrecta}”`);
+        if (esParConfuso(x.letraElegida, x.letraCorrecta)) confusiones.add([x.letraElegida, x.letraCorrecta].sort().join('/'));
+      }
       if (tipo === 'pronunciacion') {
         const fallos = (x.intentos || []).filter(i => i.correcta === false);
+        const conAudio = (x.intentos || []).some(i => i.audio);
+        if (conAudio) continue; // con grabación, la profesora la escucha: no hay nada que "reforzar" automáticamente
         if (x.confirmadaComoPracticada) anotar(tipo, x.palabra, 'la marcó como practicada');
         else if (fallos.length) anotar(tipo, x.palabra, fallos[0].escuchado ? `escuchó “${fallos[0].escuchado}”` : '');
       }
@@ -382,6 +390,7 @@ const NOMBRE_ACTIVIDAD = {
   silabas_iniciales: 'Sílabas iniciales',
   letras: 'Letras',
   pronunciacion: 'Pronunciación',
+  cuento: 'Cuento',
   'unir-palabra-imagen': 'Unir palabra e imagen'
 };
 function bloqueRefuerzo(resultados) {
@@ -396,6 +405,7 @@ function bloqueRefuerzo(resultados) {
   if (tipos.has('letras') || tipos.has('letras_iniciales')) ideas.push(confusiones.length
     ? `<b>Letras:</b> confunde ${confusiones.map(esc).join(' y ')}. Trabaja una letra a la vez, con su sonido y su trazo (letras de lija o escritas en arena), y evita enseñar juntas las que se parecen.`
     : '<b>Letras:</b> pídele que diga la palabra completa en voz alta antes de elegir la letra que falta.');
+  if (tipos.has('cuento')) ideas.push('<b>Cuento:</b> lean el cuento juntos en voz alta y pídele que diga la palabra completa antes de elegir la letra que falta.');
   if (tipos.has('pronunciacion')) ideas.push('<b>Pronunciación:</b> di la palabra despacio y repítanla juntos, por sílabas. Si el micrófono no la reconoce, escúchalo tú: puede ser el equipo y no el niño.');
   return `<section class="reinforce"><h4>Para reforzar</h4>
     <ul class="weak-words">${palabras.slice(0, 6).map(p => `<li><b>${esc(p.palabra)}</b> <span class="tag">${NOMBRE_ACTIVIDAD[p.actividad]}</span> — ${p.veces} ${p.veces === 1 ? 'vez' : 'veces'}${p.notas.length ? `<small>${p.notas.map(esc).join(' · ')}</small>` : ''}</li>`).join('')}</ul>
@@ -413,7 +423,17 @@ function lineasRespuesta(detalle) {
     if (tipo === 'silabas_iniciales') return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>` : `<li class="ans-bad">✗ ${palabra} — eligió “${esc(x.respuesta)}”</li>`;
     if (tipo === 'letras' || tipo === 'letras_iniciales') return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>`
       : `<li class="ans-bad">✗ ${palabra} — eligió “${esc(x.letraElegida)}”${x.letraCorrecta ? `, era “${esc(x.letraCorrecta)}”` : ''}</li>`;
+    if (tipo === 'cuento') {
+      return x.correcta ? `<li class="ans-ok">✓ ${palabra}</li>`
+        : `<li class="ans-bad">✗ ${palabra} — eligió “${esc(x.letraElegida)}”, era “${esc(x.letraCorrecta)}”</li>`;
+    }
     if (tipo === 'pronunciacion') {
+      const grabacion = (x.intentos || []).find(i => i.audio);
+      if (grabacion) {
+        return grabacion.audioGuardado === false
+          ? `<li class="ans-warn">⚠ ${palabra} — se grabó, pero el audio no se pudo guardar</li>`
+          : `<li class="ans-ok">🎙️ ${palabra} — grabación guardada (escúchala más abajo)</li>`;
+      }
       const fallos = (x.intentos || []).filter(i => i.correcta === false);
       const oidos = fallos.map(i => i.escuchado).filter(Boolean).map(o => `“${esc(o)}”`).join(', ');
       if (x.confirmadaComoPracticada) return `<li class="ans-warn">⚠ ${palabra} — la marcó como practicada, el micrófono no la confirmó${oidos ? ` (escuchó ${oidos})` : ''}</li>`;
@@ -430,7 +450,7 @@ function lineasRespuesta(detalle) {
 
 function bloqueAudios(audios) {
   if (!audios?.length) return '';
-  return `<h4>🎙️ Grabaciones de pronunciación</h4><ul class="audio-list">${audios.map(a =>
+  return `<h5>🎙️ Grabaciones de este intento</h5><ul class="audio-list">${audios.map(a =>
     `<li><span><b>${esc(a.Palabra)}</b> <small>${esc(fechaCorta(a.FechaRegistro))}</small></span><audio controls preload="none" src="/api/profesor/audios/${esc(a.AudioID)}"></audio></li>`).join('')}</ul>`;
 }
 
@@ -454,7 +474,6 @@ async function openStudentDetail(id) {
         <span>Última vez <b>${esc(fechaCorta(resultados[0]?.FechaInicio)) || '—'}</b></span>
       </div>
       ${bloqueRefuerzo(hechos)}
-      ${bloqueAudios(audios)}
       <h4>Registro de actividades</h4>
       ${resultados.length ? resultados.map(r => {
         const completado = r.Estado === 'Completada';
@@ -472,6 +491,7 @@ async function openStudentDetail(id) {
         <summary><span class="attempt-name">${esc(r.Actividad)}</span><span>${esc(fechaCorta(r.FechaInicio))}</span>
           <span class="score">${resultado}</span></summary>
         <ul class="answers">${detalle}</ul>
+        ${bloqueAudios(audios.filter(a => a.ResultadoID === r.ResultadoID))}
         ${completado ? `<p class="note">Duración: ${esc(r.DuracionSegundos ?? '—')} s</p>` : ''}
       </details>`;
       }).join('') : '<p>Todavía no hay actividades registradas.</p>'}`;

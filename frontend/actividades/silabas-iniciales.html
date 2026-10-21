@@ -2,13 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Formo sílabas | Software Educativo</title><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css"><script src="/tema.js"></script>
+  <title>Formo sílabas | Software Educativo</title><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css"><script src="/tema.js"></script>
 </head>
 <body class="game-page page-syllables-initial"><main class="wrap">
-  <header class="hero hero-activity"><div class="hero-copy"><p class="hero-eyebrow">✦ MI RINCÓN DE LECTURA · NIVEL 2</p><h1>Formo sílabas</h1><p class="hero-description">Junta una consonante con una vocal y descubre cómo suenan: PA, PE, PI, PO, PU.</p></div><span class="hero-illustration" aria-hidden="true">🔡</span></header>
+  <header class="hero hero-activity"><div class="hero-copy"><p class="hero-eyebrow">✦ MI RINCÓN DE LECTURA · NIVEL 2</p><h1>Formo sílabas</h1><p class="hero-description">Junta una consonante con una vocal y descubre cómo suenan: PA, PE, PI, PO, PU y muchas más.</p></div><span class="hero-illustration" aria-hidden="true">🔡</span></header>
   <p><a class="back-link" href="/" data-back-to-activities>← Volver a mis actividades</a></p>
   <section class="panel learning-panel">
     <p id="status" class="status" role="status">Preparando actividad…</p>
+    <div id="groupPicker" class="hidden"><h2>¿Con qué sílabas quieres practicar?</h2><p>Elige un grupo. Cada grupo tiene sus propias letras.</p><div id="groupButtons" class="group-list"></div></div>
     <div id="game" class="hidden">
       <p id="progress"></p><div class="progress-track" aria-label="Progreso"><div id="progressBar" class="progress-bar"></div></div>
       <p id="familyPrompt"></p>

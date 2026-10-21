@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Completo el cuento | Software Educativo</title><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css"><script src="/tema.js"></script>
+</head>
+<body class="game-page page-story"><main class="wrap">
+  <header class="hero hero-activity"><div class="hero-copy"><p class="hero-eyebrow">✦ MI RINCÓN DE LECTURA · NIVEL 7</p><h1>Completo el cuento</h1><p class="hero-description">Lee el cuento y toca cada espacio para elegir la letra que falta.</p></div><span class="hero-illustration" aria-hidden="true">📖</span></header>
+  <p><a class="back-link" href="/" data-back-to-activities>← Volver a mis actividades</a></p>
+  <section class="panel learning-panel">
+    <p id="status" class="status" role="status">Preparando actividad…</p>
+    <div id="game" class="hidden">
+      <p id="progress"></p><div class="progress-track" aria-label="Progreso"><div id="progressBar" class="progress-bar"></div></div>
+      <h2 id="storyTitle" class="story-title"></h2>
+      <button id="listen" type="button">🔊 Escuchar el cuento</button>
+      <div id="story" class="story-text"></div>
+      <p>¿Qué letra falta en el espacio marcado?</p>
+      <div id="choices" class="choice-list"></div>
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+    </div>
+    <div id="finished" class="hidden"><h2>¡Terminaste el cuento!</h2><p id="result"></p><button id="retrySave" class="hidden" type="button">Intentar guardar de nuevo</button><a class="button-link" href="/" data-back-to-activities>Volver a mis actividades</a></div>
+  </section>
+</main>
+<script src="/actividades/actividad.js"></script><script src="/actividades/cuento.js"></script><script src="/kids.js"></script></body></html>
