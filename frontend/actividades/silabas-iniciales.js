@@ -32,7 +32,7 @@ groups.forEach(group => {
   })));
 });
 let questions = [];
-let groupNumber = 0;
+
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
 let resultadoId;
@@ -178,7 +178,7 @@ async function finish() {
   try {
     const saved = await window.actividadLectura.guardar(resultadoId, correct, questions.length, {
       actividad: 'silabas_iniciales',
-      grupo: groupNumber + 1,
+      grupo: 'todos',
       respuestas: responses
     });
     $('#result').textContent = `Formaste correctamente ${correct} de ${questions.length} sílabas. Duración: ${saved.duracionSegundos} segundos.`;
@@ -191,31 +191,20 @@ async function finish() {
 $('#listen').addEventListener('click', escuchar);
 $('#retrySave').addEventListener('click', finish);
 
-function startGroup(index) {
-  groupNumber = index;
-  questions = groups[index].questions;
+function startAllGroups() {
+  // Secuencia completa: el alumno no elige grupos y avanza hasta completar todo.
+  questions = groups.flatMap(group => group.questions);
   round = 0;
-  $('#groupPicker').classList.add('hidden');
+  correct = 0;
+  responses.length = 0;
   game.classList.remove('hidden');
   renderQuestion();
-}
-
-function renderGroupPicker() {
-  $('#groupButtons').replaceChildren(...groups.map((group, index) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'group-button';
-    button.innerHTML = `<b>${group.name}</b><span>${group.label}</span>`;
-    button.addEventListener('click', () => startGroup(index));
-    return button;
-  }));
-  $('#groupPicker').classList.remove('hidden');
 }
 
 (async () => {
   try {
     resultadoId = await window.actividadLectura.iniciar('Formo sílabas');
-    renderGroupPicker();
+    startAllGroups();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }

@@ -21,24 +21,15 @@
     }
   }
 
-  let decir = () => {};
+  // El mismo búho personalizado de la pantalla principal da las indicaciones.
+  const decir = (mensaje, animo) => {
+    if (!window.mascota) return;
+    window.mascota.animar(animo === 'mal' ? 'anim-sacude' : 'anim-salto');
+    // No hablar encima de la pronunciación de las sílabas.
+    window.mascota.decir(mensaje, { voz: false });
+  };
   document.addEventListener('DOMContentLoaded', () => {
-    if (!document.body.classList.contains('game-page')) return;
-    const lulu = document.createElement('div');
-    lulu.className = 'kd-mascota';
-    lulu.setAttribute('aria-hidden', 'true');
-    lulu.innerHTML = '<div class="kd-buho">🦉</div><div class="kd-globo"></div>';
-    document.body.appendChild(lulu);
-    const globo = lulu.querySelector('.kd-globo');
-    let reloj;
-    decir = (texto, animo) => {
-      globo.textContent = texto;
-      lulu.dataset.animo = animo;
-      lulu.classList.add('habla');
-      clearTimeout(reloj);
-      reloj = setTimeout(() => lulu.classList.remove('habla'), 3000);
-    };
-    decir('¡Hola! Yo te ayudo 💜', 'bien');
+    if (document.body.classList.contains('game-page')) decir('¡Hola! ¡Vamos a aprender!', 'bien');
   });
 
   new MutationObserver(registros => {

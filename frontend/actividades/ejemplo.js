@@ -53,7 +53,9 @@ quiz.addEventListener('submit', async event => {
       })
     });
     quiz.classList.add('hidden');
-    statusBox.textContent = 'Actividad completada.';
+    statusBox.textContent = 'Actividad completada. Volviendo al menú…';
+    try { sessionStorage.setItem('lectura-felicitacion-pendiente', '1'); } catch {}
+    window.setTimeout(() => window.location.assign('/'), 2200);
     resultBox.textContent = `Resultado: ${aciertos}/${total} aciertos (${puntuacion}%). Duración registrada por el servidor: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     resultBox.textContent = error.message;

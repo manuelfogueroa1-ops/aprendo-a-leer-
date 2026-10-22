@@ -214,12 +214,12 @@
 
   // ---------- Voz y burbuja ----------
   let timer;
-  function decir(texto) {
+  function decir(texto, { voz = true, duracion = 3500 } = {}) {
     burbuja.textContent = texto;
     burbuja.classList.add('visible');
     clearTimeout(timer);
-    timer = setTimeout(() => burbuja.classList.remove('visible'), 3500);
-    if ('speechSynthesis' in window) {
+    timer = setTimeout(() => burbuja.classList.remove('visible'), duracion);
+    if (voz && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const voz = new SpeechSynthesisUtterance(texto.replace(/[^\p{L}\p{N}¡!¿?., ]/gu, ''));
       voz.lang = 'es-CL';
@@ -230,6 +230,12 @@
   }
 
   window.mascota = { animar, confeti, celebrar, decir };
+
+  // Se conserva el búho personalizable y sus accesorios dentro de los juegos.
+  if (document.body.classList.contains('game-page')) {
+    document.body.classList.add('mascota-en-juego');
+    editar.hidden = true; // Se personaliza desde la pantalla de actividades.
+  }
 
   // ---------- Búho y accesorios ----------
       const ACC_PNG = ['lentes']; // accesorios que son imagen PNG; agrega aquí los nuevos
@@ -396,4 +402,25 @@
   animar('anim-entrada');
   aplicar();
   cargar();
+
+  // Felicitación pendiente: solo después de un guardado confirmado por el servidor.
+  if (document.body.classList.contains('home-page')) {
+    let mensaje = null;
+    try {
+      mensaje = sessionStorage.getItem('lectura-felicitacion-pendiente');
+      sessionStorage.removeItem('lectura-felicitacion-pendiente');
+    } catch { /* navegación privada */ }
+    if (mensaje) {
+      const actividades = document.querySelector('#studentActivities');
+      const mostrarFelicitacion = () => {
+        if (actividades?.classList.contains('hidden')) return;
+        observer.disconnect();
+        // Evitar interrumpir la carga del color/accesorio del estudiante.
+        cargar().then(() => { celebrar(); decir('¡Excelente trabajo! Terminaste tu actividad. ¡Vamos por la siguiente!', { duracion: 6500 }); });
+      };
+      const observer = new MutationObserver(mostrarFelicitacion);
+      if (actividades) observer.observe(actividades, { attributes: true, attributeFilter: ['class'] });
+      mostrarFelicitacion();
+    }
+  }
 })();

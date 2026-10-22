@@ -51,7 +51,8 @@ window.actividadLectura = {
           if (!resultado.guardado) throw new Error('El servidor no confirmó que el resultado se haya guardado.');
           const status = document.querySelector('#status');
           if (status) status.textContent = '¡Resultado guardado! Regresando automáticamente a tus actividades…';
-          window.setTimeout(() => window.location.assign('/'), 2500);
+          try { sessionStorage.setItem('lectura-felicitacion-pendiente', '1'); } catch { /* sin almacenamiento */ }
+          window.setTimeout(() => window.location.assign('/'), 2200);
           return resultado;
         } catch (error) {
           if (intento === 2 || (error.status && error.status < 500)) throw error;
