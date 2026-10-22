@@ -6,7 +6,8 @@ const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const db = require('./database');
 const { encryptStudentName, decryptStudent, encryptBinary, decryptBinary} = require('./student-name-crypto');
-
+const MODO_PRUEBA = process.env.DESBLOQUEAR_TODO === '1';
+if (MODO_PRUEBA) console.warn('⚠️  DESBLOQUEAR_TODO activo: todas las actividades están desbloqueadas.');
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const ACTIVIDADES_PROGRESIVAS = [
@@ -53,7 +54,9 @@ function ordenarEstudiantes(estudiantes) {
 // Preferencias del estudiante: solo se aceptan los valores que ofrece la pantalla de elección.
 const COLORES_PERMITIDOS = [0, 25, 48, 130, 175, 215, 270, 330];
 const TEMAS_PERMITIDOS = ['Animales', 'Dinosaurios', 'Piratas', 'Fútbol', 'Princesas', 'Unicornios', 'Hadas'];
-const COLUMNAS_ESTUDIANTE = 'EstudianteID, Nombre, Apellido, ColorFavorito, TemaInteres, ModoOscuro';
+const BUHO_COLORES = ['rojo', 'naranja', 'amarillo', 'verde', 'turquesa', 'azul', 'morado', 'rosado'];
+const BUHO_ACCESORIOS = ['ninguno', 'gorro', 'lentes', 'corona', 'mono', 'sombrero', 'gorra', 'estrella'];
+const COLUMNAS_ESTUDIANTE = 'EstudianteID, Nombre, Apellido, ColorFavorito, TemaInteres, ModoOscuro, BuhoColor, BuhoAccesorio';
 
 function respondDatabaseError(res, error, message) {
   console.error(error);
@@ -185,7 +188,7 @@ app.put('/api/estudiantes/me/preferencias', (req, res) => {
   const studentId = req.session.studentId;
   if (!studentId) return res.status(401).json({ error: 'No hay un estudiante ingresado.' });
 
-  const { colorFavorito, temaInteres, modoOscuro } = req.body || {};
+  const { colorFavorito, temaInteres, modoOscuro, buhoColor, buhoAccesorio } = req.body || {};
   if (colorFavorito !== undefined && !COLORES_PERMITIDOS.includes(colorFavorito)) {
     return res.status(400).json({ error: 'Color no válido.' });
   }
@@ -195,18 +198,27 @@ app.put('/api/estudiantes/me/preferencias', (req, res) => {
   if (modoOscuro !== undefined && typeof modoOscuro !== 'boolean') {
     return res.status(400).json({ error: 'Modo no válido.' });
   }
+  if (buhoColor !== undefined && !BUHO_COLORES.includes(buhoColor)) {
+    return res.status(400).json({ error: 'Color de búho no válido.' });
+  }
+  if (buhoAccesorio !== undefined && !BUHO_ACCESORIOS.includes(buhoAccesorio)) {
+    return res.status(400).json({ error: 'Accesorio no válido.' });
+  }
 
   try {
-    // Solo se actualizan los campos enviados; los demás conservan su valor.
     db.prepare(`UPDATE Estudiantes SET
         ColorFavorito = COALESCE(?, ColorFavorito),
         TemaInteres = COALESCE(?, TemaInteres),
-        ModoOscuro = COALESCE(?, ModoOscuro)
+        ModoOscuro = COALESCE(?, ModoOscuro),
+        BuhoColor = COALESCE(?, BuhoColor),
+        BuhoAccesorio = COALESCE(?, BuhoAccesorio)
       WHERE EstudianteID = ? AND Activo = 1`)
       .run(
         colorFavorito ?? null,
         temaInteres ?? null,
         modoOscuro === undefined ? null : (modoOscuro ? 1 : 0),
+        buhoColor ?? null,
+        buhoAccesorio ?? null,
         studentId
       );
     const estudiante = db.prepare(`SELECT ${COLUMNAS_ESTUDIANTE} FROM Estudiantes
@@ -237,7 +249,7 @@ app.get('/api/actividades', (req, res) => {
           return {
             ...actividad,
             ActividadPrevia: actividadPrevia,
-            Bloqueada: Boolean(actividadPrevia && !completadas.has(actividadPrevia))
+            Bloqueada: !MODO_PRUEBA && Boolean(actividadPrevia && !completadas.has(actividadPrevia))
           };
         })
         .sort((a, b) => {
@@ -267,7 +279,7 @@ app.post('/api/actividades/:id/iniciar', (req, res) => {
       if (!actividad) return null;
       const indiceActividad = ACTIVIDADES_PROGRESIVAS.indexOf(actividad.Nombre);
       const actividadPrevia = indiceActividad > 0 ? ACTIVIDADES_PROGRESIVAS[indiceActividad - 1] : null;
-      if (actividadPrevia) {
+      if (actividadPrevia && !MODO_PRUEBA) {
         const actividadPreviaCompletada = db.prepare(`SELECT 1 AS completado FROM ResultadosActividades R
           JOIN Actividades A ON A.ActividadID = R.ActividadID
           WHERE R.EstudianteID = ? AND A.Nombre = ? AND R.Estado = 'Completada' LIMIT 1`)

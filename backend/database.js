@@ -77,4 +77,9 @@ if (versionEsquema < 1) {
   }
 }
 
+for (const nombre of ['BuhoColor', 'BuhoAccesorio']) {
+  const columnas = db.prepare('PRAGMA table_info(Estudiantes)').all().map(columna => columna.name);
+  if (!columnas.includes(nombre)) db.exec(`ALTER TABLE Estudiantes ADD COLUMN ${nombre} TEXT`);
+}
+
 module.exports = db;
