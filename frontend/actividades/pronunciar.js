@@ -10,6 +10,13 @@ const game = $('#game');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const canRecordAudio = Boolean(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
 let resultadoId;
+const PROGRESS_NAME = 'Practico la pronunciación';
+let progressKey = null;
+function saveProgress() {
+  if (!progressKey || game.classList.contains('hidden')) return;
+  try { localStorage.setItem(progressKey, JSON.stringify({round, correct, responses})); } catch {}
+}
+
 let round = 0;
 let correct = 0;
 let recognition;
@@ -96,6 +103,7 @@ function nextWord(wasCorrect, manual = false) {
   if (wasCorrect) correct++;
   responses.push({ palabra: words[round].word, intentos: attempts, confirmadaComoPracticada: manual });
   round++;
+  saveProgress();
   if (round === words.length) {
     finish();
     return;
@@ -114,6 +122,7 @@ async function finish() {
       actividad: 'pronunciacion',
       respuestas
     });
+    if (progressKey) localStorage.removeItem(progressKey);
     $('#result').textContent = `Practicaste ${words.length} palabras. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
@@ -319,10 +328,16 @@ if (SpeechRecognition) {
 
 (async () => {
   try {
+    progressKey = await window.actividadLectura.claveProgreso(PROGRESS_NAME);
+    let restored = null;
+    try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Practico la pronunciación');
+    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < words.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); }
     showWord();
     game.classList.remove('hidden');
+    saveProgress();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
 })();
+window.addEventListener('pagehide', saveProgress);

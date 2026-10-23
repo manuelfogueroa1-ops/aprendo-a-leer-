@@ -23,6 +23,13 @@ const questions = [
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
 let resultadoId;
+const PROGRESS_NAME = 'Encuentro la letra';
+let progressKey = null;
+function saveProgress() {
+  if (!progressKey || game.classList.contains('hidden')) return;
+  try { localStorage.setItem(progressKey, JSON.stringify({round, correct, responses, locked})); } catch {}
+}
+
 let round = 0;
 let correct = 0;
 let locked = false;
@@ -58,6 +65,7 @@ function choose(letter) {
   const isCorrect = letter === question.word[question.missing];
   responses.push({ palabra: question.word, letraElegida: letter, letraCorrecta: question.word[question.missing], correcta: isCorrect });
   if (isCorrect) correct++;
+  saveProgress();
   $('#word').textContent = [...question.word].map((character, index) =>
     index === question.missing ? letter.toLocaleUpperCase('es-CL') : character
   ).join(' ');
@@ -86,6 +94,7 @@ async function finish() {
       actividad: 'letras',
       respuestas: responses
     });
+    if (progressKey) localStorage.removeItem(progressKey);
     $('#result').textContent = `Elegiste ${correct} de ${questions.length} letras correctamente. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
@@ -96,6 +105,7 @@ async function finish() {
 $('#next').addEventListener('click', async () => {
   if (!locked) return;
   round++;
+  saveProgress();
   if (round === questions.length) {
     await finish();
     return;
@@ -107,10 +117,16 @@ $('#retrySave').addEventListener('click', finish);
 
 (async () => {
   try {
+    progressKey = await window.actividadLectura.claveProgreso(PROGRESS_NAME);
+    let restored = null;
+    try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Encuentro la letra');
+    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < questions.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); }
     renderQuestion();
     game.classList.remove('hidden');
+    saveProgress();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
 })();
+window.addEventListener('pagehide', saveProgress);

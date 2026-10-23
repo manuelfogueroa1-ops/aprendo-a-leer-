@@ -25,6 +25,13 @@ const game = $('#game');
 const answer = [];
 const responses = [];
 let resultadoId;
+const PROGRESS_NAME = 'Aprendo las sílabas';
+let progressKey = null;
+function saveProgress() {
+  if (!progressKey || game.classList.contains('hidden')) return;
+  try { localStorage.setItem(progressKey, JSON.stringify({round, correct, responses, intentos, answer})); } catch {}
+}
+
 let round = 0;
 let correct = 0;
 let locked = false;
@@ -44,6 +51,7 @@ function renderQuestion() {
   $('#feedback').className = 'feedback';
   renderChoices();
   renderAnswer();
+  if (window.__pendingSyllableAnswer) { answer.push(...window.__pendingSyllableAnswer); window.__pendingSyllableAnswer = null; renderChoices(); renderAnswer(); }
 }
 
 function renderChoices() {
@@ -62,6 +70,7 @@ function renderChoices() {
     button.addEventListener('click', () => {
       if (locked || answer.length >= questions[round].syllables.length) return;
       answer.push(syllable);
+      saveProgress();
       renderChoices();
       renderAnswer();
     });
@@ -81,6 +90,7 @@ function renderAnswer() {
     button.addEventListener('click', () => {
       if (locked) return;
       answer.splice(index, 1);
+      saveProgress();
       renderChoices();
       renderAnswer();
     });
@@ -97,6 +107,7 @@ async function finish() {
       actividad: 'silabas',
       respuestas: responses
     });
+    if (progressKey) localStorage.removeItem(progressKey);
     $('#result').textContent = `Formaste ${correct} de ${questions.length} palabras al primer intento. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
@@ -114,6 +125,7 @@ $('#check').addEventListener('click', () => {
   }
   const isCorrect = answer.join('') === question.word;
   intentos++;
+  saveProgress();
   responses.push({ palabra: question.word, respuesta: answer.join(''), correcta: isCorrect, intento: intentos });
   feedback.className = 'feedback';
   void feedback.offsetWidth; // reinicia la animación aunque se repita el mismo mensaje
@@ -138,6 +150,7 @@ $('#check').addEventListener('click', () => {
   }
   window.setTimeout(() => {
     round++;
+    saveProgress();
     intentos = 0;
     locked = false;
     $('#check').disabled = false;
@@ -149,10 +162,17 @@ $('#retrySave').addEventListener('click', finish);
 
 (async () => {
   try {
+    progressKey = await window.actividadLectura.claveProgreso(PROGRESS_NAME);
+    let restored = null;
+    try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Aprendo las sílabas');
+    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < questions.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); intentos=restored.intentos || 0; window.__pendingSyllableAnswer = Array.isArray(restored.answer) ? restored.answer : null; }
     renderQuestion();
     game.classList.remove('hidden');
+    saveProgress();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
 })();
+
+window.addEventListener('pagehide', saveProgress);

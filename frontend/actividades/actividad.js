@@ -19,6 +19,216 @@ function mostrarEnlacesDeActividades(mostrar) {
   });
 }
 
+function crearDecoracionesDeActividad() {
+  if (!document.body.classList.contains('game-page')) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .activity-toolbar { display:flex; justify-content:flex-end; margin: 12px 0 0; }
+    .activity-pause-button {
+      border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer;
+      background: linear-gradient(135deg, #7b68ee, #5e41bb); color: #fff;
+      font: 800 0.98rem/1 system-ui, sans-serif; box-shadow: 0 8px 20px rgba(94,65,187,.28);
+    }
+    .activity-pause-button:hover { transform: translateY(-1px); }
+    .activity-pause-overlay {
+      position: fixed; inset: 0; z-index: 120; display: none; align-items: center; justify-content: center;
+      background: rgba(31, 22, 66, .48); backdrop-filter: blur(2px); padding: 24px;
+    }
+    .activity-pause-overlay.visible { display: flex; }
+    .activity-pause-card {
+      width: min(560px, 100%); background: linear-gradient(180deg, #fff, #f7f3ff); color: #36285f;
+      border-radius: 30px; padding: 28px 22px 24px; text-align: center;
+      box-shadow: 0 24px 48px rgba(31, 22, 66, .28);
+    }
+    .activity-pause-owl { display:flex; justify-content:center; margin-bottom: 14px; }
+    .activity-pause-owl .pause-owl-frame {
+      width: min(220px, 52vw); max-width: 220px; position: relative; display:block;
+      animation: pause-owl-float 2.8s ease-in-out infinite;
+    }
+    /* El búho y su accesorio comparten exactamente el mismo recuadro.
+       Sin estas reglas la copia pierde las posiciones definidas para #mascota. */
+    .pause-owl-frame > .cuerpo { display:block; position:relative; width:100%; }
+    .pause-owl-frame > .cuerpo > img { display:block; width:100%; height:auto; }
+    .pause-owl-frame > .cuerpo > .acc {
+      display:block; position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
+    }
+    .pause-owl-frame > .cuerpo > .acc svg {
+      position:absolute; inset:0; display:block; width:100%; height:100%; overflow:visible;
+    }
+    .pause-owl-frame > .cuerpo > .acc img {
+      position:absolute; inset:0; display:block; width:100%; height:100%;
+    }
+    .activity-pause-owl .pause-owl-frame,
+    .activity-finished-mascot .pause-owl-frame { flex-shrink:0; }
+    .activity-finished-owl { display:flex; justify-content:center; }
+    .activity-pause-card h2 { margin: 0 0 10px; font-size: clamp(1.8rem, 4vw, 2.4rem); }
+    .activity-pause-card p { margin: 0 0 18px; font-size: 1.08rem; line-height: 1.5; }
+    .activity-resume-button {
+      border: 0; border-radius: 999px; padding: 13px 18px; cursor: pointer;
+      background: linear-gradient(135deg, #ff9ecf, #ff7aa2); color: #4d1441;
+      font: 900 1rem/1 system-ui, sans-serif; box-shadow: 0 10px 24px rgba(255, 122, 162, .25);
+    }
+    @keyframes pause-owl-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    #finished::before, #finished h2::before { content: none !important; }
+    .activity-finished-mascot { margin: 0 auto 18px; max-width: 420px; }
+    .activity-finished-mascot .pause-owl-frame {
+      width: min(190px, 48vw); margin: 0 auto 10px; position: relative; display:block;
+      animation: pause-owl-float 2.8s ease-in-out infinite;
+    }
+    .activity-finished-bubble {
+      margin: 0 auto 14px; max-width: 360px; background: #fff; color: #41256f;
+      border-radius: 22px; padding: 14px 16px; box-shadow: 0 8px 22px rgba(68, 49, 127, .18);
+      font-weight: 800; font-size: clamp(1.1rem, 3vw, 1.4rem); line-height: 1.4;
+    }
+  `;
+  document.head.appendChild(style);
+
+  const panel = document.querySelector('.learning-panel');
+  const game = document.querySelector('#game');
+  if (panel && game) {
+    const toolbar = document.createElement('div');
+    toolbar.className = 'activity-toolbar';
+    const pauseButton = document.createElement('button');
+    pauseButton.type = 'button';
+    pauseButton.className = 'activity-pause-button';
+    pauseButton.textContent = '⏸️ Pausa';
+    pauseButton.setAttribute('aria-label', 'Pausar actividad');
+    toolbar.appendChild(pauseButton);
+    panel.insertBefore(toolbar, game);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'activity-pause-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML = `
+      <div class="activity-pause-card" role="dialog" aria-modal="true" aria-labelledby="pauseTitle" aria-describedby="pauseText">
+        <div class="activity-pause-owl"></div>
+        <h2 id="pauseTitle">Actividad en pausa</h2>
+        <p id="pauseText">Tu búho te espera aquí. Cuando la profesora termine de explicar, puedes continuar con calma.</p>
+        <button type="button" class="activity-resume-button">▶️ Continuar actividad</button>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const resumeButton = overlay.querySelector('.activity-resume-button');
+    const owlSlot = overlay.querySelector('.activity-pause-owl');
+    let paused = false;
+
+    const clonarBuho = (destino) => {
+      const origen = document.querySelector('#mascota .cuerpo');
+      destino.replaceChildren();
+      if (!origen) {
+        const texto = document.createElement('div');
+        texto.textContent = '🦉';
+        texto.style.fontSize = '6rem';
+        destino.appendChild(texto);
+        return;
+      }
+      const marco = document.createElement('div');
+      marco.className = 'pause-owl-frame';
+      marco.appendChild(origen.cloneNode(true));
+      destino.appendChild(marco);
+    };
+
+    const pausar = () => {
+      if (paused || game.classList.contains('hidden')) return;
+      paused = true;
+      overlay.classList.add('visible');
+      overlay.setAttribute('aria-hidden', 'false');
+      pauseButton.textContent = '⏸️ En pausa';
+      clonarBuho(owlSlot);
+      window.speechSynthesis?.cancel();
+      window.dispatchEvent(new CustomEvent('actividad-pausada'));
+    };
+
+    const reanudar = () => {
+      if (!paused) return;
+      paused = false;
+      overlay.classList.remove('visible');
+      overlay.setAttribute('aria-hidden', 'true');
+      pauseButton.textContent = '⏸️ Pausa';
+      window.dispatchEvent(new CustomEvent('actividad-reanudada'));
+      window.mascota?.decir('¡Muy bien! Sigamos aprendiendo.', { voz: false, duracion: 2800 });
+    };
+
+    pauseButton.addEventListener('click', pausar);
+    resumeButton.addEventListener('click', reanudar);
+
+    window.__actividadPause = {
+      estaPausada: () => paused,
+      pausar,
+      reanudar,
+      clonarBuho
+    };
+  }
+
+  const finished = document.querySelector('#finished');
+  if (finished) {
+    const asegurarPantallaFinal = () => {
+      if (finished.classList.contains('hidden') || finished.querySelector('.activity-finished-mascot')) return;
+      const bloque = document.createElement('div');
+      bloque.className = 'activity-finished-mascot';
+      const owlSlot = document.createElement('div');
+      owlSlot.className = 'activity-finished-owl';
+      const bubble = document.createElement('div');
+      bubble.className = 'activity-finished-bubble';
+      bubble.textContent = '¡Lo lograste! Estoy muy orgulloso de ti.';
+      bloque.append(owlSlot, bubble);
+      finished.prepend(bloque);
+      window.__actividadPause?.clonarBuho?.(owlSlot);
+      window.mascota?.decir('¡Lo lograste! Estoy muy orgulloso de ti.', { voz: false, duracion: 4200 });
+    };
+    new MutationObserver(asegurarPantallaFinal).observe(finished, { attributes: true, attributeFilter: ['class'] });
+    asegurarPantallaFinal();
+  }
+}
+
+let cachedStudentPromise = null;
+async function obtenerEstudianteActual() {
+  if (!cachedStudentPromise) {
+    cachedStudentPromise = fetch('/api/estudiantes/me', { credentials: 'same-origin' })
+      .then(async respuesta => {
+        const datos = await respuesta.json().catch(() => ({}));
+        if (!respuesta.ok) {
+          const error = new Error(datos.error || 'No hay un estudiante ingresado.');
+          error.status = respuesta.status;
+          throw error;
+        }
+        return datos.estudiante;
+      });
+  }
+  return cachedStudentPromise;
+}
+
+function leerGuardadoLocal(clave) {
+  try {
+    const texto = localStorage.getItem(clave);
+    return texto ? JSON.parse(texto) : null;
+  } catch {
+    return null;
+  }
+}
+
+function escribirGuardadoLocal(clave, datos) {
+  try {
+    localStorage.setItem(clave, JSON.stringify(datos));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function borrarGuardadoLocal(clave) {
+  try {
+    localStorage.removeItem(clave);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', crearDecoracionesDeActividad, { once: true });
+
 window.actividadLectura = {
   async iniciar(nombre) {
     const status = document.querySelector('#status');
@@ -67,5 +277,24 @@ window.actividadLectura = {
   mostrarError(error) {
     const status = document.querySelector('#status');
     status.textContent = `${error.message} Si aún no ingresaste, vuelve al inicio e ingresa tu nombre y apellido.`;
+  },
+  estaPausada() {
+    return Boolean(window.__actividadPause?.estaPausada?.());
+  },
+  async claveProgreso(nombreActividad = location.pathname) {
+    const estudiante = await obtenerEstudianteActual().catch(() => ({ EstudianteID: 'anonimo' }));
+    return `lectura-progreso:${estudiante.EstudianteID}:${nombreActividad}`;
+  },
+  async guardarProgresoLocal(nombreActividad, datos) {
+    const clave = await this.claveProgreso(nombreActividad);
+    return escribirGuardadoLocal(clave, { ...datos, actualizadoEn: new Date().toISOString() });
+  },
+  async cargarProgresoLocal(nombreActividad) {
+    const clave = await this.claveProgreso(nombreActividad);
+    return leerGuardadoLocal(clave);
+  },
+  async borrarProgresoLocal(nombreActividad) {
+    const clave = await this.claveProgreso(nombreActividad);
+    return borrarGuardadoLocal(clave);
   }
 };

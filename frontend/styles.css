@@ -314,7 +314,7 @@ footer {padding: 25px 0 12px; text-align: center; font-size: .9rem; color: #f0ed
 #listen {background: #378bc9; box-shadow: 0 5px 0 #2376ad;}
 #practice {background: #279b79; box-shadow: 0 5px 0 #197658;}
 #finished {padding: 45px 8px 22px;}
-#finished::before {content: "🏆"; display: block; font-size: 5rem;}
+#finished::before {content: none; display: none;}
 #finished h2 {font-size: 2rem; margin-bottom: 8px;}
 #finished #result {line-height: 1.6; color: var(--muted); margin: 10px 0 22px;}
 #finished .button-link {margin: 5px;}

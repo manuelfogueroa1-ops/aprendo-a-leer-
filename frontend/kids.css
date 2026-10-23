@@ -74,7 +74,7 @@ button.student-card:hover .student-enter{transform:translateX(6px)}
 .feedback.incorrect{animation:kd-tiembla .45s;border:3px solid #ff8a95}
 #finished{text-align:center}
 #finished h2{font-size:clamp(2rem,5vw,3rem);animation:kd-pop .7s var(--rebote)}
-#finished h2::before{content:"🏆";display:block;font-size:5rem;animation:kd-salta 1.6s var(--rebote) infinite}
+#finished h2::before{content:none;display:none}
 .back-link{font-size:1.1rem;font-weight:600;border-radius:18px;padding:12px 18px}
 @keyframes kd-pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes kd-tiembla{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}

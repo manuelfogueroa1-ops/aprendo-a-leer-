@@ -30,10 +30,18 @@ const letters = [
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
 let resultadoId;
+const PROGRESS_NAME = 'Reconozco las letras';
+let progressKey = null;
+function saveProgress() {
+  if (!progressKey || game.classList.contains('hidden')) return;
+  try { localStorage.setItem(progressKey, JSON.stringify({round, correct, responses})); } catch {}
+}
+
 let round = 0;
 let correct = 0;
 let locked = false;
 let secuenciaVoz = 0;
+let advanceTimer;
 const responses = [];
 
 function mezclar(items) {
@@ -46,6 +54,7 @@ function mezclar(items) {
 }
 
 function renderQuestion() {
+  if (window.actividadLectura.estaPausada()) return;
   const question = letters[round];
   locked = false;
   $('#progress').textContent = `Letra ${round + 1} de ${letters.length}`;
@@ -91,7 +100,7 @@ function renderQuestion() {
 }
 
 function choose(letter) {
-  if (locked) return;
+  if (locked || window.actividadLectura.estaPausada()) return;
   cancelarVoz();
   const question = letters[round];
   const isCorrect = letter === question.letter;
@@ -101,6 +110,7 @@ function choose(letter) {
     letraCorrecta: question.letter,
     correcta: isCorrect
   });
+  saveProgress();
   if (!isCorrect) {
     $('#feedback').textContent = '¡Casi! Mira las letras grandes y vuelve a intentarlo.';
     $('#feedback').className = 'feedback incorrect';
@@ -110,14 +120,17 @@ function choose(letter) {
 
   locked = true;
   correct++;
+  saveProgress();
   $('#feedback').textContent = `¡Muy bien! ${question.letter.toLocaleUpperCase('es-CL')} es la primera letra de ${question.word}.`;
   $('#feedback').classList.add('correct');
   $('#choices').querySelectorAll('button').forEach(button => { button.disabled = true; });
-  window.setTimeout(avanzar, 1000);
+  clearTimeout(advanceTimer);
+  advanceTimer = window.setTimeout(avanzar, 1000);
 }
 
 async function avanzar() {
   round++;
+  saveProgress();
   if (round === letters.length) {
     await finish();
     return;
@@ -153,12 +166,12 @@ function iniciarVoz(textos) {
 }
 
 function pronunciarLetra(letter) {
-  if (locked || !('speechSynthesis' in window)) return;
+  if (locked || window.actividadLectura.estaPausada() || !('speechSynthesis' in window)) return;
   iniciarVoz([letter.toLocaleUpperCase('es-CL')]);
 }
 
 function escuchar({ reintento = false, leerOpciones = false } = {}) {
-  if (locked) return;
+  if (locked || window.actividadLectura.estaPausada()) return;
   if (!('speechSynthesis' in window)) {
     if (reintento) return;
     $('#feedback').textContent = 'La lectura en voz alta no está disponible en este navegador. Puedes usar la imagen y las letras grandes como pista.';
@@ -186,6 +199,7 @@ async function finish() {
       actividad: 'letras_iniciales',
       respuestas: responses
     });
+    if (progressKey) localStorage.removeItem(progressKey);
     $('#result').textContent = `Reconociste ${correct} de ${letters.length} letras. ¡El Nivel 2 ya está disponible! Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
@@ -198,10 +212,24 @@ $('#retrySave').addEventListener('click', finish);
 
 (async () => {
   try {
+    progressKey = await window.actividadLectura.claveProgreso(PROGRESS_NAME);
+    let restored = null;
+    try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Reconozco las letras');
+    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < letters.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); }
     renderQuestion();
     game.classList.remove('hidden');
+    saveProgress();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
 })();
+
+window.addEventListener('actividad-pausada', () => { clearTimeout(advanceTimer); cancelarVoz(); });
+window.addEventListener('actividad-reanudada', () => {
+  if (!game.classList.contains('hidden') && round < letters.length) {
+    window.setTimeout(() => renderQuestion(), 150);
+  }
+});
+
+window.addEventListener('pagehide', saveProgress);

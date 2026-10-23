@@ -11,6 +11,13 @@ const game = $('#game');
 const attempts = new Map(pairs.map(pair => [pair.word, 0]));
 const responses = [];
 let resultadoId;
+const PROGRESS_NAME = 'Uno la palabra con su imagen';
+let progressKey = null;
+function saveProgress() {
+  if (!progressKey || game.classList.contains('hidden')) return;
+  try { localStorage.setItem(progressKey, JSON.stringify({matchedPairs, correctFirstTry, errors, responses, attempts: Array.from(attempts)})); } catch {}
+}
+
 let seleccionada = null;
 let correctFirstTry = 0;
 let matchedPairs = 0;
@@ -82,6 +89,7 @@ async function chooseWord(word, button) {
   if (selectedPair.word !== word) {
     attempts.set(selectedPair.word, attempts.get(selectedPair.word) + 1);
     errors++;
+    saveProgress();
     $('#feedback').textContent = 'Esa palabra no corresponde. ¡Prueba otra!';
     $('#feedback').className = 'feedback incorrect';
     seleccionada = null;
@@ -92,6 +100,7 @@ async function chooseWord(word, button) {
   if (attempts.get(word) === 0) correctFirstTry++;
   responses.push({ palabra: word, intentos: attempts.get(word) + 1, correctaPrimerIntento: attempts.get(word) === 0 });
   matchedPairs++;
+  saveProgress();
   seleccionada = null;
   $('#progress').textContent = `Parejas unidas: ${matchedPairs} de ${pairs.length}`;
   $('#progressBar').style.width = `${(matchedPairs / pairs.length) * 100}%`;
@@ -114,6 +123,7 @@ async function finish() {
       intentosIncorrectos: errors
     }, errors);
     saved = true;
+    if (progressKey) localStorage.removeItem(progressKey);
     $('#retrySave').classList.add('hidden');
     $('#result').textContent = `Uniste ${matchedPairs} de ${pairs.length} parejas. Aciertos al primer intento: ${correctFirstTry}. Errores: ${errors}. Duración: ${result.duracionSegundos} segundos.`;
   } catch (error) {
@@ -128,11 +138,18 @@ $('#retrySave').addEventListener('click', finish);
 
 (async () => {
   try {
+    progressKey = await window.actividadLectura.claveProgreso(PROGRESS_NAME);
+    let restored = null;
+    try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Uno la palabra con su imagen');
+    if (restored && Array.isArray(restored.responses)) { responses.push(...restored.responses); matchedPairs=responses.length; correctFirstTry=restored.correctFirstTry || 0; errors=restored.errors || 0; (restored.attempts || []).forEach(([word, count])=>attempts.set(word,count)); }
     $('#progress').textContent = `Parejas unidas: 0 de ${pairs.length}`;
     render();
     game.classList.remove('hidden');
+    saveProgress();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
 })();
+
+window.addEventListener('pagehide', saveProgress);

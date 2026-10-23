@@ -20,6 +20,13 @@ const $ = selector => document.querySelector(selector);
 const game = $('#game');
 const responses = [];
 let resultadoId;
+const PROGRESS_NAME = 'Completo el cuento';
+let progressKey = null;
+function saveProgress() {
+  if (!progressKey || game.classList.contains('hidden')) return;
+  try { localStorage.setItem(progressKey, JSON.stringify({storyTitle: story?.title, blanks: blanks.map(b=>({filled:b.filled,errors:b.errors})), active, correct, responses})); } catch {}
+}
+
 let story;
 let blanks = [];
 let active = 0;
@@ -136,12 +143,14 @@ function choose(letter) {
   void feedback.offsetWidth;
   if (!isCorrect) {
     blank.errors = (blank.errors || 0) + 1;
+    saveProgress();
     responses.push({ palabra: blank.word, letraElegida: letter, letraCorrecta: blank.letter, correcta: false });
     feedback.textContent = 'Casi. Lee la frase en voz alta y prueba con otra letra.';
     feedback.classList.add('incorrect');
     return;
   }
   blank.filled = true;
+  saveProgress();
   if (!blank.errors) correct++;
   responses.push({ palabra: blank.word, letraElegida: letter, letraCorrecta: blank.letter, correcta: true });
   feedback.textContent = `¡Muy bien! Ahí va la ${letter.toLocaleUpperCase('es-CL')}.`;
@@ -180,6 +189,7 @@ async function finish() {
       cuento: story.title,
       respuestas: responses
     });
+    if (progressKey) localStorage.removeItem(progressKey);
     $('#result').textContent = `Completaste “${story.title}”: ${correct} de ${blanks.length} letras al primer intento. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
@@ -188,7 +198,7 @@ async function finish() {
 }
 
 function startStory() {
-  const chosen = stories[Math.floor(Math.random() * stories.length)];
+  const chosen = stories.find(item => item.title === window.__restoredStory?.storyTitle) || stories[Math.floor(Math.random() * stories.length)];
   story = { title: chosen.title, parts: parseStory(chosen.text) };
   story.parts.forEach((part, index) => {
     if (part.type !== 'blank') return;
@@ -196,6 +206,13 @@ function startStory() {
     part.options = optionsFor(part.letter);
   });
   blanks = story.parts.filter(part => part.type === 'blank');
+  if (window.__restoredStory && window.__restoredStory.blanks.length === blanks.length) {
+    blanks.forEach((blank, i) => { blank.filled=!!window.__restoredStory.blanks[i].filled; blank.errors=window.__restoredStory.blanks[i].errors || 0; });
+    active = Math.min(window.__restoredStory.active || 0, blanks.length-1);
+    if (blanks[active]?.filled) active = Math.max(0, blanks.findIndex(blank => !blank.filled));
+    correct = window.__restoredStory.correct || 0;
+    responses.push(...(window.__restoredStory.responses || []));
+  }
   $('#storyTitle').textContent = story.title;
   renderStory();
   renderChoices();
@@ -206,10 +223,16 @@ $('#retrySave').addEventListener('click', finish);
 
 (async () => {
   try {
+    progressKey = await window.actividadLectura.claveProgreso(PROGRESS_NAME);
+    let restored = null;
+    try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Completo el cuento');
+    if (restored && Array.isArray(restored.blanks)) { window.__restoredStory = restored; }
     startStory();
     game.classList.remove('hidden');
+    saveProgress();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
 })();
+window.addEventListener('pagehide', saveProgress);

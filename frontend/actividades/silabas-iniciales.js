@@ -21,6 +21,7 @@ const groups = [
     { base: 'gü', vowels: ['e', 'i'], extras: ['gue', 'gui'] }
   ] }
 ];
+
 groups.forEach(group => {
   group.label = group.families.map(family => family.base.toLocaleUpperCase('es-CL')).join(' · ');
   group.questions = group.families.flatMap(family => family.vowels.map(vowel => ({
@@ -35,6 +36,7 @@ let questions = [];
 
 const $ = selector => document.querySelector(selector);
 const game = $('#game');
+const PROGRESS_NAME = 'Formo sílabas';
 let resultadoId;
 let round = 0;
 let correct = 0;
@@ -42,6 +44,7 @@ let locked = false;
 let audioTurn = 0;
 let audioTimer;
 let advanceTimer;
+let progressReady = false;
 const responses = [];
 
 function mezclar(items) {
@@ -53,7 +56,22 @@ function mezclar(items) {
   return resultado;
 }
 
+function estadoActual() {
+  return {
+    round,
+    correct,
+    responses,
+    total: questions.length
+  };
+}
+
+function guardarProgreso() {
+  if (!progressReady || !questions.length || round >= questions.length) return;
+  window.actividadLectura.guardarProgresoLocal(PROGRESS_NAME, estadoActual());
+}
+
 function renderQuestion() {
+  if (window.actividadLectura.estaPausada()) return;
   clearTimeout(audioTimer);
   clearTimeout(advanceTimer);
   cancelarAudio();
@@ -76,6 +94,7 @@ function renderQuestion() {
     button.addEventListener('click', () => choose(syllable));
     return button;
   }));
+  guardarProgreso();
   const turnoActual = round;
   const audioActual = audioTurn;
   audioTimer = window.setTimeout(() => {
@@ -84,7 +103,7 @@ function renderQuestion() {
 }
 
 function choose(syllable) {
-  if (locked) return;
+  if (locked || window.actividadLectura.estaPausada()) return;
   clearTimeout(audioTimer);
   cancelarAudio();
   const question = questions[round];
@@ -94,6 +113,7 @@ function choose(syllable) {
     respuesta: syllable.toLocaleUpperCase('es-CL'),
     correcta: isCorrect
   });
+  guardarProgreso();
   if (!isCorrect) {
     $('#feedback').textContent = '¡Casi! Escucha la sílaba y vuelve a intentarlo.';
     $('#feedback').className = 'feedback incorrect';
@@ -111,7 +131,7 @@ function choose(syllable) {
 }
 
 function escuchar() {
-  if (locked || !('speechSynthesis' in window)) return;
+  if (locked || window.actividadLectura.estaPausada() || !('speechSynthesis' in window)) return;
   clearTimeout(audioTimer);
   cancelarAudio();
   pronunciar(questions[round].syllable, audioTurn);
@@ -134,7 +154,7 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
   const turnoAudio = audioTurn;
   let yaAvanzo = false;
   const avanzar = () => {
-    if (yaAvanzo || !locked || round !== turnoActual || audioTurn !== turnoAudio) return;
+    if (yaAvanzo || !locked || round !== turnoActual || audioTurn !== turnoAudio || window.actividadLectura.estaPausada()) return;
     yaAvanzo = true;
     clearTimeout(advanceTimer);
     cancelarAudio();
@@ -150,9 +170,7 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
     advanceTimer = window.setTimeout(avanzar, 1800);
     return;
   }
-  const felicitacion = new SpeechSynthesisUtterance(
-    `¡Muy bien! ${question.syllable.toLocaleUpperCase('es-CL')}.`
-  );
+  const felicitacion = new SpeechSynthesisUtterance(`¡Muy bien! ${question.syllable.toLocaleUpperCase('es-CL')}.`);
   felicitacion.lang = 'es-CL';
   felicitacion.rate = 0.78;
   felicitacion.addEventListener('end', () => {
@@ -172,6 +190,9 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
 }
 
 async function finish() {
+  clearTimeout(audioTimer);
+  clearTimeout(advanceTimer);
+  cancelarAudio();
   $('#progressBar').style.width = '100%';
   game.classList.add('hidden');
   $('#finished').classList.remove('hidden');
@@ -181,8 +202,10 @@ async function finish() {
       grupo: 'todos',
       respuestas: responses
     });
+    await window.actividadLectura.borrarProgresoLocal(PROGRESS_NAME);
     $('#result').textContent = `Formaste correctamente ${correct} de ${questions.length} sílabas. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
+    guardarProgreso();
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
     $('#retrySave').classList.remove('hidden');
   }
@@ -191,20 +214,44 @@ async function finish() {
 $('#listen').addEventListener('click', escuchar);
 $('#retrySave').addEventListener('click', finish);
 
-function startAllGroups() {
+async function startAllGroups() {
   // Secuencia completa: el alumno no elige grupos y avanza hasta completar todo.
   questions = groups.flatMap(group => group.questions);
   round = 0;
   correct = 0;
   responses.length = 0;
+
+  const guardado = await window.actividadLectura.cargarProgresoLocal(PROGRESS_NAME);
+  if (guardado && Number.isInteger(guardado.round) && guardado.round >= 0 && guardado.round < questions.length) {
+    round = guardado.round;
+    correct = Number.isInteger(guardado.correct) ? guardado.correct : 0;
+    responses.push(...(Array.isArray(guardado.responses) ? guardado.responses : []));
+    const status = $('#status');
+    if (status) status.textContent = `Retomaste tu avance en la sílaba ${round + 1} de ${questions.length}.`;
+  }
+
+  progressReady = true;
   game.classList.remove('hidden');
   renderQuestion();
 }
 
+window.addEventListener('beforeunload', guardarProgreso);
+window.addEventListener('pagehide', guardarProgreso);
+window.addEventListener('actividad-pausada', () => {
+  clearTimeout(audioTimer);
+  clearTimeout(advanceTimer);
+  cancelarAudio();
+});
+window.addEventListener('actividad-reanudada', () => {
+  if (!game.classList.contains('hidden') && round < questions.length) {
+    window.setTimeout(() => renderQuestion(), 150);
+  }
+});
+
 (async () => {
   try {
     resultadoId = await window.actividadLectura.iniciar('Formo sílabas');
-    startAllGroups();
+    await startAllGroups();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }
