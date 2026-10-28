@@ -315,6 +315,40 @@ app.post('/api/actividades/:id/iniciar', (req, res) => {
   }
 });
 
+app.post('/api/resultados/:id/avance', (req, res) => {
+  const studentId = req.session.studentId;
+  if (!studentId) return res.status(401).json({ error: 'Primero ingresa como estudiante.' });
+  const id = Number(req.params.id);
+  const { preguntaActual, totalPreguntas, completadas, consigna, respuestaActual, pausada, revision } = req.body || {};
+  if (!Number.isSafeInteger(id) || id < 1
+    || !Number.isInteger(totalPreguntas) || totalPreguntas < 1 || totalPreguntas > 1000
+    || !Number.isInteger(preguntaActual) || preguntaActual < 1 || preguntaActual > totalPreguntas
+    || !Number.isInteger(completadas) || completadas < 0 || completadas > totalPreguntas
+    || typeof consigna !== 'string' || consigna.length > 300
+    || typeof respuestaActual !== 'string' || respuestaActual.length > 300
+    || typeof pausada !== 'boolean' || !Number.isSafeInteger(revision) || revision < 1) {
+    return res.status(400).json({ error: 'Avance no válido.' });
+  }
+  try {
+    const intento = db.prepare(`SELECT 1 FROM ResultadosActividades
+      WHERE ResultadoID = ? AND EstudianteID = ? AND Estado = 'En progreso'`).get(id, studentId);
+    if (!intento) return res.status(404).json({ error: 'No se encontró un intento en progreso de este estudiante.' });
+    db.prepare(`INSERT INTO AvanceActividad
+      (ResultadoID, PreguntaActual, TotalPreguntas, Completadas, Consigna, RespuestaActual, Pausada, Revision, FechaActualizacion)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      ON CONFLICT(ResultadoID) DO UPDATE SET
+        PreguntaActual = excluded.PreguntaActual, TotalPreguntas = excluded.TotalPreguntas,
+        Completadas = excluded.Completadas, Consigna = excluded.Consigna,
+        RespuestaActual = excluded.RespuestaActual, Pausada = excluded.Pausada,
+        Revision = excluded.Revision, FechaActualizacion = excluded.FechaActualizacion
+      WHERE excluded.Revision > AvanceActividad.Revision`)
+      .run(id, preguntaActual, totalPreguntas, completadas, consigna, respuestaActual, Number(pausada), revision);
+    res.json({ guardado: true });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo guardar el avance.');
+  }
+});
+
 const audioParser = express.raw({ type: 'audio/*', limit: '2mb' });
 app.post('/api/resultados/:id/audio', audioParser, (req, res) => {
   const studentId = req.session.studentId;
@@ -566,7 +600,9 @@ app.get('/api/profesor/estudiantes/:id/resultados', requireTeacher, (req, res) =
     const resultados = filas.map(({ DetalleResultado, ...fila }) => {
       let detalle = null;
       try { detalle = DetalleResultado ? JSON.parse(DetalleResultado) : null; } catch { /* detalle ilegible */ }
-      return { ...fila, detalle };
+      const avance = db.prepare(`SELECT PreguntaActual, TotalPreguntas, Completadas, Consigna,
+        RespuestaActual, Pausada, FechaActualizacion FROM AvanceActividad WHERE ResultadoID = ?`).get(fila.ResultadoID) || null;
+      return { ...fila, detalle, avance };
     });
     const audios = db.prepare(`SELECT AudioID, ResultadoID, Palabra, FechaRegistro FROM AudiosPronunciacion
       WHERE EstudianteID = ? ORDER BY FechaRegistro DESC LIMIT 200`).all(studentId);

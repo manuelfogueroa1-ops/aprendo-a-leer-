@@ -310,7 +310,7 @@ async function refreshTeacherRecords() {
     const currentStudentId = activeStudentId;
     const [studentsLoaded, detailLoaded] = await Promise.all([
       loadTeacherStudents(),
-      currentStudentId ? openStudentDetail(currentStudentId) : Promise.resolve(true)
+      currentStudentId ? openStudentDetail(currentStudentId, { actualizar: true }) : Promise.resolve(true)
     ]);
     if (!studentsLoaded || !detailLoaded) {
       status.textContent = 'No se pudieron actualizar todos los registros. Revisa los mensajes de error e inténtalo de nuevo.';
@@ -454,15 +454,32 @@ function bloqueAudios(audios) {
     `<li><span><b>${esc(a.Palabra)}</b> <small>${esc(fechaCorta(a.FechaRegistro))}</small></span><audio controls preload="none" src="/api/profesor/audios/${esc(a.AudioID)}"></audio></li>`).join('')}</ul>`;
 }
 
-async function openStudentDetail(id) {
+function lineasAvance(avance) {
+  if (!avance) return '<li class="ans-none">Todavía no hay un punto de avance sincronizado para este intento. Los registros anteriores a esta mejora no incluyen ese detalle.</li>';
+  const porcentaje = Math.round(avance.Completadas / avance.TotalPreguntas * 100);
+  return `<li class="ongoing-progress">
+    <b>${esc(avance.Completadas)} de ${esc(avance.TotalPreguntas)} completadas (${esc(porcentaje)} %)</b>
+    <progress max="${esc(avance.TotalPreguntas)}" value="${esc(avance.Completadas)}" aria-label="Avance del intento"></progress>
+    <span>Último punto guardado: pregunta ${esc(avance.PreguntaActual)} de ${esc(avance.TotalPreguntas)}.</span>
+    <span><b>Está trabajando en:</b> ${esc(avance.Consigna)}</span>
+    <span><b>Respuesta o situación:</b> ${esc(avance.RespuestaActual || 'Aún no ha respondido esta pregunta.')}</span>
+    <span>Faltan ${esc(avance.TotalPreguntas - avance.Completadas)} por completar. ${avance.Pausada ? 'La actividad estaba en pausa al guardar.' : ''}</span>
+    <small>Última sincronización: ${esc(fechaCorta(avance.FechaActualizacion))}. Este registro muestra el último avance recibido.</small>
+  </li>`;
+}
+
+async function openStudentDetail(id, { actualizar = false } = {}) {
   activeStudentId = id;
   $('#studentList').classList.add('hidden');
   $('#studentDetail').classList.remove('hidden');
   $('#profesor').classList.add('viewing-student');
   const box = $('#detailContent');
-  box.textContent = 'Cargando…';
+  const abiertos = new Set([...box.querySelectorAll('details[open]')].map(el => el.dataset.intento));
+  const scroll = window.scrollY;
+  if (!actualizar) box.textContent = 'Cargando…';
   try {
     const { estudiante, resultados, audios } = await api(`/api/profesor/estudiantes/${id}/resultados`);
+    if (activeStudentId !== id) return false;
     const hechos = resultados.filter(r => r.Estado === 'Completada');
     const enCurso = resultados.filter(r => r.Estado === 'En progreso');
     const promedio = hechos.length ? Math.round(hechos.reduce((t, r) => t + (r.Puntuacion || 0), 0) / hechos.length) : null;
@@ -481,13 +498,11 @@ async function openStudentDetail(id) {
         const estado = completado ? 'Completada' : enProgreso ? 'En progreso' : r.Estado;
         const resultado = completado
           ? `${esc(Math.round(r.Puntuacion ?? 0))} % <small>(${esc(r.Aciertos)}/${esc(Number(r.Aciertos) + Number(r.Errores))})</small>`
-          : `<span class="attempt-state">${esc(estado)}</span>`;
+          : `<span class="attempt-state">${esc(estado)}</span>${enProgreso && r.avance ? ` <small>${esc(r.avance.Completadas)}/${esc(r.avance.TotalPreguntas)} completadas</small>` : ''}`;
         const detalle = completado
           ? lineasRespuesta(r.detalle)
-          : `<li class="ans-none">${enProgreso
-            ? 'El estudiante comenzó esta actividad, pero aún no la ha terminado. El resultado se guardará al completarla.'
-            : 'Esta actividad no se completó.'}</li>`;
-        return `<details class="attempt">
+          : enProgreso ? lineasAvance(r.avance) : '<li class="ans-none">Esta actividad no se completó.</li>';
+        return `<details class="attempt" data-intento="${esc(r.ResultadoID)}"${actualizar && abiertos.has(String(r.ResultadoID)) ? ' open' : ''}>
         <summary><span class="attempt-name">${esc(r.Actividad)}</span><span>${esc(fechaCorta(r.FechaInicio))}</span>
           <span class="score">${resultado}</span></summary>
         <ul class="answers">${detalle}</ul>
@@ -495,7 +510,8 @@ async function openStudentDetail(id) {
         ${completado ? `<p class="note">Duración: ${esc(r.DuracionSegundos ?? '—')} s</p>` : ''}
       </details>`;
       }).join('') : '<p>Todavía no hay actividades registradas.</p>'}`;
-    window.scrollTo({ top: 0 });
+    if (actualizar) window.scrollTo({ top: scroll });
+    else window.scrollTo({ top: 0 });
     return true;
   } catch (error) {
     box.textContent = error.message;

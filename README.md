@@ -55,6 +55,28 @@ El recorrido de lectura tiene seis niveles progresivos: **Reconozco las letras**
 
 El endpoint `GET /api/health` comprueba que la base local pueda responder.
 
+## Acompañamiento con el búho
+
+- En las siete actividades, después de **50 segundos sin interacción**, el búho personalizado aparece con un mensaje de ánimo. El estudiante puede continuar cuando quiera.
+- **Más de 10 clics en 8 segundos sobre zonas sin respuesta** (dentro o fuera del ejercicio, incluidos controles deshabilitados) activan una pausa con respiración automática, sin presionar un botón: tres ciclos de tomar aire suavemente y soltarlo despacio. Al terminar se puede repetir el ejercicio. El estudiante puede continuar la actividad en cualquier momento. Las opciones equivocadas y los controles disponibles no se cuentan como clics sin efecto. Es una ayuda por interacción, no una evaluación del estado emocional.
+- La pausa manual también ofrece respiración. Se detienen las transiciones, la voz y la reproducción multimedia; una grabación en curso se detiene. Al continuar se conserva la pregunta y los aciertos. La grabación no se reinicia automáticamente.
+- Después de continuar hay **60 segundos sin nuevas pausas por clics**. No se muestran avisos en pestañas ocultas, durante una pausa ni después de terminar.
+- El espacio del estudiante incluye un **cursor grande con flecha y búho**, con el color de su mascota. El botón «Cursor grande» permite desactivarlo; la preferencia se conserva en ese navegador. No cambia el puntero del sistema ni el panel docente.
+
+Los umbrales se pueden ajustar en `APOYO_LECTURA`, al inicio de `frontend/actividades/actividad.js`, después de observar su uso con las profesoras. Los diálogos admiten teclado, mantienen el foco y respetan la preferencia de reducir movimiento.
+
+### Pistas de lectura y avance para la profesora
+
+En **Formo sílabas**, **Encuentro la letra** y **Aprendo las sílabas**, una pista aparece tras **10 segundos** en la pregunta o paso actual. La opción sugerida se destaca con un borde dorado y tres movimientos suaves; deja de moverse al poner el cursor encima o enfocarla con teclado. La preferencia de reducir movimiento conserva el borde y el mensaje sin animación. La pista espera durante las pausas y se renueva al cambiar de pregunta o colocar/quitar una sílaba. No selecciona ni puntúa la respuesta por el alumno. Para ordenar palabras, indica la siguiente sílaba, cuál quitar si está fuera de orden, o el botón de revisión cuando la palabra ya está formada.
+
+Las **siete actividades** envían al servidor el número de pregunta, las preguntas completadas, la consigna, la respuesta o situación actual y el estado de pausa. Se sincroniza después de los cambios, cada 15 segundos y al salir u ocultar la pestaña. Si la conexión falla, se muestra un aviso discreto y se reintenta al recuperarla. La profesora ve el último dato recibido y su fecha de sincronización; no es un indicador de presencia en tiempo real.
+
+En el panel docente, abre un estudiante y despliega un intento **En progreso** para ver su barra de avance, dónde quedó y cuánto falta. Usa **Actualizar registros** para consultar el avance más reciente; los detalles abiertos se conservan. Los intentos antiguos sin estos datos muestran que aún no hay avance sincronizado. El resumen se guarda en la nueva tabla `AvanceActividad`, creada automáticamente al reiniciar el servidor, sin borrar los registros existentes. El guardado local sigue permitiendo retomar el ejercicio en el mismo navegador.
+
+Prueba integrada: `node tests/pistas-avance.cjs` (requiere Playwright disponible, igual que la prueba siguiente). Crea una base SQLite temporal y cuentas ficticias; verifica las pistas, las pausas, la reconexión, el panel docente, la persistencia y el acceso limitado al intento del alumno. No modifica la base real.
+
+Prueba automática de navegador (usa datos ficticios, sin tocar SQLite): instala Playwright como herramienta de desarrollo o expón su módulo mediante `NODE_PATH`, y ejecuta `node tests/acompanamiento.cjs`. Usa Edge por defecto; `BROWSER_CHANNEL=chrome` permite usar Chrome. Las capturas de la prueba se guardan en `tests/`.
+
 ## Uso en red local
 
 El servidor escucha en todas las interfaces de red en el puerto `3000`. Desde otro computador de la misma red, abre `http://IP-LOCAL-DEL-SERVIDOR:3000`. Los navegadores solo permiten usar el micrófono en una conexión segura: usa `http://localhost:3000` en el mismo equipo o configura HTTPS para acceder desde otro dispositivo. El audio de la actividad de pronunciación se reproduce localmente y no se sube ni se guarda. Permite el puerto en el firewall solo en una red privada de confianza; SQLite guarda los datos únicamente en el computador que ejecuta Node.js.

@@ -153,3 +153,9 @@ $('#retrySave').addEventListener('click', finish);
 })();
 
 window.addEventListener('pagehide', saveProgress);
+window.actividadLectura.seguirAvance(() => ({
+  preguntaActual: Math.min(matchedPairs + 1, pairs.length), totalPreguntas: pairs.length,
+  completadas: matchedPairs,
+  consigna: seleccionada ? `Buscar la palabra de la imagen: ${seleccionada}` : 'Elegir una imagen y unirla con su palabra.',
+  respuestaActual: responses.length ? `Parejas unidas: ${responses.map(response => response.palabra).join(', ')}` : 'Aún no ha unido parejas.'
+}));

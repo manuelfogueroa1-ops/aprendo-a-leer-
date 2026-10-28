@@ -46,6 +46,14 @@ let audioTimer;
 let advanceTimer;
 let progressReady = false;
 const responses = [];
+const pista = crearPistaActividad(() => {
+  if (locked || !questions[round]) return null;
+  const syllable = questions[round].syllable.toLocaleUpperCase('es-CL');
+  return {
+    elemento: [...$('#choices').children].find(button => button.textContent === syllable),
+    mensaje: `${questions[round].consonant.toLocaleUpperCase('es-CL')} con ${questions[round].vowel.toLocaleUpperCase('es-CL')} forma ${syllable}. Toca la sílaba que se mueve.`
+  };
+});
 
 function mezclar(items) {
   const resultado = [...items];
@@ -72,8 +80,8 @@ function guardarProgreso() {
 
 function renderQuestion() {
   if (window.actividadLectura.estaPausada()) return;
-  clearTimeout(audioTimer);
-  clearTimeout(advanceTimer);
+  cancelarEsperaActividad(audioTimer);
+  cancelarEsperaActividad(advanceTimer);
   cancelarAudio();
   const question = questions[round];
   locked = false;
@@ -97,14 +105,16 @@ function renderQuestion() {
   guardarProgreso();
   const turnoActual = round;
   const audioActual = audioTurn;
-  audioTimer = window.setTimeout(() => {
+  audioTimer = programarActividad(() => {
     if (round === turnoActual && audioTurn === audioActual) pronunciar(question.syllable, audioActual);
   }, 300);
+  pista.reiniciar();
 }
 
 function choose(syllable) {
   if (locked || window.actividadLectura.estaPausada()) return;
-  clearTimeout(audioTimer);
+  pista.cancelar();
+  cancelarEsperaActividad(audioTimer);
   cancelarAudio();
   const question = questions[round];
   const isCorrect = syllable === question.syllable;
@@ -118,6 +128,7 @@ function choose(syllable) {
     $('#feedback').textContent = '¡Casi! Escucha la sílaba y vuelve a intentarlo.';
     $('#feedback').className = 'feedback incorrect';
     pronunciar(question.syllable, audioTurn);
+    pista.reiniciar();
     return;
   }
 
@@ -132,7 +143,7 @@ function choose(syllable) {
 
 function escuchar() {
   if (locked || window.actividadLectura.estaPausada() || !('speechSynthesis' in window)) return;
-  clearTimeout(audioTimer);
+  cancelarEsperaActividad(audioTimer);
   cancelarAudio();
   pronunciar(questions[round].syllable, audioTurn);
 }
@@ -156,7 +167,7 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
   const avanzar = () => {
     if (yaAvanzo || !locked || round !== turnoActual || audioTurn !== turnoAudio || window.actividadLectura.estaPausada()) return;
     yaAvanzo = true;
-    clearTimeout(advanceTimer);
+    cancelarEsperaActividad(advanceTimer);
     cancelarAudio();
     round++;
     if (round === questions.length) {
@@ -167,7 +178,7 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
   };
 
   if (!('speechSynthesis' in window)) {
-    advanceTimer = window.setTimeout(avanzar, 1800);
+    advanceTimer = programarActividad(avanzar, 1800);
     return;
   }
   const felicitacion = new SpeechSynthesisUtterance(`¡Muy bien! ${question.syllable.toLocaleUpperCase('es-CL')}.`);
@@ -175,23 +186,23 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
   felicitacion.rate = 0.78;
   felicitacion.addEventListener('end', () => {
     if (!yaAvanzo && round === turnoActual && audioTurn === turnoAudio) {
-      clearTimeout(advanceTimer);
-      advanceTimer = window.setTimeout(avanzar, 450);
+      cancelarEsperaActividad(advanceTimer);
+      advanceTimer = programarActividad(avanzar, 450);
     }
   }, { once: true });
   felicitacion.addEventListener('error', () => {
     if (!yaAvanzo && round === turnoActual && audioTurn === turnoAudio) {
-      clearTimeout(advanceTimer);
-      advanceTimer = window.setTimeout(avanzar, 1800);
+      cancelarEsperaActividad(advanceTimer);
+      advanceTimer = programarActividad(avanzar, 1800);
     }
   }, { once: true });
-  advanceTimer = window.setTimeout(avanzar, 4000);
+  advanceTimer = programarActividad(avanzar, 4000);
   window.speechSynthesis.speak(felicitacion);
 }
 
 async function finish() {
-  clearTimeout(audioTimer);
-  clearTimeout(advanceTimer);
+  cancelarEsperaActividad(audioTimer);
+  cancelarEsperaActividad(advanceTimer);
   cancelarAudio();
   $('#progressBar').style.width = '100%';
   game.classList.add('hidden');
@@ -238,13 +249,14 @@ async function startAllGroups() {
 window.addEventListener('beforeunload', guardarProgreso);
 window.addEventListener('pagehide', guardarProgreso);
 window.addEventListener('actividad-pausada', () => {
-  clearTimeout(audioTimer);
-  clearTimeout(advanceTimer);
+  cancelarEsperaActividad(audioTimer);
+  cancelarEsperaActividad(advanceTimer);
   cancelarAudio();
 });
 window.addEventListener('actividad-reanudada', () => {
   if (!game.classList.contains('hidden') && round < questions.length) {
-    window.setTimeout(() => renderQuestion(), 150);
+    if (locked) avanzarDespuesDelAcierto(questions[round], round);
+    else programarActividad(escuchar, 150);
   }
 });
 
@@ -256,3 +268,9 @@ window.addEventListener('actividad-reanudada', () => {
     window.actividadLectura.mostrarError(error);
   }
 })();
+window.actividadLectura.seguirAvance(() => questions.length ? ({
+  preguntaActual: Math.min(round + 1, questions.length), totalPreguntas: questions.length,
+  completadas: Math.min(round + Number(locked), questions.length),
+  consigna: `Formar ${(questions[round] || questions.at(-1)).syllable.toLocaleUpperCase('es-CL')}`,
+  respuestaActual: $('#feedback').textContent.slice(0, 300)
+}) : null);

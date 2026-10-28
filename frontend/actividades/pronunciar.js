@@ -148,7 +148,7 @@ async function recordAudio() {
   $('#recordingNote').classList.remove('hidden');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    if (waiting || recordingRound !== round) {
+    if (waiting || recordingRound !== round || window.actividadLectura.estaPausada()) {
       stream.getTracks().forEach(track => track.stop());
       return;
     }
@@ -289,6 +289,7 @@ if (SpeechRecognition) {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   recognition.addEventListener('result', event => {
+    if (window.actividadLectura.estaPausada()) return;
     const transcript = event.results[0][0].transcript;
     const said = transcript.toLocaleLowerCase('es-CL')
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}]/gu, '');
@@ -299,7 +300,7 @@ if (SpeechRecognition) {
     if (matches) $('#practice').classList.add('hidden');
     $('#feedback').textContent = matches ? '¡Muy bien! Pronunciaste la palabra.' : `Escuché “${event.results[0][0].transcript}”. Vuelve a escuchar e inténtalo otra vez.`;
     $('#feedback').classList.add(matches ? 'correct' : 'incorrect');
-    if (matches) window.setTimeout(() => nextWord(true), 900);
+    if (matches) programarActividad(() => nextWord(true), 900);
   });
   recognition.addEventListener('error', event => {
     $('#feedback').textContent = event.error === 'not-allowed'
@@ -341,3 +342,14 @@ if (SpeechRecognition) {
   }
 })();
 window.addEventListener('pagehide', saveProgress);
+window.actividadLectura.seguirAvance(() => ({
+  preguntaActual: Math.min(round + 1, words.length), totalPreguntas: words.length,
+  completadas: Math.min(round, words.length),
+  consigna: `Pronunciar ${(words[round] || words.at(-1)).word}`,
+  respuestaActual: $('#feedback').textContent.slice(0, 300)
+}));
+
+window.addEventListener('actividad-pausada', () => {
+  recognition?.abort();
+  if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+});

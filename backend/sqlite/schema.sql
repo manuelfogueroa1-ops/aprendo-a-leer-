@@ -48,6 +48,19 @@ CREATE TABLE IF NOT EXISTS ResultadosActividades (
   CHECK (FechaTermino IS NULL OR FechaTermino >= FechaInicio)
 );
 
+-- Último punto de trabajo de cada intento, también antes de completarlo.
+CREATE TABLE IF NOT EXISTS AvanceActividad (
+  ResultadoID INTEGER PRIMARY KEY REFERENCES ResultadosActividades(ResultadoID) ON DELETE CASCADE,
+  PreguntaActual INTEGER NOT NULL CHECK (PreguntaActual >= 1),
+  TotalPreguntas INTEGER NOT NULL CHECK (TotalPreguntas >= PreguntaActual),
+  Completadas INTEGER NOT NULL CHECK (Completadas BETWEEN 0 AND TotalPreguntas),
+  Consigna TEXT NOT NULL,
+  RespuestaActual TEXT NOT NULL,
+  Pausada INTEGER NOT NULL CHECK (Pausada IN (0, 1)),
+  Revision INTEGER NOT NULL CHECK (Revision >= 1),
+  FechaActualizacion TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS ProgresoEstudiante (
   ProgresoID INTEGER PRIMARY KEY,
   EstudianteID INTEGER NOT NULL UNIQUE REFERENCES Estudiantes(EstudianteID),

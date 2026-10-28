@@ -41,3 +41,51 @@
     }
   }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
 })();
+
+// Cursor nativo: el búho acompaña una flecha grande cuyo extremo marca el clic.
+(() => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'cursor-preference';
+  let enabled = true;
+  try { enabled = localStorage.getItem('lectura-cursor-buho') !== 'off'; } catch {}
+  const update = () => {
+    const studentPanel = document.querySelector('#estudiante');
+    const studentArea = document.body.classList.contains('game-page') || (studentPanel && !studentPanel.classList.contains('hidden'));
+    button.hidden = !studentArea;
+    document.documentElement.classList.toggle('student-cursor', Boolean(studentArea && enabled));
+    button.textContent = enabled ? '🦉 Cursor grande: activado' : '🦉 Activar cursor grande';
+    button.setAttribute('aria-pressed', String(enabled));
+  };
+  button.addEventListener('click', () => {
+    enabled = !enabled;
+    try { localStorage.setItem('lectura-cursor-buho', enabled ? 'on' : 'off'); } catch {}
+    update();
+  });
+  const drawCursor = () => {
+    const owl = document.querySelector('#mascota .cuerpo > img');
+    if (!owl?.complete || !owl.naturalWidth) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.shadowColor = '#fff'; ctx.shadowBlur = 3;
+    const ratio = Math.min(38 / owl.naturalWidth, 42 / owl.naturalHeight);
+    ctx.drawImage(owl, 26, 20, owl.naturalWidth * ratio, owl.naturalHeight * ratio);
+    ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.moveTo(3, 3); ctx.lineTo(3, 42); ctx.lineTo(14, 32);
+    ctx.lineTo(23, 50); ctx.lineTo(32, 45); ctx.lineTo(23, 28); ctx.lineTo(38, 27); ctx.closePath();
+    ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#382553'; ctx.stroke();
+    document.documentElement.style.setProperty('--student-cursor', `url("${canvas.toDataURL()}") 3 3, auto`);
+  };
+  const init = () => {
+    document.body.appendChild(button);
+    const panel = document.querySelector('#estudiante');
+    if (panel) new MutationObserver(update).observe(panel, { attributes: true, attributeFilter: ['class'] });
+    const owl = document.querySelector('#mascota .cuerpo > img');
+    if (owl) { owl.addEventListener('load', drawCursor); drawCursor(); }
+    update();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+  else init();
+})();

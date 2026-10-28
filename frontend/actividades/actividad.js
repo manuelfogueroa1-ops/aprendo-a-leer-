@@ -19,6 +19,70 @@ function mostrarEnlacesDeActividades(mostrar) {
   });
 }
 
+// Umbrales orientativos para probar con las profesoras; no evalúan estados emocionales.
+const APOYO_LECTURA = { inactividadMs: 50000, ventanaClicsMs: 8000, clicsSinEfecto: 11, descansoMs: 60000 };
+
+function instalarAcompanamiento(game, pausar) {
+  let lastInteraction = Date.now();
+  let cooldownUntil = 0;
+  let clicks = [];
+  const active = () => !document.hidden && !game.classList.contains('hidden') && !window.actividadLectura.estaPausada();
+  const reset = () => { lastInteraction = Date.now(); clicks = []; };
+  ['pointerdown', 'pointermove', 'keydown', 'input', 'wheel'].forEach(type => {
+    document.addEventListener(type, () => { if (active()) lastInteraction = Date.now(); }, { passive: true });
+  });
+  document.addEventListener('click', event => {
+    if (!active() || !event.isTrusted || event.detail === 0) return;
+    lastInteraction = Date.now();
+    // Una opción equivocada también es interacción educativa. No se penaliza.
+    const control = event.target.closest('button, a, input, select, textarea, label, audio, video, [role="button"], [contenteditable="true"]');
+    if (control && !control.matches(':disabled, [aria-disabled="true"]')) { clicks = []; return; }
+    if (Date.now() < cooldownUntil) return;
+    clicks = clicks.filter(time => Date.now() - time < APOYO_LECTURA.ventanaClicsMs);
+    clicks.push(Date.now());
+    if (clicks.length >= APOYO_LECTURA.clicsSinEfecto) pausar('clics');
+  }, true);
+  const checkIdle = () => {
+    if (active() && Date.now() - lastInteraction >= APOYO_LECTURA.inactividadMs) pausar('inactividad');
+  };
+  let interval = setInterval(checkIdle, 1000);
+  new MutationObserver(reset).observe(game, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('visibilitychange', reset);
+  window.addEventListener('actividad-pausada', reset);
+  window.addEventListener('actividad-reanudada', () => { reset(); cooldownUntil = Date.now() + APOYO_LECTURA.descansoMs; });
+  window.addEventListener('pagehide', () => { clearInterval(interval); interval = null; });
+  window.addEventListener('pageshow', () => { reset(); if (interval === null) interval = setInterval(checkIdle, 1000); });
+}
+
+// Conserva el tiempo pendiente de las transiciones mientras el diálogo está abierto.
+const activityTimers = new Set();
+function programarActividad(callback, delay = 0) {
+  const timer = { callback, remaining: delay, native: null, started: 0 };
+  activityTimers.add(timer);
+  const run = () => {
+    timer.started = performance.now();
+    timer.native = window.setTimeout(() => { activityTimers.delete(timer); callback(); }, timer.remaining);
+  };
+  timer.run = run;
+  if (!window.__actividadPause?.estaPausada()) run();
+  return timer;
+}
+function cancelarEsperaActividad(timer) {
+  if (!timer) return;
+  window.clearTimeout(timer.native);
+  activityTimers.delete(timer);
+}
+window.addEventListener('actividad-pausada', () => {
+  activityTimers.forEach(timer => {
+    if (timer.native !== null) {
+      window.clearTimeout(timer.native);
+      timer.remaining = Math.max(0, timer.remaining - (performance.now() - timer.started));
+      timer.native = null;
+    }
+  });
+});
+window.addEventListener('actividad-reanudada', () => activityTimers.forEach(timer => timer.run()));
+
 function crearDecoracionesDeActividad() {
   if (!document.body.classList.contains('game-page')) return;
 
@@ -106,6 +170,11 @@ function crearDecoracionesDeActividad() {
         <div class="activity-pause-owl"></div>
         <h2 id="pauseTitle">Actividad en pausa</h2>
         <p id="pauseText">Tu búho te espera aquí. Cuando la profesora termine de explicar, puedes continuar con calma.</p>
+        <div class="breathing-guide" hidden>
+          <div class="breathing-circle" aria-hidden="true">🦉</div>
+          <p class="breathing-instruction" role="status" aria-live="polite"></p>
+          <button type="button" class="breathing-start">Respirar con mi búho</button>
+        </div>
         <button type="button" class="activity-resume-button">▶️ Continuar actividad</button>
       </div>`;
     document.body.appendChild(overlay);
@@ -113,6 +182,38 @@ function crearDecoracionesDeActividad() {
     const resumeButton = overlay.querySelector('.activity-resume-button');
     const owlSlot = overlay.querySelector('.activity-pause-owl');
     let paused = false;
+    let previousFocus;
+    let inertElements = [];
+    let breathingTimer;
+    const guide = overlay.querySelector('.breathing-guide');
+    const instruction = overlay.querySelector('.breathing-instruction');
+    const circle = overlay.querySelector('.breathing-circle');
+    const breathingButton = overlay.querySelector('.breathing-start');
+    function stopBreathing() {
+      clearTimeout(breathingTimer);
+      circle.classList.remove('expand');
+    }
+    const startBreathing = () => {
+      stopBreathing();
+      breathingButton.hidden = true;
+      let step = 0;
+      const next = () => {
+        if (!paused) return;
+        if (step === 6) {
+          instruction.textContent = 'Muy bien. Puedes seguir descansando o continuar cuando quieras.';
+          circle.classList.remove('expand');
+          breathingButton.textContent = 'Respirar otra vez';
+          breathingButton.hidden = false;
+          return;
+        }
+        const inhale = step++ % 2 === 0;
+        instruction.textContent = inhale ? 'Toma aire suavemente…' : 'Suelta el aire despacito…';
+        circle.classList.toggle('expand', inhale);
+        breathingTimer = setTimeout(next, inhale ? 4000 : 6000);
+      };
+      next();
+    };
+    breathingButton.addEventListener('click', startBreathing);
 
     const clonarBuho = (destino) => {
       const origen = document.querySelector('#mascota .cuerpo');
@@ -130,28 +231,56 @@ function crearDecoracionesDeActividad() {
       destino.appendChild(marco);
     };
 
-    const pausar = () => {
+    const pausar = (motivo = 'manual') => {
       if (paused || game.classList.contains('hidden')) return;
       paused = true;
+      previousFocus = document.activeElement;
+      const inactivo = motivo === 'inactividad';
+      overlay.querySelector('#pauseTitle').textContent = inactivo ? '¿Seguimos aprendiendo?' : 'Hagamos una pausa';
+      overlay.querySelector('#pauseText').textContent = inactivo
+        ? '¡Aquí estoy contigo! Puedes seguir intentándolo o descansar un momento. Vamos a tu ritmo.'
+        : 'Tu búho te acompaña. Si quieres, respiremos juntos con suavidad. Puedes continuar cuando estés listo o pedir ayuda a tu profesora.';
+      guide.hidden = inactivo;
+      instruction.textContent = 'Sigue el círculo a tu ritmo, sin aguantar el aire.';
+      breathingButton.textContent = 'Respirar con mi búho';
+      breathingButton.hidden = false;
       overlay.classList.add('visible');
       overlay.setAttribute('aria-hidden', 'false');
       pauseButton.textContent = '⏸️ En pausa';
       clonarBuho(owlSlot);
+      circle.replaceChildren(owlSlot.firstElementChild.cloneNode(true));
+      inertElements = [...document.body.children].filter(el => el !== overlay && !el.inert && !['SCRIPT', 'STYLE', 'LINK'].includes(el.tagName));
+      inertElements.forEach(el => { el.inert = true; });
+      resumeButton.focus();
       window.speechSynthesis?.cancel();
+      document.querySelectorAll('audio, video').forEach(media => media.pause());
       window.dispatchEvent(new CustomEvent('actividad-pausada'));
+      if (motivo === 'clics') startBreathing();
     };
 
     const reanudar = () => {
       if (!paused) return;
       paused = false;
+      stopBreathing();
       overlay.classList.remove('visible');
       overlay.setAttribute('aria-hidden', 'true');
       pauseButton.textContent = '⏸️ Pausa';
+      inertElements.forEach(el => { el.inert = false; });
+      if (previousFocus?.isConnected) previousFocus.focus();
       window.dispatchEvent(new CustomEvent('actividad-reanudada'));
       window.mascota?.decir('¡Muy bien! Sigamos aprendiendo.', { voz: false, duracion: 2800 });
     };
 
-    pauseButton.addEventListener('click', pausar);
+    overlay.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); reanudar(); }
+      if (event.key === 'Tab') {
+        const buttons = [...overlay.querySelectorAll('button')].filter(button => !button.closest('[hidden]'));
+        const first = buttons[0], last = buttons.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    });
+    pauseButton.addEventListener('click', () => pausar());
     resumeButton.addEventListener('click', reanudar);
 
     window.__actividadPause = {
@@ -160,6 +289,7 @@ function crearDecoracionesDeActividad() {
       reanudar,
       clonarBuho
     };
+    instalarAcompanamiento(game, pausar);
   }
 
   const finished = document.querySelector('#finished');
@@ -227,9 +357,99 @@ function borrarGuardadoLocal(clave) {
   }
 }
 
+// Una pista por turno; utiliza el mismo reloj que se detiene durante las pausas.
+function crearPistaActividad(obtenerPista) {
+  let timer;
+  let target;
+  const message = document.createElement('p');
+  message.className = 'activity-hint';
+  message.setAttribute('role', 'status');
+  message.hidden = true;
+  document.querySelector('#choices').after(message);
+  const cancelar = () => {
+    cancelarEsperaActividad(timer);
+    target?.classList.remove('hint-target');
+    target = null;
+    message.hidden = true;
+  };
+  const reiniciar = () => {
+    cancelar();
+    timer = programarActividad(() => {
+      if (document.querySelector('#game').classList.contains('hidden')) return;
+      const pista = obtenerPista();
+      if (!pista?.elemento || pista.elemento.disabled) return;
+      target = pista.elemento;
+      target.classList.add('hint-target');
+      message.textContent = `🦉 ${pista.mensaje}`;
+      message.hidden = false;
+      window.mascota?.decir(pista.mensaje, { voz: false, duracion: 5000 });
+    }, 10000);
+  };
+  return { reiniciar, cancelar };
+}
+
+let intentoEnCurso = null;
+let leerAvance = null;
+let revisionAvance = 0;
+let ultimoAvanceConfirmado = '';
+let avisoAvance;
+async function sincronizarAvance(forzar = false) {
+  if (!intentoEnCurso || !leerAvance || document.querySelector('#game')?.classList.contains('hidden')) return;
+  const avance = leerAvance();
+  if (!avance || !avance.totalPreguntas) return;
+  const body = { ...avance, pausada: Boolean(window.__actividadPause?.estaPausada()) };
+  const signature = JSON.stringify(body);
+  if (!forzar && signature === ultimoAvanceConfirmado) return;
+  const revision = ++revisionAvance;
+  const resultadoId = intentoEnCurso;
+  try {
+    const result = await activityApi(`/api/resultados/${resultadoId}/avance`, {
+      method: 'POST', keepalive: true, body: JSON.stringify({ ...body, revision })
+    });
+    if (!result.guardado) throw new Error('Avance pendiente');
+    // Una respuesta lenta de una petición anterior no reemplaza el estado más reciente.
+    if (revision === revisionAvance) {
+      ultimoAvanceConfirmado = signature;
+      if (avisoAvance) avisoAvance.hidden = true;
+    }
+  } catch {
+    if (revision !== revisionAvance || resultadoId !== intentoEnCurso) return;
+    if (!avisoAvance) {
+      avisoAvance = document.createElement('p');
+      avisoAvance.className = 'note';
+      avisoAvance.setAttribute('role', 'status');
+      document.querySelector('.learning-panel')?.appendChild(avisoAvance);
+    }
+    avisoAvance.textContent = 'Avance pendiente de enviar a la profesora. Reintentaremos al recuperar la conexión.';
+    avisoAvance.hidden = false;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', crearDecoracionesDeActividad, { once: true });
 
 window.actividadLectura = {
+  seguirAvance(lector) {
+    leerAvance = lector;
+    let debounce;
+    const programar = () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => sincronizarAvance(), 250);
+    };
+    const game = document.querySelector('#game');
+    if (game) new MutationObserver(programar).observe(game, {
+      subtree: true, childList: true, characterData: true, attributes: true,
+      attributeFilter: ['class', 'disabled', 'aria-pressed']
+    });
+    let interval = setInterval(() => sincronizarAvance(true), 15000);
+    window.addEventListener('actividad-pausada', () => sincronizarAvance(true));
+    window.addEventListener('actividad-reanudada', () => sincronizarAvance(true));
+    window.addEventListener('pagehide', () => { clearInterval(interval); interval = null; sincronizarAvance(true); });
+    window.addEventListener('pageshow', () => {
+      if (interval === null) interval = setInterval(() => sincronizarAvance(true), 15000);
+    });
+    document.addEventListener('visibilitychange', () => sincronizarAvance(true));
+    window.addEventListener('online', () => sincronizarAvance(true));
+  },
   async iniciar(nombre) {
     const status = document.querySelector('#status');
     const data = await activityApi('/api/actividades');
@@ -240,9 +460,11 @@ window.actividadLectura = {
       body: JSON.stringify({})
     });
     status.textContent = '¡Muy bien! Ya puedes empezar.';
+    intentoEnCurso = result.intento.ResultadoID;
     return result.intento.ResultadoID;
   },
   async guardar(resultadoId, aciertos, total, detalleResultado, errores = total - aciertos) {
+    intentoEnCurso = null;
     const puntuacion = total ? Math.round((aciertos / total) * 10000) / 100 : 0;
     mostrarEnlacesDeActividades(false);
     const options = {

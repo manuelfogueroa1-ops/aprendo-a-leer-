@@ -115,3 +115,48 @@ button.student-card:hover .student-enter{transform:translateX(6px)}
  .game-page #mascota { --w: 82px; left: 3px; bottom: 5px; }
  .game-page #mascota-burbuja { left: 88px; bottom: 40px; max-width: calc(100vw - 105px); font-size: .85rem; padding: 9px; }
 }
+/* Apoyo compartido: pausa tranquila y puntero visible en el espacio del alumno. */
+.activity-hint {
+  margin: 18px auto; max-width: 560px; padding: 14px 18px;
+  border: 3px solid #c58708; border-radius: 20px; background: #fff4cc; color: #473415;
+  font-size: 1.15rem; font-weight: 700;
+}
+.activity-hint[hidden] { display: none; }
+button.hint-target {
+  outline: 5px solid #e5a500; outline-offset: 5px;
+  box-shadow: 0 0 0 10px #fff3bf !important;
+  animation: hint-gentle 1.8s ease-in-out 3 !important;
+}
+button.hint-target:hover, button.hint-target:focus-visible { animation-play-state: paused !important; }
+@keyframes hint-gentle { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@media (prefers-reduced-motion: reduce) { button.hint-target { animation: none !important; } }
+html.student-cursor, html.student-cursor * {
+  cursor: var(--student-cursor, auto) !important;
+}
+.cursor-preference {
+  position: fixed; right: 16px; top: 12px; z-index: 90;
+  border: 2px solid #63509c; border-radius: 20px; padding: 10px 14px;
+  background: #fff; color: #36285f; font: 700 .95rem system-ui, sans-serif;
+}
+.activity-pause-overlay { overflow-y: auto; }
+.activity-pause-card { max-height: calc(100dvh - 48px); overflow-y: auto; }
+.breathing-guide[hidden] { display: none; }
+.breathing-guide { margin: 0 auto 22px; }
+.breathing-circle {
+  display: grid; place-items: center; margin: 24px auto; width: 92px; height: 92px;
+  border: 4px solid #527d75; border-radius: 50%; background: #def3ed;
+  transform: scale(1); transition: transform 6s ease-in-out;
+}
+.breathing-circle.expand { transform: scale(1.35); transition-duration: 4s; }
+.breathing-circle .pause-owl-frame { width: 64px; animation: none; }
+.breathing-start { border-radius: 18px; padding: 12px 18px; background: #e4f2ed; color: #234d43; }
+.activity-pause-card .activity-pause-owl .pause-owl-frame { width: min(140px, 32vw); animation: none; }
+.cursor-preference[hidden] { display: none; }
+.breathing-instruction { min-height: 3em; }
+@media (prefers-reduced-motion: reduce) {
+  .breathing-circle { transition: none; transform: none !important; }
+  .pause-owl-frame, .pause-owl-frame .cuerpo { animation: none !important; }
+}
+@media (max-width: 600px) {
+  .cursor-preference { position: static; display: block; margin: 8px auto; }
+}

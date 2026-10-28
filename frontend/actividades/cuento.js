@@ -160,7 +160,7 @@ function choose(letter) {
     locked = true;
     renderBlanks();
     $('#choices').replaceChildren();
-    window.setTimeout(finish, 1200);
+    programarActividad(finish, 1200);
     return;
   }
   active = next;
@@ -236,3 +236,9 @@ $('#retrySave').addEventListener('click', finish);
   }
 })();
 window.addEventListener('pagehide', saveProgress);
+window.actividadLectura.seguirAvance(() => blanks.length ? ({
+  preguntaActual: active + 1, totalPreguntas: blanks.length,
+  completadas: blanks.filter(blank => blank.filled).length,
+  consigna: `${story.title}: completar ${blanks[active].word}`,
+  respuestaActual: $('#feedback').textContent.slice(0, 300)
+}) : null);

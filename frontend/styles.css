@@ -436,6 +436,9 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
 .attempt .score {font-weight: 900; color: #4b35a0;}
 .attempt .score small {font-weight: 600; color: #6a6a80;}
 .attempt .attempt-state {display: inline-block; padding: 3px 9px; border-radius: 999px; background: #fff1cc; color: #745000; font-size: .82rem;}
+.ongoing-progress {display:grid; gap:10px; padding:14px; border-radius:14px; background:#f5f1ff; color:#36285f;}
+.ongoing-progress progress {width:100%; height:18px; accent-color:#7254b9;}
+.ongoing-progress small {color:#51446b;}
 .answers {margin: 0; padding: 4px 18px 8px 36px; line-height: 1.9;}
 .answers .ans-ok {color: #176448;}
 .answers .ans-bad {color: #a43a48;}

@@ -94,7 +94,7 @@ function renderQuestion() {
     return option;
   }));
   const turnoActual = round;
-  window.setTimeout(() => {
+  programarActividad(() => {
     if (round === turnoActual) escuchar({ leerOpciones: true });
   }, 250);
 }
@@ -124,8 +124,8 @@ function choose(letter) {
   $('#feedback').textContent = `¡Muy bien! ${question.letter.toLocaleUpperCase('es-CL')} es la primera letra de ${question.word}.`;
   $('#feedback').classList.add('correct');
   $('#choices').querySelectorAll('button').forEach(button => { button.disabled = true; });
-  clearTimeout(advanceTimer);
-  advanceTimer = window.setTimeout(avanzar, 1000);
+  cancelarEsperaActividad(advanceTimer);
+  advanceTimer = programarActividad(avanzar, 1000);
 }
 
 async function avanzar() {
@@ -147,7 +147,7 @@ function hablarEnOrden(textos, secuencia) {
   voz.rate = 0.78;
   const continuar = () => {
     if (secuencia !== secuenciaVoz) return;
-    window.setTimeout(() => hablarEnOrden(resto, secuencia), 300);
+    programarActividad(() => hablarEnOrden(resto, secuencia), 300);
   };
   voz.addEventListener('end', continuar, { once: true });
   voz.addEventListener('error', continuar, { once: true });
@@ -225,11 +225,17 @@ $('#retrySave').addEventListener('click', finish);
   }
 })();
 
-window.addEventListener('actividad-pausada', () => { clearTimeout(advanceTimer); cancelarVoz(); });
+window.addEventListener('actividad-pausada', cancelarVoz);
 window.addEventListener('actividad-reanudada', () => {
   if (!game.classList.contains('hidden') && round < letters.length) {
-    window.setTimeout(() => renderQuestion(), 150);
+    if (!locked) programarActividad(() => escuchar({ leerOpciones: true }), 150);
   }
 });
 
 window.addEventListener('pagehide', saveProgress);
+window.actividadLectura.seguirAvance(() => ({
+  preguntaActual: Math.min(round + 1, letters.length), totalPreguntas: letters.length,
+  completadas: Math.min(round + Number(locked), letters.length),
+  consigna: `Reconocer la letra ${(letters[round] || letters.at(-1)).letter.toLocaleUpperCase('es-CL')} de ${(letters[round] || letters.at(-1)).word}`,
+  respuestaActual: $('#feedback').textContent.slice(0, 300)
+}));

@@ -37,6 +37,23 @@ let correct = 0;
 let locked = false;
 let syllables = [];
 let intentos = 0;
+const pista = crearPistaActividad(() => {
+  if (locked) return null;
+  const expected = questions[round].syllables;
+  const wrong = answer.findIndex((syllable, index) => syllable !== expected[index]);
+  if (wrong !== -1) return {
+    elemento: $('#answer').children[wrong],
+    mensaje: 'Esta sílaba va en otro lugar. Tócala para quitarla y probemos de nuevo.'
+  };
+  if (answer.length === expected.length) return {
+    elemento: $('#check'), mensaje: '¡Ya formaste la palabra! Toca Revisar palabra.'
+  };
+  const next = expected[answer.length];
+  return {
+    elemento: [...$('#choices').children].find(button => !button.disabled && button.textContent === next),
+    mensaje: `${answer.length ? 'Ahora sigue' : 'Empieza con'} la sílaba ${next.toLocaleUpperCase('es-CL')}.`
+  };
+});
 
 function renderQuestion() {
   const question = questions[round];
@@ -96,6 +113,7 @@ function renderAnswer() {
     });
     return button;
   }));
+  pista.reiniciar();
 }
 
 async function finish() {
@@ -138,6 +156,7 @@ $('#check').addEventListener('click', () => {
     return;
   }
   locked = true;
+  pista.cancelar();
   if (intentos === 1) correct++;
   feedback.textContent = '¡Muy bien! Las sílabas están en orden.';
   feedback.classList.add('correct');
@@ -145,10 +164,10 @@ $('#check').addEventListener('click', () => {
   $('#check').disabled = true;
   if (round === questions.length - 1) {
     $('#check').textContent = 'Volviendo a tus actividades…';
-    window.setTimeout(finish, 1200);
+    programarActividad(finish, 1200);
     return;
   }
-  window.setTimeout(() => {
+  programarActividad(() => {
     round++;
     saveProgress();
     intentos = 0;
@@ -176,3 +195,9 @@ $('#retrySave').addEventListener('click', finish);
 })();
 
 window.addEventListener('pagehide', saveProgress);
+window.actividadLectura.seguirAvance(() => ({
+  preguntaActual: Math.min(round + 1, questions.length), totalPreguntas: questions.length,
+  completadas: Math.min(round + Number(locked), questions.length),
+  consigna: `Ordenar las sílabas de ${(questions[round] || questions.at(-1)).word}`,
+  respuestaActual: answer.length ? `Sílabas colocadas: ${answer.join(' · ')}` : 'Aún no ha colocado sílabas.'
+}));

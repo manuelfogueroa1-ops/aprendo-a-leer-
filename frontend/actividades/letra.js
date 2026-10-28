@@ -34,6 +34,14 @@ let round = 0;
 let correct = 0;
 let locked = false;
 const responses = [];
+const pista = crearPistaActividad(() => {
+  if (locked) return null;
+  const letter = questions[round].word[questions[round].missing].toLocaleUpperCase('es-CL');
+  return {
+    elemento: [...$('#choices').children].find(button => button.textContent === letter),
+    mensaje: `Mira la letra ${letter}. Es la que falta en ${questions[round].word}.`
+  };
+});
 
 function renderQuestion() {
   const question = questions[round];
@@ -56,10 +64,12 @@ function renderQuestion() {
     button.addEventListener('click', () => choose(letter));
     return button;
   }));
+  pista.reiniciar();
 }
 
 function choose(letter) {
   if (locked) return;
+  pista.cancelar();
   locked = true;
   const question = questions[round];
   const isCorrect = letter === question.word[question.missing];
@@ -77,7 +87,7 @@ function choose(letter) {
   if (round === questions.length - 1) {
     $('#next').textContent = 'Volviendo a tus actividades…';
     $('#next').disabled = true;
-    window.setTimeout(finish, 1200);
+    programarActividad(finish, 1200);
     $('#next').classList.remove('hidden');
     return;
   }
@@ -130,3 +140,9 @@ $('#retrySave').addEventListener('click', finish);
   }
 })();
 window.addEventListener('pagehide', saveProgress);
+window.actividadLectura.seguirAvance(() => ({
+  preguntaActual: Math.min(round + 1, questions.length), totalPreguntas: questions.length,
+  completadas: Math.min(round + Number(locked), questions.length),
+  consigna: `Completar la palabra ${(questions[round] || questions.at(-1)).word}`,
+  respuestaActual: $('#feedback').textContent.slice(0, 300)
+}));
