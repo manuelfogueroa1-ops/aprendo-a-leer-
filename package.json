@@ -1,16 +1,78 @@
 {
-  "name": "software-educativo-web",
-  "version": "1.0.0",
+  "name": "aprendo-a-leer",
+  "version": "1.2.4",
   "private": true,
-  "description": "Aplicación web educativa con Node.js, Express y SQLite",
-  "main": "backend/server.js",
-  "scripts": {"start": "node backend/server.js", "dev": "node --watch backend/server.js", "crear-profesor": "node backend/crear-profesor.js", "verificar-cifrado": "node backend/verificar-cifrado.js"},
-  "engines": {"node": ">=22.5.0"},
+  "description": "Aprendo a Leer · aplicación educativa para Windows",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "crear-profesor": "node backend/crear-profesor.js",
+    "verificar-cifrado": "node backend/verificar-cifrado.js",
+    "desktop": "electron .",
+    "dist:win": "electron-builder --win nsis --x64",
+    "pack:win": "electron-builder --win dir --x64",
+    "test:desktop": "node tests/escritorio-integracion.cjs",
+    "test:teachers": "node tests/crear-profesores-simple.cjs",
+    "test:registro": "node tests/registro-docente-login.cjs",
+    "test:reset": "node tests/reinicio-docente.cjs"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "helmet": "^8.0.0"
-  }
+  },
+  "devDependencies": {
+    "electron": "45.2.1",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "cl.educacion.aprendoaleer",
+    "productName": "Aprendo a Leer",
+    "artifactName": "AprendoALeer-Setup-${version}.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "frontend/**/*",
+      "backend/**/*",
+      "package.json",
+      "!**/*.sqlite",
+      "!**/*.sqlite-*",
+      "!**/.env",
+      "!backend/data/**/*",
+      "!tests/**/*",
+      "!dist/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "uninstallDisplayName": "Aprendo a Leer"
+    },
+    "publish": null
+  },
+  "author": "Aprendo a Leer"
 }

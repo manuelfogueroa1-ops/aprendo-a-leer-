@@ -56,6 +56,8 @@ app.post(['/api/voz/local', '/api/voz/piper'], async (req, res) => {
 
 function requireTeacher(req, res, next) {
   if (!req.session.teacherId) return res.status(401).json({ error: 'Debes iniciar sesión como profesor.' });
+  const activo = db.prepare('SELECT ProfesorID FROM Profesores WHERE ProfesorID = ? AND Activo = 1').get(req.session.teacherId);
+  if (!activo) return res.status(401).json({ error: 'Tu cuenta ya no está activa. Vuelve a iniciar sesión.' });
   next();
 }
 
@@ -585,6 +587,81 @@ app.get('/api/profesor/me', requireTeacher, (req, res) => {
   res.json({ nombre: req.session.teacherName });
 });
 
+// El registro es parte de Acceso docente, no de una pantalla independiente de Electron.
+// Las cuentas se registran localmente sin autorización adicional (loopback).
+app.get('/api/profesor/registro/estado', (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ primerProfesor: db.prepare('SELECT COUNT(*) AS n FROM Profesores WHERE Activo = 1').get().n === 0 });
+});
+
+app.post('/api/profesor/registro', async (req, res) => {
+  const nombre = cleanName(req.body?.nombre);
+  const apellido = cleanName(req.body?.apellido);
+  const usuario = typeof req.body?.usuario === 'string' ? req.body.usuario.trim() : '';
+  const password = typeof req.body?.password === 'string' ? req.body.password : '';
+  const confirmacion = typeof req.body?.confirmacion === 'string' ? req.body.confirmacion : '';
+  if (!nombre || nombre.length > 80 || !apellido || apellido.length > 80 ||
+      !/^[A-Za-z0-9_.-]{3,50}$/.test(usuario) || password.length < 12 || password.length > 128) {
+    return res.status(400).json({ error: 'Completa nombre, apellido, usuario válido y contraseña de 12 a 128 caracteres.' });
+  }
+  if (password !== confirmacion) return res.status(400).json({ error: 'Las contraseñas no coinciden.' });
+
+  try {
+    // Registro simplificado para la aplicación local de Windows.
+    // No exponer altas libres a usuarios de la red; administración remota queda pendiente.
+    const address = req.socket?.remoteAddress || req.ip || '';
+    if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) {
+      return res.status(403).json({ error: 'El registro de profesores solo está disponible en este computador.' });
+    }
+
+    const hash = await bcrypt.hash(password, 12);
+    const crypto = require('node:crypto');
+    const correo = `local-${crypto.randomBytes(12).toString('hex')}@aprendo.invalid`;
+    const nuevo = withTransaction(() => {
+      if (db.prepare('SELECT 1 FROM Profesores WHERE LOWER(Usuario) = LOWER(?)').get(usuario)) return { duplicado: true };
+      const resultado = db.prepare('INSERT INTO Profesores (Nombre, Apellido, Usuario, Correo, PasswordHash) VALUES (?, ?, ?, ?, ?)')
+        .run(nombre, apellido, usuario, correo, hash);
+      return { id: Number(resultado.lastInsertRowid) };
+    });
+    if (nuevo.duplicado) return res.status(409).json({ error: 'Ese usuario ya existe. Elige otro.' });
+    res.status(201).json({ profesor: { ProfesorID: nuevo.id, Usuario: usuario } });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo crear la cuenta docente.');
+  }
+});
+
+// Solo creación de docentes. No existen permisos de administración ni API de eliminación.
+// Confirmación de clave para evitar altas accidentales si queda una sesión abierta.
+app.post('/api/profesor/cuentas', requireTeacher, async (req, res) => {
+  const nombre = cleanName(req.body?.nombre);
+  const apellido = cleanName(req.body?.apellido);
+  const usuario = typeof req.body?.usuario === 'string' ? req.body.usuario.trim() : '';
+  const password = typeof req.body?.password === 'string' ? req.body.password : '';
+  const confirmacion = typeof req.body?.passwordActual === 'string' ? req.body.passwordActual : '';
+  if (!nombre || nombre.length > 80 || !apellido || apellido.length > 80 ||
+      !/^[A-Za-z0-9_.-]{3,50}$/.test(usuario) || password.length < 12 || password.length > 128) {
+    return res.status(400).json({ error: 'Completa nombre, apellido, usuario válido y contraseña de 12 a 128 caracteres.' });
+  }
+  try {
+    const actual = db.prepare('SELECT PasswordHash FROM Profesores WHERE ProfesorID = ? AND Activo = 1').get(req.session.teacherId);
+    if (!actual || !confirmacion || !(await bcrypt.compare(confirmacion, actual.PasswordHash))) {
+      return res.status(403).json({ error: 'Confirma la contraseña de tu cuenta actual para crear otro profesor.' });
+    }
+    if (db.prepare('SELECT 1 FROM Profesores WHERE LOWER(Usuario) = LOWER(?)').get(usuario)) {
+      return res.status(409).json({ error: 'Ese usuario ya existe. Elige otro.' });
+    }
+    const hash = await bcrypt.hash(password, 12);
+    const crypto = require('node:crypto');
+    const correo = `local-${crypto.randomBytes(12).toString('hex')}@aprendo.invalid`;
+    const nuevo = withTransaction(() => db.prepare(`INSERT INTO Profesores
+      (Nombre, Apellido, Usuario, Correo, PasswordHash)
+      VALUES (?, ?, ?, ?, ?)`).run(nombre, apellido, usuario, correo, hash));
+    res.status(201).json({ profesor: { ProfesorID: Number(nuevo.lastInsertRowid), Usuario: usuario } });
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo crear la cuenta docente.');
+  }
+});
+
 // Lista de estudiantes con un resumen corto (para las tarjetas del panel docente).
 app.get('/api/profesor/resumen', requireTeacher, (_req, res) => {
   try {
@@ -654,4 +731,19 @@ app.get('/api/profesor/resultados', requireTeacher, (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`SoftwareEducativo disponible en http://localhost:${PORT}`));
+// Electron puede iniciar este mismo servidor en el equipo local sin cambiar las rutas API.
+// Cuando se ejecuta con `npm start`, se conserva el comportamiento web original.
+function startServer(port = PORT, host = '127.0.0.1') {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, host, () => resolve(server));
+    server.once('error', reject);
+  });
+}
+
+if (require.main === module) {
+  startServer(PORT, '0.0.0.0')
+    .then(() => console.log(`SoftwareEducativo disponible en http://localhost:${PORT}`))
+    .catch(error => { console.error('No se pudo iniciar el servidor:', error); process.exitCode = 1; });
+}
+
+module.exports = { app, startServer };

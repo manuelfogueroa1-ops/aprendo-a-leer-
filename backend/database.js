@@ -14,6 +14,12 @@ const db = new DatabaseSync(databasePath);
 db.exec('PRAGMA foreign_keys = ON;');
 db.exec(fs.readFileSync(path.join(__dirname, 'sqlite', 'schema.sql'), 'utf8'));
 
+// Compatibilidad con la versión 1.2.1, que añadía EsAdministrador.
+// La columna se conserva por compatibilidad pero ya no da permisos especiales.
+const columnasProfesores = db.prepare('PRAGMA table_info(Profesores)').all().map(columna => columna.name);
+if (!columnasProfesores.includes('EsAdministrador')) {
+  db.exec('ALTER TABLE Profesores ADD COLUMN EsAdministrador INTEGER NOT NULL DEFAULT 0 CHECK (EsAdministrador IN (0, 1))');
+}
 // Migración: las bases creadas antes de las preferencias del estudiante
 // (color favorito, tema de interés y modo oscuro) reciben las columnas nuevas
 // sin perder ningún dato.

@@ -9,3 +9,8 @@ backend/voices/*.onnx.json
 backend/voices/kokoro/*.onnx
 backend/voices/kokoro/*.bin
 __pycache__/
+
+# Salidas del instalador Windows (Electron)
+dist/
+release/
+*.blockmap
