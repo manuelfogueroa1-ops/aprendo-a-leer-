@@ -29,14 +29,31 @@ const PROGRESS_NAME = 'Aprendo las sílabas';
 let progressKey = null;
 function saveProgress() {
   if (!progressKey || game.classList.contains('hidden')) return;
-  try { localStorage.setItem(progressKey, JSON.stringify({round, correct, responses, intentos, answer})); } catch {}
+  try { localStorage.setItem(progressKey, JSON.stringify({round, correct, responses, intentos, answer, opciones: syllables})); } catch {}
 }
 
 let round = 0;
 let correct = 0;
 let locked = false;
 let syllables = [];
+let restoredChoices = [];
 let intentos = 0;
+const SILABAS_EXTRA = ['pa', 'pe', 'pi', 'po', 'pu', 'ma', 'me', 'mi', 'mo', 'mu', 'la', 'le', 'li', 'lo', 'lu', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'na', 'ne', 'ni', 'no', 'nu'];
+function mezclar(items) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+function crearOpcionesSilabas(question, previous = []) {
+  const candidates = SILABAS_EXTRA.filter(syllable => !question.syllables.includes(syllable));
+  // Conserva los distractores al retomar, incluso si el alumno ya eligió uno.
+  const saved = [...new Set(previous)].filter(syllable => candidates.includes(syllable)).slice(0, 2);
+  const extras = [...saved, ...mezclar(candidates.filter(syllable => !saved.includes(syllable)))].slice(0, 2);
+  return mezclar([...question.syllables, ...extras]);
+}
 const pista = crearPistaActividad(() => {
   if (locked) return null;
   const expected = questions[round].syllables;
@@ -58,7 +75,8 @@ const pista = crearPistaActividad(() => {
 function renderQuestion() {
   const question = questions[round];
   answer.length = 0;
-  syllables = [...question.syllables].sort(() => Math.random() - 0.5);
+  syllables = crearOpcionesSilabas(question, restoredChoices);
+  restoredChoices = [];
   $('#progress').textContent = `Palabra ${round + 1} de ${questions.length}`;
   $('#progressBar').style.width = `${(round / questions.length) * 100}%`;
   $('#picture').textContent = question.image;
@@ -185,7 +203,7 @@ $('#retrySave').addEventListener('click', finish);
     let restored = null;
     try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Aprendo las sílabas');
-    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < questions.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); intentos=restored.intentos || 0; window.__pendingSyllableAnswer = Array.isArray(restored.answer) ? restored.answer : null; }
+    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < questions.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); intentos=restored.intentos || 0; window.__pendingSyllableAnswer = Array.isArray(restored.answer) ? restored.answer : null; restoredChoices = Array.isArray(restored.opciones) ? restored.opciones : []; }
     renderQuestion();
     game.classList.remove('hidden');
     saveProgress();

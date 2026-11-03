@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css">
   <script src="/tema.js"></script>
   <script src="/mascota.js" defer></script>
+  <script src="/grabaciones.js"></script>
+  <script src="/voz.js"></script>
 </head>
 <body class="home-page">
 <main class="wrap">
@@ -87,6 +89,18 @@
     </div>
     <p id="teacherStatus" class="status" role="status"></p>
     <div id="report" class="hidden">
+      <section class="voice-settings" aria-labelledby="readingVoiceTitle">
+        <h3 id="readingVoiceTitle">Voz para las actividades</h3>
+        <p>Escucha las opciones y elige la que resulte más agradable para tus estudiantes.</p>
+        <label for="readingVoice">Voz en español</label>
+        <select id="readingVoice"></select>
+        <button id="previewReadingVoice" type="button" class="secondary-button">🔊 Escuchar esta voz</button>
+        <button id="previewSyllableVoice" type="button" class="secondary-button">🔡 Probar sílabas</button>
+        <button id="previewWordVoice" type="button" class="secondary-button">📖 Probar palabras</button>
+        <button id="previewRecordedVoice" type="button" class="secondary-button" hidden>🎙️ Escuchar grabación humana</button>
+        <p class="note">«Reconozco las letras» y «Formo sílabas» reproducen las grabaciones humanas incorporadas. La voz seleccionada se usa en los contenidos que todavía no tienen grabación.</p>
+        <p id="readingVoiceStatus" class="note" role="status"></p>
+      </section>
       <div id="studentList">
         <div class="list-head">
           <input type="search" id="studentSearch" placeholder="Buscar estudiante" aria-label="Buscar estudiante" autocomplete="off">

@@ -4,6 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
+const piper = require('./piper');
 const db = require('./database');
 const { encryptStudentName, decryptStudent, encryptBinary, decryptBinary} = require('./student-name-crypto');
 const MODO_PRUEBA = process.env.DESBLOQUEAR_TODO === '1';
@@ -35,6 +36,23 @@ app.use(session({
   cookie: { httpOnly: true, sameSite: 'strict', secure: false, maxAge: 2 * 60 * 60 * 1000 }
 }));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+app.get('/api/voz/config', (_req, res) => res.json(piper.info()));
+app.post(['/api/voz/local', '/api/voz/piper'], async (req, res) => {
+  if (!req.session.studentId && !req.session.teacherId) return res.status(401).json({ error: 'Ingresa para escuchar la voz.' });
+  const { texto, tipo = 'lectura', voz = piper.info().id } = req.body || {};
+  if (typeof texto !== 'string' || !texto.trim() || texto.length > 1000 || !['lectura', 'letras', 'animo'].includes(tipo)) {
+    return res.status(400).json({ error: 'Texto de voz no válido.' });
+  }
+  if (!piper.info().voces.some(item => item.id === voz)) return res.status(400).json({ error: 'Voz no válida.' });
+  if (!piper.info().disponible) return res.status(503).json({ error: 'La voz local no está disponible en este equipo.' });
+  try {
+    const audio = await piper.sintetizar(texto, tipo, voz);
+    res.set({ 'Content-Type': 'audio/wav', 'Cache-Control': 'private, no-store' }).send(audio);
+  } catch {
+    res.status(503).json({ error: 'No se pudo generar la voz local. Puedes volver a intentarlo.' });
+  }
+});
 
 function requireTeacher(req, res, next) {
   if (!req.session.teacherId) return res.status(401).json({ error: 'Debes iniciar sesión como profesor.' });

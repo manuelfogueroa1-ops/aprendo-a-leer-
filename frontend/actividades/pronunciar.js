@@ -26,6 +26,7 @@ let dataAvailableHandler;
 let recordingStopHandler;
 let recordingUrl;
 let waiting = false;
+let savingResult = false;
 let useAudioRecording = canRecordAudio; // siempre se graba: la profesora escucha después
 let recordedBlob = null;
 const responses = [];
@@ -72,15 +73,13 @@ function showWord() {
 }
 
 function speakWord() {
-  if (!window.speechSynthesis) {
+  if (!VozInfantil.disponible()) {
     $('#feedback').textContent = 'La lectura en voz alta no está disponible en este navegador.';
     return;
   }
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(words[round].word);
-  utterance.lang = 'es-CL';
-  utterance.rate = 0.8;
-  window.speechSynthesis.speak(utterance);
+  VozInfantil.cancelar();
+  const utterance = VozInfantil.crear(words[round].word);
+  VozInfantil.reproducir(utterance);
 }
 
 async function subirAudio(palabra, blob) {
@@ -113,6 +112,10 @@ function nextWord(wasCorrect, manual = false) {
 }
 
 async function finish() {
+  if (savingResult) return;
+  savingResult = true;
+  waiting = true;
+  $('#retrySave').disabled = true;
   clearRecording();
   $('#progressBar').style.width = '100%';
   game.classList.add('hidden');
@@ -120,13 +123,17 @@ async function finish() {
   try {
     const saved = await window.actividadLectura.guardar(resultadoId, correct, words.length, {
       actividad: 'pronunciacion',
-      respuestas
+      respuestas: responses
     });
     if (progressKey) localStorage.removeItem(progressKey);
+    $('#retrySave').classList.add('hidden');
     $('#result').textContent = `Practicaste ${words.length} palabras. Duración: ${saved.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
     $('#retrySave').classList.remove('hidden');
+  } finally {
+    savingResult = false;
+    $('#retrySave').disabled = false;
   }
 }
 
@@ -289,7 +296,7 @@ if (SpeechRecognition) {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   recognition.addEventListener('result', event => {
-    if (window.actividadLectura.estaPausada()) return;
+    if (waiting || round >= words.length || window.actividadLectura.estaPausada()) return;
     const transcript = event.results[0][0].transcript;
     const said = transcript.toLocaleLowerCase('es-CL')
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}]/gu, '');
@@ -333,7 +340,14 @@ if (SpeechRecognition) {
     let restored = null;
     try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Practico la pronunciación');
-    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round < words.length) { round=restored.round; correct=restored.correct || 0; responses.push(...(restored.responses || [])); }
+    if (restored && Number.isInteger(restored.round) && restored.round >= 0 && restored.round <= words.length
+      && Array.isArray(restored.responses) && restored.responses.length === restored.round) {
+      round = restored.round;
+      correct = Math.min(round, Math.max(0, Number.isInteger(restored.correct) ? restored.correct : 0));
+      responses.push(...restored.responses);
+    }
+    // Recupera también la práctica ya terminada si el guardado anterior falló.
+    if (round === words.length) { await finish(); return; }
     showWord();
     game.classList.remove('hidden');
     saveProgress();

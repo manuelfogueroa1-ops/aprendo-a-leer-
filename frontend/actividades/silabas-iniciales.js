@@ -1,6 +1,5 @@
 const V5 = ['a', 'e', 'i', 'o', 'u'];
-// Cada familia forma sus sílabas con: base + vocal (ej.: "qu" + "e" = "que").
-// "extras" son sílabas distintas para completar las opciones cuando la familia tiene pocas vocales.
+// Cada familia forma sus sílabas con una consonante y las cinco vocales.
 const groups = [
   { name: 'Grupo 1', families: [
     { base: 'p', vowels: V5 }, { base: 'm', vowels: V5 }, { base: 'l', vowels: V5 },
@@ -12,13 +11,10 @@ const groups = [
   ] },
   { name: 'Grupo 3', families: [
     { base: 'c', vowels: V5 }, { base: 'g', vowels: V5 }, { base: 'z', vowels: V5 },
-    { base: 'ñ', vowels: V5 }, { base: 'y', vowels: V5 }, { base: 'll', vowels: V5 }, { base: 'ch', vowels: V5 }
+    { base: 'ñ', vowels: V5 }, { base: 'y', vowels: V5 }
   ] },
   { name: 'Grupo 4', families: [
-    { base: 'rr', vowels: V5 }, { base: 'h', vowels: V5 }, { base: 'k', vowels: V5 },
-    { base: 'qu', vowels: ['e', 'i'], extras: ['gue', 'gui'] },
-    { base: 'gu', vowels: ['e', 'i'], extras: ['que', 'qui'] },
-    { base: 'gü', vowels: ['e', 'i'], extras: ['gue', 'gui'] }
+    { base: 'k', vowels: V5 }
   ] }
 ];
 
@@ -28,8 +24,7 @@ groups.forEach(group => {
     consonant: family.base,
     vowel,
     syllable: family.base + vowel,
-    // Opciones equivocadas: primero las de su misma familia y, si faltan, las "extras".
-    pool: [...family.vowels.filter(other => other !== vowel).map(other => family.base + other), ...(family.extras || [])]
+    pool: family.vowels.filter(other => other !== vowel).map(other => family.base + other)
   })));
 });
 let questions = [];
@@ -45,6 +40,7 @@ let audioTurn = 0;
 let audioTimer;
 let advanceTimer;
 let progressReady = false;
+let bienvenidaPendiente = true;
 const responses = [];
 const pista = crearPistaActividad(() => {
   if (locked || !questions[round]) return null;
@@ -53,6 +49,10 @@ const pista = crearPistaActividad(() => {
     elemento: [...$('#choices').children].find(button => button.textContent === syllable),
     mensaje: `${questions[round].consonant.toLocaleUpperCase('es-CL')} con ${questions[round].vowel.toLocaleUpperCase('es-CL')} forma ${syllable}. Toca la sílaba que se mueve.`
   };
+}, () => {
+  if (!locked && !window.actividadLectura.estaPausada() && VozInfantil.tieneGrabacion('silabas-pista')) {
+    VozInfantil.secuencia(['silabas-pista', `silaba-${questions[round].syllable}`]);
+  }
 });
 
 function mezclar(items) {
@@ -92,7 +92,7 @@ function renderQuestion() {
   $('#vowel').textContent = question.vowel.toLocaleUpperCase('es-CL');
   $('#feedback').textContent = '';
   $('#feedback').className = 'feedback';
-  $('#listen').hidden = !('speechSynthesis' in window);
+  $('#listen').hidden = !VozInfantil.disponible();
   const distractors = mezclar(question.pool).slice(0, 2);
   $('#choices').replaceChildren(...mezclar([question.syllable, ...distractors]).map(syllable => {
     const button = document.createElement('button');
@@ -108,7 +108,7 @@ function renderQuestion() {
   audioTimer = programarActividad(() => {
     if (round === turnoActual && audioTurn === audioActual) pronunciar(question.syllable, audioActual);
   }, 300);
-  pista.reiniciar();
+  if (!VozInfantil.tieneGrabacion(`silaba-${question.syllable}`)) pista.reiniciar();
 }
 
 function choose(syllable) {
@@ -116,6 +116,7 @@ function choose(syllable) {
   pista.cancelar();
   cancelarEsperaActividad(audioTimer);
   cancelarAudio();
+  bienvenidaPendiente = false;
   const question = questions[round];
   const isCorrect = syllable === question.syllable;
   responses.push({
@@ -127,8 +128,8 @@ function choose(syllable) {
   if (!isCorrect) {
     $('#feedback').textContent = '¡Casi! Escucha la sílaba y vuelve a intentarlo.';
     $('#feedback').className = 'feedback incorrect';
-    pronunciar(question.syllable, audioTurn);
-    pista.reiniciar();
+    pronunciar(question.syllable, audioTurn, { reintento: true });
+    if (!VozInfantil.tieneGrabacion(`silaba-${question.syllable}`)) pista.reiniciar();
     return;
   }
 
@@ -142,23 +143,35 @@ function choose(syllable) {
 }
 
 function escuchar() {
-  if (locked || window.actividadLectura.estaPausada() || !('speechSynthesis' in window)) return;
+  if (locked || window.actividadLectura.estaPausada() || !VozInfantil.disponible()) return;
   cancelarEsperaActividad(audioTimer);
   cancelarAudio();
-  pronunciar(questions[round].syllable, audioTurn);
+  pronunciar(questions[round].syllable, audioTurn, { repetir: true });
 }
 
 function cancelarAudio() {
   audioTurn++;
-  window.speechSynthesis?.cancel();
+  VozInfantil.cancelar();
 }
 
-function pronunciar(syllable, turnoAudio) {
-  if (locked || turnoAudio !== audioTurn || !('speechSynthesis' in window)) return;
-  const voz = new SpeechSynthesisUtterance(syllable);
-  voz.lang = 'es-CL';
-  voz.rate = 0.75;
-  window.speechSynthesis.speak(voz);
+function pronunciar(syllable, turnoAudio, { repetir = false, reintento = false } = {}) {
+  if (locked || turnoAudio !== audioTurn || !VozInfantil.disponible()) return;
+  if (VozInfantil.tieneGrabacion(`silaba-${syllable}`)) {
+    const introduccion = bienvenidaPendiente;
+    const keys = [
+      ...(introduccion ? ['silabas-bienvenida', 'silabas-pregunta'] : []),
+      ...(repetir && !introduccion ? ['silabas-repetir'] : []),
+      ...(reintento ? ['silabas-reintento'] : []), `silaba-${syllable}`
+    ];
+    VozInfantil.secuencia(keys).then(completed => {
+      if (turnoAudio !== audioTurn || locked || window.actividadLectura.estaPausada()) return;
+      if (completed) bienvenidaPendiente = false;
+      pista.reiniciar();
+    });
+    return;
+  }
+  const voz = VozInfantil.crear(syllable, { tipo: 'letras' });
+  VozInfantil.reproducir(voz);
 }
 
 function avanzarDespuesDelAcierto(question, turnoActual) {
@@ -177,17 +190,30 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
     renderQuestion();
   };
 
-  if (!('speechSynthesis' in window)) {
+  if (VozInfantil.tieneGrabacion('silabas-acierto')) {
+    VozInfantil.secuencia(['silabas-acierto']).then(() => {
+      if (round === turnoActual && audioTurn === turnoAudio && !window.actividadLectura.estaPausada()) {
+        advanceTimer = programarActividad(avanzar, 350);
+      }
+    });
+    return;
+  }
+
+  if (!VozInfantil.disponible()) {
     advanceTimer = programarActividad(avanzar, 1800);
     return;
   }
-  const felicitacion = new SpeechSynthesisUtterance(`¡Muy bien! ${question.syllable.toLocaleUpperCase('es-CL')}.`);
-  felicitacion.lang = 'es-CL';
-  felicitacion.rate = 0.78;
+  const felicitacion = VozInfantil.crear(`¡Muy bien! ${question.syllable.toLocaleUpperCase('es-CL')}.`, { tipo: 'animo' });
   felicitacion.addEventListener('end', () => {
     if (!yaAvanzo && round === turnoActual && audioTurn === turnoAudio) {
       cancelarEsperaActividad(advanceTimer);
       advanceTimer = programarActividad(avanzar, 450);
+    }
+  }, { once: true });
+  felicitacion.addEventListener('start', () => {
+    if (!yaAvanzo && round === turnoActual && audioTurn === turnoAudio && !window.actividadLectura.estaPausada()) {
+      cancelarEsperaActividad(advanceTimer);
+      advanceTimer = programarActividad(avanzar, 6000);
     }
   }, { once: true });
   felicitacion.addEventListener('error', () => {
@@ -196,8 +222,8 @@ function avanzarDespuesDelAcierto(question, turnoActual) {
       advanceTimer = programarActividad(avanzar, 1800);
     }
   }, { once: true });
-  advanceTimer = programarActividad(avanzar, 4000);
-  window.speechSynthesis.speak(felicitacion);
+  advanceTimer = programarActividad(avanzar, VozInfantil.seleccionada()?.piper ? 65000 : 4000);
+  VozInfantil.reproducir(felicitacion);
 }
 
 async function finish() {
@@ -212,6 +238,8 @@ async function finish() {
       actividad: 'silabas_iniciales',
       grupo: 'todos',
       respuestas: responses
+    }, questions.length - correct, {
+      antesDeVolver: VozInfantil.tieneGrabacion('silabas-final') ? () => VozInfantil.secuencia(['silabas-final']) : undefined
     });
     await window.actividadLectura.borrarProgresoLocal(PROGRESS_NAME);
     $('#result').textContent = `Formaste correctamente ${correct} de ${questions.length} sílabas. Duración: ${saved.duracionSegundos} segundos.`;
@@ -232,7 +260,28 @@ async function startAllGroups() {
   correct = 0;
   responses.length = 0;
 
-  const guardado = await window.actividadLectura.cargarProgresoLocal(PROGRESS_NAME);
+  let guardado = await window.actividadLectura.cargarProgresoLocal(PROGRESS_NAME);
+  // El catálogo anterior tenía 116 turnos: las familias retiradas ocupaban
+  // los puestos 85–104 y 110–115; K estaba en los puestos 105–109.
+  // Conservamos el avance de las sílabas que siguen en el nuevo recorrido.
+  if (guardado?.total === 116 && Number.isInteger(guardado.round) && guardado.round >= 0 && guardado.round < 116) {
+    const nextRound = guardado.round < 85 ? guardado.round : guardado.round < 105 ? 85 : Math.min(90, guardado.round - 20);
+    const anteriores = new Set(questions.slice(0, nextRound).map(question => question.syllable));
+    const respuestas = (Array.isArray(guardado.responses) ? guardado.responses : []).filter(response =>
+      anteriores.has(String(response.palabra).toLocaleLowerCase('es-CL')));
+    guardado = {
+      ...guardado, round: nextRound, total: questions.length, responses: respuestas,
+      correct: new Set(respuestas.filter(response => response.correcta).map(response => response.palabra)).size
+    };
+    if (nextRound === questions.length) {
+      round = nextRound;
+      correct = guardado.correct;
+      responses.push(...respuestas);
+      progressReady = true;
+      await finish();
+      return;
+    }
+  }
   if (guardado && Number.isInteger(guardado.round) && guardado.round >= 0 && guardado.round < questions.length) {
     round = guardado.round;
     correct = Number.isInteger(guardado.correct) ? guardado.correct : 0;

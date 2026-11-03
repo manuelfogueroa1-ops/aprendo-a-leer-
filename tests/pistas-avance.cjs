@@ -20,6 +20,7 @@ async function esperar(check) {
   process.env.STUDENT_DATA_KEY = randomBytes(32).toString('hex');
   process.env.SESSION_SECRET = randomBytes(32).toString('hex');
   process.env.DESBLOQUEAR_TODO = '1';
+  process.env.PIPER_DISABLED = '1'; // Esta prueba controla las voces nativas por separado.
   const db = require('../backend/database');
   const { encryptStudentName } = require('../backend/student-name-crypto');
   const bcrypt = require('../node_modules/bcryptjs');
@@ -47,8 +48,10 @@ async function esperar(check) {
     assert.equal((await student.request.post('/api/estudiantes/1/ingresar')).status(), 200);
     assert.equal((await teacher.request.post('/api/profesor/login', { data: { usuario: 'prueba', password: 'SoloParaEstaPrueba123' } })).status(), 200);
     const page = await student.newPage();
+    await page.route('**/grabaciones.js', route => route.fulfill({ contentType: 'text/javascript', body: 'window.GrabacionesLectura = null;' }));
     // Clic físico sobre la pista animada, sin esperar a que termine su movimiento.
     const clickHint = async selector => {
+      await page.locator(selector).evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
       const box = await page.locator(selector).boundingBox();
       assert.ok(box);
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
@@ -74,6 +77,20 @@ async function esperar(check) {
       assert.equal(row.avance.PreguntaActual, 1);
       assert.equal(row.avance.Completadas, 0);
     }
+    // Dos distractores diferentes; elegir uno se puede corregir con la pista.
+    const options = await page.locator('#choices button').allTextContents();
+    const extras = options.filter(syllable => !['ca', 'sa'].includes(syllable));
+    assert.equal(options.length, 4);
+    assert.equal(new Set(extras).size, 2);
+    await page.getByRole('button', { name: extras[0], exact: true }).click();
+    await page.clock.runFor(10500);
+    assert.equal(await page.locator('#answer .hint-target').textContent(), extras[0]);
+    await page.reload();
+    await page.locator('#game:not(.hidden)').waitFor();
+    assert.deepEqual((await page.locator('#choices button').allTextContents()).sort(), [...options].sort());
+    assert.equal(await page.locator('#answer .filled').textContent(), extras[0]);
+    await page.clock.runFor(10500);
+    await clickHint('#answer .hint-target');
     // La pista de orden señala qué quitar y luego la siguiente sílaba.
     await page.locator('#choices button').filter({ hasText: /^sa$/ }).click();
     await page.clock.runFor(10500);
@@ -107,10 +124,28 @@ async function esperar(check) {
     const pausedRow = await latest();
     // La profesora consulta el mismo avance en otra sesión y conserva el detalle al actualizar.
     const teacherPage = await teacher.newPage();
+    await teacherPage.route('**/grabaciones.js', route => route.fulfill({ contentType: 'text/javascript', body: 'window.GrabacionesLectura = null;' }));
     teacherPage.on('pageerror', error => errors.push(error.message));
     await teacherPage.route('https://fonts.googleapis.com/**', route => route.abort());
     await teacherPage.goto('/');
     await teacherPage.locator('#teacherLink').click();
+    await teacherPage.waitForFunction(() => window.VozInfantil.voces().length > 0);
+    const availableVoices = await teacherPage.evaluate(() => VozInfantil.voces().map(voice => ({ id: voice.voiceURI || voice.name, name: voice.name })));
+    const alternate = availableVoices.find(voice => /pablo/i.test(voice.name)) || availableVoices[0];
+    await teacherPage.locator('#readingVoice').selectOption(alternate.id);
+    await teacherPage.evaluate(() => {
+      window.speechSynthesis.speak = utterance => {
+        window.testVoicePreview = { text: utterance.text, name: utterance.voice?.name, pitch: utterance.pitch };
+      };
+    });
+    await teacherPage.locator('#previewReadingVoice').click();
+    const preview = await teacherPage.evaluate(() => window.testVoicePreview);
+    assert.equal(preview.name, alternate.name);
+    assert.equal(preview.pitch, 1);
+    assert.match(preview.text, /amigo búho/);
+    await teacherPage.reload();
+    await teacherPage.locator('#teacherLink').click();
+    assert.equal(await teacherPage.evaluate(() => VozInfantil.seleccionada()?.name), alternate.name);
     await teacherPage.locator('#teacherStudentCards [data-id="1"]').click();
     const detail = teacherPage.locator(`details[data-intento="${pausedRow.ResultadoID}"]`);
     await detail.locator('summary').click();

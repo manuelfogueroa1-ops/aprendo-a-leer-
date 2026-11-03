@@ -439,6 +439,10 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
 .ongoing-progress {display:grid; gap:10px; padding:14px; border-radius:14px; background:#f5f1ff; color:#36285f;}
 .ongoing-progress progress {width:100%; height:18px; accent-color:#7254b9;}
 .ongoing-progress small {color:#51446b;}
+.voice-settings {padding:18px; margin:0 0 22px; border:1px solid #d8c9f3; border-radius:18px; background:#fff; color:#36285f;}
+.voice-settings h3 {margin:0 0 8px;}
+.voice-settings label {display:block; font-weight:700; margin:12px 0 6px;}
+.voice-settings select {max-width:100%; width:min(100%, 520px); padding:12px; margin:0 10px 10px 0; font:inherit; border:2px solid #b6a4d8; border-radius:12px; background:#fff; color:#36285f;}
 .answers {margin: 0; padding: 4px 18px 8px 36px; line-height: 1.9;}
 .answers .ans-ok {color: #176448;}
 .answers .ans-bad {color: #a43a48;}

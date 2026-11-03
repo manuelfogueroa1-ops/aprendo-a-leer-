@@ -3,3 +3,9 @@
 node_modules/
 backend/data/*.sqlite*
 *.log
+.venv-piper/
+backend/voices/*.onnx
+backend/voices/*.onnx.json
+backend/voices/kokoro/*.onnx
+backend/voices/kokoro/*.bin
+__pycache__/

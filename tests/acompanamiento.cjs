@@ -23,6 +23,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     const page = await context.newPage();
+    await page.route('**/grabaciones.js', route => route.fulfill({ contentType: 'text/javascript', body: 'window.GrabacionesLectura = null;' }));
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://fonts.googleapis.com/**', route => route.abort());

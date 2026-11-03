@@ -33,12 +33,10 @@ document.querySelectorAll('[data-panel]').forEach(button => button.addEventListe
 
 // Voz del navegador: ayuda a quienes todavía no leen de corrido. Si no existe, no pasa nada.
 function decir(texto) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const voz = new SpeechSynthesisUtterance(texto);
-  voz.lang = 'es-CL';
-  voz.rate = 0.85;
-  window.speechSynthesis.speak(voz);
+  if (!VozInfantil.disponible()) return;
+  VozInfantil.cancelar();
+  const voz = VozInfantil.crear(texto, { tipo: 'animo' });
+  VozInfantil.reproducir(voz);
 }
 $('#listenIntro').addEventListener('click', () => decir('¿Cómo te llamas? Toca tu nombre.'));
 

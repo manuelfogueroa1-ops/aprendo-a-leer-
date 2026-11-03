@@ -169,17 +169,15 @@ function choose(letter) {
 }
 
 function listen() {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
+  if (!VozInfantil.disponible()) return;
+  VozInfantil.cancelar();
   const full = story.parts.map(part => part.type === 'text' ? part.value : part.letter).join('');
-  const voz = new SpeechSynthesisUtterance(`${story.title}. ${full}`);
-  voz.lang = 'es-CL';
-  voz.rate = 0.8;
-  window.speechSynthesis.speak(voz);
+  const voz = VozInfantil.crear(`${story.title}. ${full}`);
+  VozInfantil.reproducir(voz);
 }
 
 async function finish() {
-  window.speechSynthesis?.cancel();
+  VozInfantil.cancelar();
   $('#progressBar').style.width = '100%';
   game.classList.add('hidden');
   $('#finished').classList.remove('hidden');

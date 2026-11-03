@@ -252,7 +252,7 @@ function crearDecoracionesDeActividad() {
       inertElements = [...document.body.children].filter(el => el !== overlay && !el.inert && !['SCRIPT', 'STYLE', 'LINK'].includes(el.tagName));
       inertElements.forEach(el => { el.inert = true; });
       resumeButton.focus();
-      window.speechSynthesis?.cancel();
+      VozInfantil.cancelar();
       document.querySelectorAll('audio, video').forEach(media => media.pause());
       window.dispatchEvent(new CustomEvent('actividad-pausada'));
       if (motivo === 'clics') startBreathing();
@@ -358,7 +358,7 @@ function borrarGuardadoLocal(clave) {
 }
 
 // Una pista por turno; utiliza el mismo reloj que se detiene durante las pausas.
-function crearPistaActividad(obtenerPista) {
+function crearPistaActividad(obtenerPista, alMostrar) {
   let timer;
   let target;
   const message = document.createElement('p');
@@ -383,6 +383,7 @@ function crearPistaActividad(obtenerPista) {
       message.textContent = `🦉 ${pista.mensaje}`;
       message.hidden = false;
       window.mascota?.decir(pista.mensaje, { voz: false, duracion: 5000 });
+      alMostrar?.();
     }, 10000);
   };
   return { reiniciar, cancelar };
@@ -463,7 +464,7 @@ window.actividadLectura = {
     intentoEnCurso = result.intento.ResultadoID;
     return result.intento.ResultadoID;
   },
-  async guardar(resultadoId, aciertos, total, detalleResultado, errores = total - aciertos) {
+  async guardar(resultadoId, aciertos, total, detalleResultado, errores = total - aciertos, { antesDeVolver } = {}) {
     intentoEnCurso = null;
     const puntuacion = total ? Math.round((aciertos / total) * 10000) / 100 : 0;
     mostrarEnlacesDeActividades(false);
@@ -483,8 +484,14 @@ window.actividadLectura = {
           if (!resultado.guardado) throw new Error('El servidor no confirmó que el resultado se haya guardado.');
           const status = document.querySelector('#status');
           if (status) status.textContent = '¡Resultado guardado! Regresando automáticamente a tus actividades…';
-          try { sessionStorage.setItem('lectura-felicitacion-pendiente', '1'); } catch { /* sin almacenamiento */ }
-          window.setTimeout(() => window.location.assign('/'), 2200);
+          try {
+            sessionStorage.setItem('lectura-felicitacion-pendiente', '1');
+            sessionStorage.setItem('lectura-cierre-grabado', antesDeVolver ? '1' : '0');
+          } catch { /* sin almacenamiento */ }
+          if (antesDeVolver) {
+            try { await antesDeVolver(); } catch { /* conservar guardado confirmado aunque falle el audio */ }
+          }
+          window.setTimeout(() => window.location.assign('/'), antesDeVolver ? 350 : 2200);
           return resultado;
         } catch (error) {
           if (intento === 2 || (error.status && error.status < 500)) throw error;

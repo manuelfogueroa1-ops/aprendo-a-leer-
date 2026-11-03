@@ -1,0 +1,1258 @@
+{
+  "archivosOriginales": 82,
+  "familias": [
+    "b",
+    "c",
+    "d",
+    "f",
+    "g",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "p",
+    "r",
+    "s",
+    "t",
+    "v",
+    "y",
+    "z",
+    "ñ"
+  ],
+  "clips": [
+    {
+      "clave": "letras-acierto",
+      "origen": "letras-acierto.ogg",
+      "inicio": 0.0,
+      "fin": 3.5,
+      "duracion": 3.5,
+      "ganancia": 0.873
+    },
+    {
+      "clave": "letras-final",
+      "origen": "letras-final.ogg",
+      "inicio": 0.12,
+      "fin": 5.12,
+      "duracion": 5.0,
+      "ganancia": 0.885
+    },
+    {
+      "clave": "letras-nombre-a",
+      "origen": "letras-nombre-a.ogg",
+      "inicio": 0.46,
+      "fin": 1.06,
+      "duracion": 0.6,
+      "ganancia": 1.266
+    },
+    {
+      "clave": "letras-nombre-b",
+      "origen": "letras-nombre-b.ogg",
+      "inicio": 0.38,
+      "fin": 1.12,
+      "duracion": 0.74,
+      "ganancia": 1.983
+    },
+    {
+      "clave": "letras-nombre-c",
+      "origen": "letras-nombre-c.ogg",
+      "inicio": 0.16,
+      "fin": 1.02,
+      "duracion": 0.86,
+      "ganancia": 2.534
+    },
+    {
+      "clave": "letras-nombre-d",
+      "origen": "letras-nombre-d.ogg",
+      "inicio": 0.24,
+      "fin": 1.14,
+      "duracion": 0.9,
+      "ganancia": 1.763
+    },
+    {
+      "clave": "letras-nombre-e",
+      "origen": "letras-nombre-e.ogg",
+      "inicio": 0.18,
+      "fin": 0.82,
+      "duracion": 0.64,
+      "ganancia": 2.637
+    },
+    {
+      "clave": "letras-nombre-f",
+      "origen": "letras-nombre-f.ogg",
+      "inicio": 0.14,
+      "fin": 0.92,
+      "duracion": 0.78,
+      "ganancia": 2.271
+    },
+    {
+      "clave": "letras-nombre-g",
+      "origen": "letras-nombre-g.ogg",
+      "inicio": 0.16,
+      "fin": 0.92,
+      "duracion": 0.76,
+      "ganancia": 3.263
+    },
+    {
+      "clave": "letras-nombre-h",
+      "origen": "letras-nombre-h.ogg",
+      "inicio": 0.34,
+      "fin": 1.14,
+      "duracion": 0.8,
+      "ganancia": 1.033
+    },
+    {
+      "clave": "letras-nombre-i",
+      "origen": "letras-nombre-i.ogg",
+      "inicio": 0.34,
+      "fin": 1.1,
+      "duracion": 0.76,
+      "ganancia": 4.539
+    },
+    {
+      "clave": "letras-nombre-j",
+      "origen": "letras-nombre-j.ogg",
+      "inicio": 0.24,
+      "fin": 1.14,
+      "duracion": 0.9,
+      "ganancia": 1.93
+    },
+    {
+      "clave": "letras-nombre-k",
+      "origen": "letras-nombre-k.ogg",
+      "inicio": 0.44,
+      "fin": 1.08,
+      "duracion": 0.64,
+      "ganancia": 0.992
+    },
+    {
+      "clave": "letras-nombre-l",
+      "origen": "letras-nombre-l.ogg",
+      "inicio": 0.22,
+      "fin": 0.98,
+      "duracion": 0.76,
+      "ganancia": 2.091
+    },
+    {
+      "clave": "letras-nombre-m",
+      "origen": "letras-nombre-m.ogg",
+      "inicio": 0.48,
+      "fin": 1.22,
+      "duracion": 0.74,
+      "ganancia": 2.049
+    },
+    {
+      "clave": "letras-nombre-n",
+      "origen": "letras-nombre-n.ogg",
+      "inicio": 0.3,
+      "fin": 0.98,
+      "duracion": 0.68,
+      "ganancia": 2.987
+    },
+    {
+      "clave": "letras-nombre-o",
+      "origen": "letras-nombre-o.ogg",
+      "inicio": 0.22,
+      "fin": 0.8,
+      "duracion": 0.58,
+      "ganancia": 5.715
+    },
+    {
+      "clave": "letras-nombre-p",
+      "origen": "letras-nombre-p.ogg",
+      "inicio": 0.32,
+      "fin": 0.94,
+      "duracion": 0.62,
+      "ganancia": 1.971
+    },
+    {
+      "clave": "letras-nombre-q",
+      "origen": "letras-nombre-q.ogg",
+      "inicio": 0.42,
+      "fin": 1.1,
+      "duracion": 0.68,
+      "ganancia": 7.894
+    },
+    {
+      "clave": "letras-nombre-r",
+      "origen": "letras-nombre-r.ogg",
+      "inicio": 0.0,
+      "fin": 0.9,
+      "duracion": 0.9,
+      "ganancia": 1.101
+    },
+    {
+      "clave": "letras-nombre-s",
+      "origen": "letras-nombre-s.ogg",
+      "inicio": 0.08,
+      "fin": 0.92,
+      "duracion": 0.84,
+      "ganancia": 2.82
+    },
+    {
+      "clave": "letras-nombre-t",
+      "origen": "letras-nombre-t.ogg",
+      "inicio": 0.38,
+      "fin": 1.04,
+      "duracion": 0.66,
+      "ganancia": 2.331
+    },
+    {
+      "clave": "letras-nombre-u",
+      "origen": "letras-nombre-u.ogg",
+      "inicio": 0.58,
+      "fin": 1.24,
+      "duracion": 0.66,
+      "ganancia": 8.912
+    },
+    {
+      "clave": "letras-nombre-v",
+      "origen": "letras-nombre-v.ogg",
+      "inicio": 0.18,
+      "fin": 0.98,
+      "duracion": 0.8,
+      "ganancia": 1.883
+    },
+    {
+      "clave": "letras-nombre-w",
+      "origen": "letras-nombre-w.ogg",
+      "inicio": 0.08,
+      "fin": 1.28,
+      "duracion": 1.2,
+      "ganancia": 1.82
+    },
+    {
+      "clave": "letras-nombre-x",
+      "origen": "letras-nombre-x.ogg",
+      "inicio": 0.3,
+      "fin": 1.22,
+      "duracion": 0.92,
+      "ganancia": 2.241
+    },
+    {
+      "clave": "letras-nombre-y",
+      "origen": "letras-nombre-y.ogg",
+      "inicio": 0.14,
+      "fin": 0.98,
+      "duracion": 0.84,
+      "ganancia": 1.734
+    },
+    {
+      "clave": "letras-nombre-z",
+      "origen": "letras-nombre-z.ogg",
+      "inicio": 0.16,
+      "fin": 1.08,
+      "duracion": 0.92,
+      "ganancia": 2.21
+    },
+    {
+      "clave": "letras-nombre-ñ",
+      "origen": "letras-nombre-ñ.ogg",
+      "inicio": 0.14,
+      "fin": 0.86,
+      "duracion": 0.72,
+      "ganancia": 2.71
+    },
+    {
+      "clave": "letras-pregunta-a",
+      "origen": "letras-preguntas-a.ogg",
+      "inicio": 0.58,
+      "fin": 6.4,
+      "duracion": 5.82,
+      "ganancia": 1.04
+    },
+    {
+      "clave": "letras-pregunta-b",
+      "origen": "letras-preguntas-b.ogg",
+      "inicio": 0.14,
+      "fin": 5.72,
+      "duracion": 5.58,
+      "ganancia": 0.872
+    },
+    {
+      "clave": "letras-pregunta-c",
+      "origen": "letras-preguntas-c.ogg",
+      "inicio": 0.3,
+      "fin": 6.72,
+      "duracion": 6.42,
+      "ganancia": 0.914
+    },
+    {
+      "clave": "letras-pregunta-d",
+      "origen": "letras-preguntas-d.ogg",
+      "inicio": 0.54,
+      "fin": 6.94,
+      "duracion": 6.4,
+      "ganancia": 0.99
+    },
+    {
+      "clave": "letras-pregunta-e",
+      "origen": "letras-preguntas-e.ogg",
+      "inicio": 0.16,
+      "fin": 6.56,
+      "duracion": 6.4,
+      "ganancia": 1.067
+    },
+    {
+      "clave": "letras-pregunta-f",
+      "origen": "letras-preguntas-f.ogg",
+      "inicio": 0.62,
+      "fin": 7.12,
+      "duracion": 6.5,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "letras-pregunta-g",
+      "origen": "letras-preguntas-g.ogg",
+      "inicio": 0.18,
+      "fin": 6.06,
+      "duracion": 5.88,
+      "ganancia": 0.901
+    },
+    {
+      "clave": "letras-pregunta-h",
+      "origen": "letras-preguntas-h.ogg",
+      "inicio": 0.24,
+      "fin": 6.56,
+      "duracion": 6.32,
+      "ganancia": 0.893
+    },
+    {
+      "clave": "letras-pregunta-i",
+      "origen": "letras-preguntas-i.ogg",
+      "inicio": 0.22,
+      "fin": 6.18,
+      "duracion": 5.96,
+      "ganancia": 0.861
+    },
+    {
+      "clave": "letras-pregunta-j",
+      "origen": "letras-preguntas-j.ogg",
+      "inicio": 0.16,
+      "fin": 6.46,
+      "duracion": 6.3,
+      "ganancia": 0.871
+    },
+    {
+      "clave": "letras-pregunta-k",
+      "origen": "letras-preguntas-k.ogg",
+      "inicio": 0.3,
+      "fin": 6.62,
+      "duracion": 6.32,
+      "ganancia": 0.901
+    },
+    {
+      "clave": "letras-pregunta-l",
+      "origen": "letras-preguntas-l.ogg",
+      "inicio": 0.54,
+      "fin": 7.2,
+      "duracion": 6.66,
+      "ganancia": 0.851
+    },
+    {
+      "clave": "letras-pregunta-m",
+      "origen": "letras-preguntas-m.ogg",
+      "inicio": 0.26,
+      "fin": 6.9,
+      "duracion": 6.64,
+      "ganancia": 0.895
+    },
+    {
+      "clave": "letras-pregunta-n",
+      "origen": "letras-preguntas-n.ogg",
+      "inicio": 0.52,
+      "fin": 7.84,
+      "duracion": 7.32,
+      "ganancia": 0.914
+    },
+    {
+      "clave": "letras-pregunta-o",
+      "origen": "letras-preguntas-o.ogg",
+      "inicio": 0.32,
+      "fin": 6.14,
+      "duracion": 5.82,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "letras-pregunta-p",
+      "origen": "letras-preguntas-p.ogg",
+      "inicio": 0.02,
+      "fin": 6.74,
+      "duracion": 6.72,
+      "ganancia": 0.895
+    },
+    {
+      "clave": "letras-pregunta-q",
+      "origen": "letras-preguntas-q.ogg",
+      "inicio": 0.52,
+      "fin": 7.24,
+      "duracion": 6.72,
+      "ganancia": 0.875
+    },
+    {
+      "clave": "letras-pregunta-r",
+      "origen": "letras-preguntas-r.ogg",
+      "inicio": 0.0,
+      "fin": 6.5,
+      "duracion": 6.5,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "letras-pregunta-s",
+      "origen": "letras-preguntas-s.ogg",
+      "inicio": 0.1,
+      "fin": 6.82,
+      "duracion": 6.72,
+      "ganancia": 0.874
+    },
+    {
+      "clave": "letras-pregunta-t",
+      "origen": "letras-preguntas-t.ogg",
+      "inicio": 0.52,
+      "fin": 7.18,
+      "duracion": 6.66,
+      "ganancia": 0.912
+    },
+    {
+      "clave": "letras-pregunta-u",
+      "origen": "letras-preguntas-u.ogg",
+      "inicio": 0.26,
+      "fin": 7.98,
+      "duracion": 7.72,
+      "ganancia": 0.878
+    },
+    {
+      "clave": "letras-pregunta-v",
+      "origen": "letras-preguntas-v.ogg",
+      "inicio": 0.0,
+      "fin": 6.74,
+      "duracion": 6.74,
+      "ganancia": 0.87
+    },
+    {
+      "clave": "letras-pregunta-w",
+      "origen": "letras-preguntas-w.ogg",
+      "inicio": 0.32,
+      "fin": 6.82,
+      "duracion": 6.5,
+      "ganancia": 0.854
+    },
+    {
+      "clave": "letras-pregunta-x",
+      "origen": "letras-preguntas-x.ogg",
+      "inicio": 0.22,
+      "fin": 6.9,
+      "duracion": 6.68,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "letras-pregunta-y",
+      "origen": "letras-preguntas-y.ogg",
+      "inicio": 0.1,
+      "fin": 6.82,
+      "duracion": 6.72,
+      "ganancia": 0.924
+    },
+    {
+      "clave": "letras-pregunta-z",
+      "origen": "letras-preguntas-z.ogg",
+      "inicio": 0.18,
+      "fin": 6.22,
+      "duracion": 6.04,
+      "ganancia": 0.941
+    },
+    {
+      "clave": "letras-pregunta-ñ",
+      "origen": "letras-preguntas-ñ.ogg",
+      "inicio": 0.48,
+      "fin": 6.66,
+      "duracion": 6.18,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "letras-reintento",
+      "origen": "letras-reintento.ogg",
+      "inicio": 0.04,
+      "fin": 6.74,
+      "duracion": 6.7,
+      "ganancia": 0.89
+    },
+    {
+      "clave": "silabas-acierto",
+      "origen": "silabas-acierto.ogg",
+      "inicio": 0.0,
+      "fin": 5.02,
+      "duracion": 5.02,
+      "ganancia": 1.227
+    },
+    {
+      "clave": "silabas-bienvenida",
+      "origen": "silabas-bienvenida.ogg",
+      "inicio": 0.0,
+      "fin": 11.34,
+      "duracion": 11.34,
+      "ganancia": 0.856
+    },
+    {
+      "clave": "silaba-ba",
+      "origen": "silabas-familia-b.ogg",
+      "inicio": 0.0,
+      "fin": 0.86,
+      "duracion": 0.86,
+      "ganancia": 0.9
+    },
+    {
+      "clave": "silaba-be",
+      "origen": "silabas-familia-b.ogg",
+      "inicio": 0.9,
+      "fin": 1.8,
+      "duracion": 0.9,
+      "ganancia": 3.229
+    },
+    {
+      "clave": "silaba-bi",
+      "origen": "silabas-familia-b.ogg",
+      "inicio": 1.84,
+      "fin": 2.76,
+      "duracion": 0.92,
+      "ganancia": 5.357
+    },
+    {
+      "clave": "silaba-bo",
+      "origen": "silabas-familia-b.ogg",
+      "inicio": 2.96,
+      "fin": 3.76,
+      "duracion": 0.8,
+      "ganancia": 7.055
+    },
+    {
+      "clave": "silaba-bu",
+      "origen": "silabas-familia-b.ogg",
+      "inicio": 3.82,
+      "fin": 4.56,
+      "duracion": 0.74,
+      "ganancia": 11.213
+    },
+    {
+      "clave": "silaba-ca",
+      "origen": "silabas-familia-c.ogg",
+      "inicio": 0.9,
+      "fin": 1.66,
+      "duracion": 0.76,
+      "ganancia": 1.212
+    },
+    {
+      "clave": "silaba-ce",
+      "origen": "silabas-familia-c.ogg",
+      "inicio": 1.62,
+      "fin": 2.52,
+      "duracion": 0.9,
+      "ganancia": 4.841
+    },
+    {
+      "clave": "silaba-ci",
+      "origen": "silabas-familia-c.ogg",
+      "inicio": 2.58,
+      "fin": 3.42,
+      "duracion": 0.84,
+      "ganancia": 10.825
+    },
+    {
+      "clave": "silaba-co",
+      "origen": "silabas-familia-c.ogg",
+      "inicio": 3.7,
+      "fin": 4.44,
+      "duracion": 0.74,
+      "ganancia": 8.759
+    },
+    {
+      "clave": "silaba-cu",
+      "origen": "silabas-familia-c.ogg",
+      "inicio": 4.68,
+      "fin": 5.38,
+      "duracion": 0.7,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-da",
+      "origen": "silabas-familia-d.ogg",
+      "inicio": 0.32,
+      "fin": 1.18,
+      "duracion": 0.86,
+      "ganancia": 0.924
+    },
+    {
+      "clave": "silaba-de",
+      "origen": "silabas-familia-d.ogg",
+      "inicio": 1.44,
+      "fin": 2.22,
+      "duracion": 0.78,
+      "ganancia": 2.879
+    },
+    {
+      "clave": "silaba-di",
+      "origen": "silabas-familia-d.ogg",
+      "inicio": 2.46,
+      "fin": 3.18,
+      "duracion": 0.72,
+      "ganancia": 4.977
+    },
+    {
+      "clave": "silaba-do",
+      "origen": "silabas-familia-d.ogg",
+      "inicio": 3.42,
+      "fin": 4.2,
+      "duracion": 0.78,
+      "ganancia": 7.274
+    },
+    {
+      "clave": "silaba-du",
+      "origen": "silabas-familia-d.ogg",
+      "inicio": 4.4,
+      "fin": 5.12,
+      "duracion": 0.72,
+      "ganancia": 9.303
+    },
+    {
+      "clave": "silaba-fa",
+      "origen": "silabas-familia-f.ogg",
+      "inicio": 0.46,
+      "fin": 1.26,
+      "duracion": 0.8,
+      "ganancia": 1.087
+    },
+    {
+      "clave": "silaba-fe",
+      "origen": "silabas-familia-f.ogg",
+      "inicio": 1.7,
+      "fin": 2.42,
+      "duracion": 0.72,
+      "ganancia": 7.87
+    },
+    {
+      "clave": "silaba-fi",
+      "origen": "silabas-familia-f.ogg",
+      "inicio": 2.78,
+      "fin": 3.54,
+      "duracion": 0.76,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-fo",
+      "origen": "silabas-familia-f.ogg",
+      "inicio": 3.84,
+      "fin": 4.56,
+      "duracion": 0.72,
+      "ganancia": 11.295
+    },
+    {
+      "clave": "silaba-fu",
+      "origen": "silabas-familia-f.ogg",
+      "inicio": 4.76,
+      "fin": 5.52,
+      "duracion": 0.76,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-ga",
+      "origen": "silabas-familia-g.ogg",
+      "inicio": 0.18,
+      "fin": 1.18,
+      "duracion": 1.0,
+      "ganancia": 0.992
+    },
+    {
+      "clave": "silaba-ge",
+      "origen": "silabas-familia-g.ogg",
+      "inicio": 1.16,
+      "fin": 2.1,
+      "duracion": 0.94,
+      "ganancia": 7.103
+    },
+    {
+      "clave": "silaba-gi",
+      "origen": "silabas-familia-g.ogg",
+      "inicio": 2.2,
+      "fin": 3.08,
+      "duracion": 0.88,
+      "ganancia": 7.61
+    },
+    {
+      "clave": "silaba-go",
+      "origen": "silabas-familia-g.ogg",
+      "inicio": 3.08,
+      "fin": 3.92,
+      "duracion": 0.84,
+      "ganancia": 7.778
+    },
+    {
+      "clave": "silaba-gu",
+      "origen": "silabas-familia-g.ogg",
+      "inicio": 4.22,
+      "fin": 4.78,
+      "duracion": 0.56,
+      "ganancia": 10.825
+    },
+    {
+      "clave": "silaba-ja",
+      "origen": "silabas-familia-j.ogg",
+      "inicio": 0.34,
+      "fin": 1.22,
+      "duracion": 0.88,
+      "ganancia": 1.196
+    },
+    {
+      "clave": "silaba-je",
+      "origen": "silabas-familia-j.ogg",
+      "inicio": 1.38,
+      "fin": 2.34,
+      "duracion": 0.96,
+      "ganancia": 7.205
+    },
+    {
+      "clave": "silaba-ji",
+      "origen": "silabas-familia-j.ogg",
+      "inicio": 2.4,
+      "fin": 3.3,
+      "duracion": 0.9,
+      "ganancia": 7.949
+    },
+    {
+      "clave": "silaba-jo",
+      "origen": "silabas-familia-j.ogg",
+      "inicio": 3.48,
+      "fin": 4.26,
+      "duracion": 0.78,
+      "ganancia": 6.15
+    },
+    {
+      "clave": "silaba-ju",
+      "origen": "silabas-familia-j.ogg",
+      "inicio": 4.46,
+      "fin": 5.12,
+      "duracion": 0.66,
+      "ganancia": 8.607
+    },
+    {
+      "clave": "silaba-ka",
+      "origen": "silabas-familia-k.ogg",
+      "inicio": 0.52,
+      "fin": 1.38,
+      "duracion": 0.86,
+      "ganancia": 1.185
+    },
+    {
+      "clave": "silaba-ke",
+      "origen": "silabas-familia-k.ogg",
+      "inicio": 1.56,
+      "fin": 2.46,
+      "duracion": 0.9,
+      "ganancia": 6.518
+    },
+    {
+      "clave": "silaba-ki",
+      "origen": "silabas-familia-k.ogg",
+      "inicio": 2.56,
+      "fin": 3.36,
+      "duracion": 0.8,
+      "ganancia": 6.297
+    },
+    {
+      "clave": "silaba-ko",
+      "origen": "silabas-familia-k.ogg",
+      "inicio": 3.66,
+      "fin": 4.42,
+      "duracion": 0.76,
+      "ganancia": 8.715
+    },
+    {
+      "clave": "silaba-ku",
+      "origen": "silabas-familia-k.ogg",
+      "inicio": 4.6,
+      "fin": 5.34,
+      "duracion": 0.74,
+      "ganancia": 9.135
+    },
+    {
+      "clave": "silaba-la",
+      "origen": "silabas-familia-l.ogg",
+      "inicio": 0.26,
+      "fin": 1.18,
+      "duracion": 0.92,
+      "ganancia": 1.05
+    },
+    {
+      "clave": "silaba-le",
+      "origen": "silabas-familia-l.ogg",
+      "inicio": 1.52,
+      "fin": 2.44,
+      "duracion": 0.92,
+      "ganancia": 3.077
+    },
+    {
+      "clave": "silaba-li",
+      "origen": "silabas-familia-l.ogg",
+      "inicio": 2.7,
+      "fin": 3.52,
+      "duracion": 0.82,
+      "ganancia": 6.759
+    },
+    {
+      "clave": "silaba-lo",
+      "origen": "silabas-familia-l.ogg",
+      "inicio": 3.84,
+      "fin": 4.8,
+      "duracion": 0.96,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-lu",
+      "origen": "silabas-familia-l.ogg",
+      "inicio": 4.96,
+      "fin": 5.8,
+      "duracion": 0.84,
+      "ganancia": 8.82
+    },
+    {
+      "clave": "silaba-ma",
+      "origen": "silabas-familia-m.ogg",
+      "inicio": 0.38,
+      "fin": 1.28,
+      "duracion": 0.9,
+      "ganancia": 0.869
+    },
+    {
+      "clave": "silaba-me",
+      "origen": "silabas-familia-m.ogg",
+      "inicio": 1.86,
+      "fin": 2.8,
+      "duracion": 0.94,
+      "ganancia": 5.185
+    },
+    {
+      "clave": "silaba-mi",
+      "origen": "silabas-familia-m.ogg",
+      "inicio": 3.28,
+      "fin": 4.14,
+      "duracion": 0.86,
+      "ganancia": 5.845
+    },
+    {
+      "clave": "silaba-mo",
+      "origen": "silabas-familia-m.ogg",
+      "inicio": 4.7,
+      "fin": 5.5,
+      "duracion": 0.8,
+      "ganancia": 5.106
+    },
+    {
+      "clave": "silaba-mu",
+      "origen": "silabas-familia-m.ogg",
+      "inicio": 5.9,
+      "fin": 6.58,
+      "duracion": 0.68,
+      "ganancia": 8.671
+    },
+    {
+      "clave": "silaba-na",
+      "origen": "silabas-familia-n.ogg",
+      "inicio": 0.28,
+      "fin": 1.22,
+      "duracion": 0.94,
+      "ganancia": 0.924
+    },
+    {
+      "clave": "silaba-ne",
+      "origen": "silabas-familia-n.ogg",
+      "inicio": 1.56,
+      "fin": 2.4,
+      "duracion": 0.84,
+      "ganancia": 3.306
+    },
+    {
+      "clave": "silaba-ni",
+      "origen": "silabas-familia-n.ogg",
+      "inicio": 2.74,
+      "fin": 3.54,
+      "duracion": 0.8,
+      "ganancia": 6.306
+    },
+    {
+      "clave": "silaba-no",
+      "origen": "silabas-familia-n.ogg",
+      "inicio": 3.88,
+      "fin": 4.7,
+      "duracion": 0.82,
+      "ganancia": 6.404
+    },
+    {
+      "clave": "silaba-nu",
+      "origen": "silabas-familia-n.ogg",
+      "inicio": 4.98,
+      "fin": 5.98,
+      "duracion": 1.0,
+      "ganancia": 7.89
+    },
+    {
+      "clave": "silaba-pa",
+      "origen": "silabas-familia-p.ogg",
+      "inicio": 0.5,
+      "fin": 1.1,
+      "duracion": 0.6,
+      "ganancia": 0.877
+    },
+    {
+      "clave": "silaba-pe",
+      "origen": "silabas-familia-p.ogg",
+      "inicio": 2.26,
+      "fin": 2.88,
+      "duracion": 0.62,
+      "ganancia": 5.474
+    },
+    {
+      "clave": "silaba-pi",
+      "origen": "silabas-familia-p.ogg",
+      "inicio": 3.96,
+      "fin": 4.58,
+      "duracion": 0.62,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-po",
+      "origen": "silabas-familia-p.ogg",
+      "inicio": 5.42,
+      "fin": 6.02,
+      "duracion": 0.6,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-pu",
+      "origen": "silabas-familia-p.ogg",
+      "inicio": 6.72,
+      "fin": 7.22,
+      "duracion": 0.5,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-ra",
+      "origen": "silabas-familia-r.ogg",
+      "inicio": 0.2,
+      "fin": 1.04,
+      "duracion": 0.84,
+      "ganancia": 1.259
+    },
+    {
+      "clave": "silaba-re",
+      "origen": "silabas-familia-r.ogg",
+      "inicio": 1.26,
+      "fin": 2.22,
+      "duracion": 0.96,
+      "ganancia": 4.658
+    },
+    {
+      "clave": "silaba-ri",
+      "origen": "silabas-familia-r.ogg",
+      "inicio": 2.54,
+      "fin": 3.44,
+      "duracion": 0.9,
+      "ganancia": 5.726
+    },
+    {
+      "clave": "silaba-ro",
+      "origen": "silabas-familia-r.ogg",
+      "inicio": 3.72,
+      "fin": 4.62,
+      "duracion": 0.9,
+      "ganancia": 5.301
+    },
+    {
+      "clave": "silaba-ru",
+      "origen": "silabas-familia-r.ogg",
+      "inicio": 4.9,
+      "fin": 5.72,
+      "duracion": 0.82,
+      "ganancia": 6.876
+    },
+    {
+      "clave": "silaba-sa",
+      "origen": "silabas-familia-s.ogg",
+      "inicio": 0.2,
+      "fin": 1.06,
+      "duracion": 0.86,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "silaba-se",
+      "origen": "silabas-familia-s.ogg",
+      "inicio": 1.22,
+      "fin": 2.22,
+      "duracion": 1.0,
+      "ganancia": 7.337
+    },
+    {
+      "clave": "silaba-si",
+      "origen": "silabas-familia-s.ogg",
+      "inicio": 2.46,
+      "fin": 3.28,
+      "duracion": 0.82,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-so",
+      "origen": "silabas-familia-s.ogg",
+      "inicio": 3.56,
+      "fin": 4.3,
+      "duracion": 0.74,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-su",
+      "origen": "silabas-familia-s.ogg",
+      "inicio": 4.44,
+      "fin": 5.18,
+      "duracion": 0.74,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-ta",
+      "origen": "silabas-familia-t.ogg",
+      "inicio": 0.56,
+      "fin": 1.28,
+      "duracion": 0.72,
+      "ganancia": 0.936
+    },
+    {
+      "clave": "silaba-te",
+      "origen": "silabas-familia-t.ogg",
+      "inicio": 1.88,
+      "fin": 2.64,
+      "duracion": 0.76,
+      "ganancia": 8.893
+    },
+    {
+      "clave": "silaba-ti",
+      "origen": "silabas-familia-t.ogg",
+      "inicio": 3.2,
+      "fin": 3.96,
+      "duracion": 0.76,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-to",
+      "origen": "silabas-familia-t.ogg",
+      "inicio": 4.56,
+      "fin": 5.36,
+      "duracion": 0.8,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-tu",
+      "origen": "silabas-familia-t.ogg",
+      "inicio": 5.88,
+      "fin": 6.52,
+      "duracion": 0.64,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-va",
+      "origen": "silabas-familia-v.ogg",
+      "inicio": 0.22,
+      "fin": 1.06,
+      "duracion": 0.84,
+      "ganancia": 0.969
+    },
+    {
+      "clave": "silaba-ve",
+      "origen": "silabas-familia-v.ogg",
+      "inicio": 1.14,
+      "fin": 2.04,
+      "duracion": 0.9,
+      "ganancia": 3.062
+    },
+    {
+      "clave": "silaba-vi",
+      "origen": "silabas-familia-v.ogg",
+      "inicio": 2.02,
+      "fin": 2.98,
+      "duracion": 0.96,
+      "ganancia": 5.863
+    },
+    {
+      "clave": "silaba-vo",
+      "origen": "silabas-familia-v.ogg",
+      "inicio": 3.22,
+      "fin": 4.08,
+      "duracion": 0.86,
+      "ganancia": 5.438
+    },
+    {
+      "clave": "silaba-vu",
+      "origen": "silabas-familia-v.ogg",
+      "inicio": 4.14,
+      "fin": 5.02,
+      "duracion": 0.88,
+      "ganancia": 7.291
+    },
+    {
+      "clave": "silaba-ya",
+      "origen": "silabas-familia-y.ogg",
+      "inicio": 0.16,
+      "fin": 0.98,
+      "duracion": 0.82,
+      "ganancia": 0.868
+    },
+    {
+      "clave": "silaba-ye",
+      "origen": "silabas-familia-y.ogg",
+      "inicio": 1.36,
+      "fin": 2.24,
+      "duracion": 0.88,
+      "ganancia": 3.109
+    },
+    {
+      "clave": "silaba-yi",
+      "origen": "silabas-familia-y.ogg",
+      "inicio": 2.42,
+      "fin": 3.34,
+      "duracion": 0.92,
+      "ganancia": 3.518
+    },
+    {
+      "clave": "silaba-yo",
+      "origen": "silabas-familia-y.ogg",
+      "inicio": 3.5,
+      "fin": 4.42,
+      "duracion": 0.92,
+      "ganancia": 6.214
+    },
+    {
+      "clave": "silaba-yu",
+      "origen": "silabas-familia-y.ogg",
+      "inicio": 4.66,
+      "fin": 5.42,
+      "duracion": 0.76,
+      "ganancia": 6.0
+    },
+    {
+      "clave": "silaba-za",
+      "origen": "silabas-familia-z.ogg",
+      "inicio": 0.0,
+      "fin": 0.92,
+      "duracion": 0.92,
+      "ganancia": 0.94
+    },
+    {
+      "clave": "silaba-ze",
+      "origen": "silabas-familia-z.ogg",
+      "inicio": 1.24,
+      "fin": 2.06,
+      "duracion": 0.82,
+      "ganancia": 5.902
+    },
+    {
+      "clave": "silaba-zi",
+      "origen": "silabas-familia-z.ogg",
+      "inicio": 2.48,
+      "fin": 3.34,
+      "duracion": 0.86,
+      "ganancia": 11.847
+    },
+    {
+      "clave": "silaba-zo",
+      "origen": "silabas-familia-z.ogg",
+      "inicio": 3.64,
+      "fin": 4.46,
+      "duracion": 0.82,
+      "ganancia": 11.802
+    },
+    {
+      "clave": "silaba-zu",
+      "origen": "silabas-familia-z.ogg",
+      "inicio": 4.64,
+      "fin": 5.4,
+      "duracion": 0.76,
+      "ganancia": 12
+    },
+    {
+      "clave": "silaba-ña",
+      "origen": "silabas-familia-ñ.ogg",
+      "inicio": 0.66,
+      "fin": 1.52,
+      "duracion": 0.86,
+      "ganancia": 1.527
+    },
+    {
+      "clave": "silaba-ñe",
+      "origen": "silabas-familia-ñ.ogg",
+      "inicio": 1.76,
+      "fin": 2.64,
+      "duracion": 0.88,
+      "ganancia": 3.937
+    },
+    {
+      "clave": "silaba-ñi",
+      "origen": "silabas-familia-ñ.ogg",
+      "inicio": 3.0,
+      "fin": 3.8,
+      "duracion": 0.8,
+      "ganancia": 4.681
+    },
+    {
+      "clave": "silaba-ño",
+      "origen": "silabas-familia-ñ.ogg",
+      "inicio": 4.02,
+      "fin": 4.88,
+      "duracion": 0.86,
+      "ganancia": 5.103
+    },
+    {
+      "clave": "silaba-ñu",
+      "origen": "silabas-familia-ñ.ogg",
+      "inicio": 5.2,
+      "fin": 5.96,
+      "duracion": 0.76,
+      "ganancia": 5.228
+    },
+    {
+      "clave": "silabas-final",
+      "origen": "silabas-final.ogg",
+      "inicio": 0.26,
+      "fin": 4.52,
+      "duracion": 4.26,
+      "ganancia": 1.073
+    },
+    {
+      "clave": "silabas-pista",
+      "origen": "silabas-pista.ogg",
+      "inicio": 0.12,
+      "fin": 5.0,
+      "duracion": 4.88,
+      "ganancia": 0.85
+    },
+    {
+      "clave": "silabas-pregunta",
+      "origen": "silabas-pregunta.ogg",
+      "inicio": 0.0,
+      "fin": 7.12,
+      "duracion": 7.12,
+      "ganancia": 0.861
+    },
+    {
+      "clave": "silabas-reintento",
+      "origen": "silabas-reintento.ogg",
+      "inicio": 0.4,
+      "fin": 4.98,
+      "duracion": 4.58,
+      "ganancia": 1.12
+    },
+    {
+      "clave": "silabas-repetir",
+      "origen": "silabas-repetir.ogg",
+      "inicio": 0.04,
+      "fin": 2.82,
+      "duracion": 2.78,
+      "ganancia": 0.854
+    }
+  ],
+  "bienvenidaLetrasDisponible": false
+}

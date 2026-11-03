@@ -87,7 +87,7 @@ function renderQuestion() {
     listenButton.className = 'letter-speak-button';
     listenButton.textContent = '🔊';
     listenButton.setAttribute('aria-label', `Escuchar la letra ${item.letter.toLocaleUpperCase('es-CL')}`);
-    listenButton.hidden = !('speechSynthesis' in window);
+    listenButton.hidden = !VozInfantil.disponible();
     listenButton.addEventListener('click', () => pronunciarLetra(item.letter));
 
     option.append(button, listenButton);
@@ -124,8 +124,20 @@ function choose(letter) {
   $('#feedback').textContent = `¡Muy bien! ${question.letter.toLocaleUpperCase('es-CL')} es la primera letra de ${question.word}.`;
   $('#feedback').classList.add('correct');
   $('#choices').querySelectorAll('button').forEach(button => { button.disabled = true; });
+  continuarTrasAcierto();
+}
+
+function continuarTrasAcierto() {
   cancelarEsperaActividad(advanceTimer);
-  advanceTimer = programarActividad(avanzar, 1000);
+  cancelarVoz();
+  const turno = round, secuencia = secuenciaVoz;
+  const continuar = () => {
+    if (round !== turno || secuencia !== secuenciaVoz || !locked || window.actividadLectura.estaPausada()) return;
+    advanceTimer = programarActividad(avanzar, 350);
+  };
+  if (VozInfantil.tieneGrabacion('letras-acierto')) {
+    VozInfantil.secuencia(['letras-acierto']).then(continuar);
+  } else advanceTimer = programarActividad(avanzar, 1000);
 }
 
 async function avanzar() {
@@ -142,45 +154,59 @@ function hablarEnOrden(textos, secuencia) {
   if (secuencia !== secuenciaVoz) return;
   const [texto, ...resto] = textos;
   if (!texto) return;
-  const voz = new SpeechSynthesisUtterance(texto);
-  voz.lang = 'es-CL';
-  voz.rate = 0.78;
+  const voz = VozInfantil.crear(texto, { tipo: 'letras' });
   const continuar = () => {
     if (secuencia !== secuenciaVoz) return;
     programarActividad(() => hablarEnOrden(resto, secuencia), 300);
   };
   voz.addEventListener('end', continuar, { once: true });
   voz.addEventListener('error', continuar, { once: true });
-  window.speechSynthesis.speak(voz);
+  VozInfantil.reproducir(voz);
 }
 
 function cancelarVoz() {
   secuenciaVoz++;
-  window.speechSynthesis?.cancel();
+  VozInfantil.cancelar();
 }
 
 function iniciarVoz(textos) {
-  if (!('speechSynthesis' in window)) return;
+  if (!VozInfantil.disponible()) return;
   cancelarVoz();
   hablarEnOrden(textos, secuenciaVoz);
 }
 
 function pronunciarLetra(letter) {
-  if (locked || window.actividadLectura.estaPausada() || !('speechSynthesis' in window)) return;
+  if (locked || window.actividadLectura.estaPausada() || !VozInfantil.disponible()) return;
+  if (VozInfantil.tieneGrabacion(`letras-nombre-${letter}`)) {
+    cancelarVoz();
+    VozInfantil.secuencia([`letras-nombre-${letter}`]);
+    return;
+  }
   iniciarVoz([letter.toLocaleUpperCase('es-CL')]);
 }
 
 function escuchar({ reintento = false, leerOpciones = false } = {}) {
   if (locked || window.actividadLectura.estaPausada()) return;
-  if (!('speechSynthesis' in window)) {
+  if (!VozInfantil.disponible()) {
     if (reintento) return;
     $('#feedback').textContent = 'La lectura en voz alta no está disponible en este navegador. Puedes usar la imagen y las letras grandes como pista.';
     return;
   }
   const question = letters[round];
+  if (VozInfantil.tieneGrabacion(`letras-pregunta-${question.letter}`)) {
+    cancelarVoz();
+    const opciones = leerOpciones
+      ? [...$('#choices').querySelectorAll('.choice-button')].map(button => `letras-nombre-${button.textContent.toLocaleLowerCase('es-CL')}`)
+      : [];
+    VozInfantil.secuencia([
+      ...(reintento ? ['letras-reintento'] : []),
+      `letras-pregunta-${question.letter}`, ...opciones
+    ]);
+    return;
+  }
   const prompt = reintento
     ? `Escucha otra vez: ${question.word}. ¿Qué sonido escuchas al comienzo?`
-    : `Mira el dibujo. La palabra es ${question.word}. ¿Qué sonido escuchas al comienzo? Toca la letra que suena igual.`;
+    : `Mira el dibujo. La palabra es ${question.word}. ¿Con qué letra empieza? Busca y toca esa letra.`;
   const options = leerOpciones
     ? [...$('#choices').querySelectorAll('.choice-button')].map(button => button.textContent)
     : [];
@@ -198,6 +224,8 @@ async function finish() {
     const saved = await window.actividadLectura.guardar(resultadoId, correct, letters.length, {
       actividad: 'letras_iniciales',
       respuestas: responses
+    }, letters.length - correct, {
+      antesDeVolver: VozInfantil.tieneGrabacion('letras-final') ? () => VozInfantil.secuencia(['letras-final']) : undefined
     });
     if (progressKey) localStorage.removeItem(progressKey);
     $('#result').textContent = `Reconociste ${correct} de ${letters.length} letras. ¡El Nivel 2 ya está disponible! Duración: ${saved.duracionSegundos} segundos.`;
@@ -228,7 +256,8 @@ $('#retrySave').addEventListener('click', finish);
 window.addEventListener('actividad-pausada', cancelarVoz);
 window.addEventListener('actividad-reanudada', () => {
   if (!game.classList.contains('hidden') && round < letters.length) {
-    if (!locked) programarActividad(() => escuchar({ leerOpciones: true }), 150);
+    if (locked) continuarTrasAcierto();
+    else programarActividad(() => escuchar({ leerOpciones: true }), 150);
   }
 });
 
