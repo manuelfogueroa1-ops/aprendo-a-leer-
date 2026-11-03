@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS Profesores (
   Correo TEXT NOT NULL UNIQUE CHECK (length(trim(Correo)) <= 150),
   Usuario TEXT NOT NULL UNIQUE CHECK (length(trim(Usuario)) BETWEEN 1 AND 50),
   PasswordHash TEXT NOT NULL,
+  EsAdministrador INTEGER NOT NULL DEFAULT 0 CHECK (EsAdministrador IN (0, 1)),
   Activo INTEGER NOT NULL DEFAULT 1 CHECK (Activo IN (0, 1)),
   FechaRegistro TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

@@ -26,7 +26,7 @@ function showPanel(id) {
   window.scrollTo({ top: 0 });
   if (id === 'profesor') {
     restoreTeacherSession();
-    if (!$('#teacherLogin').classList.contains('hidden')) $('#teacherForm').elements.usuario.focus();
+    if (!$('#teacherLogin').classList.contains('hidden') && $('#teacherRegister').classList.contains('hidden')) $('#teacherForm').elements.usuario.focus();
   }
 }
 document.querySelectorAll('[data-panel]').forEach(button => button.addEventListener('click', () => showPanel(button.dataset.panel)));
@@ -540,6 +540,51 @@ $('#studentForm').addEventListener('submit', async event => {
   }
 });
 
+// ---------- Registro docente junto al formulario de inicio de sesión ----------
+function switchTeacherRegistration(open) {
+  $('#teacherRegister').classList.toggle('hidden', !open);
+  $('#teacherForm').classList.toggle('hidden', open);
+  $('#teacherCreateEntry').classList.toggle('hidden', open);
+  $('#teacherLogin .teacher-intro').classList.toggle('hidden', open);
+  if (!open) {
+    $('#teacherRegisterForm').reset();
+    $('#teacherRegisterStatus').textContent = '';
+    $('#teacherForm').elements.usuario.focus();
+  }
+}
+$('#showTeacherRegister').addEventListener('click', () => {
+  $('#teacherRegisterInfo').textContent = 'Completa los datos para crear una cuenta docente en este computador.';
+  switchTeacherRegistration(true);
+  $('#teacherRegisterForm').elements.nombre.focus();
+});
+$('#backTeacherLogin').addEventListener('click', () => switchTeacherRegistration(false));
+$('#teacherRegisterForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const datos = Object.fromEntries(new FormData(form).entries());
+  const status = $('#teacherRegisterStatus');
+  const submit = $('#teacherRegisterSubmit');
+  status.textContent = '';
+  if (datos.password !== datos.confirmacion) {
+    status.textContent = 'Las contraseñas no coinciden.';
+    return;
+  }
+  submit.disabled = true;
+  submit.textContent = 'Creando cuenta…';
+  try {
+    const { profesor } = await api('/api/profesor/registro', { method:'POST', body: JSON.stringify(datos) });
+    switchTeacherRegistration(false);
+    $('#teacherForm').elements.usuario.value = profesor.Usuario;
+    $('#teacherStatus').textContent = `Cuenta ${profesor.Usuario} creada correctamente. Ya puedes iniciar sesión.`;
+    showTeacherAlert('');
+  } catch(error) {
+    status.textContent = error.message || 'No fue posible crear la cuenta docente.';
+  } finally {
+    submit.disabled = false;
+    submit.textContent = 'Crear cuenta';
+  }
+});
+
 // ---------- Acceso docente ----------
 const teacherForm = $('#teacherForm');
 const CLAVE_USUARIO = 'usuario-docente';
@@ -665,6 +710,7 @@ $('#logout').addEventListener('click', async () => {
     await api('/api/profesor/logout', { method: 'POST', body: JSON.stringify({}) });
     activeStudentId = null;
     $('#report').classList.add('hidden');
+    switchTeacherRegistration(false);
     $('#teacherLogin').classList.remove('hidden');
     $('#teacherStatus').textContent = 'Sesión cerrada.';
     $('#profesor').classList.remove('viewing-student');

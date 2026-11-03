@@ -676,3 +676,37 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
     padding: 16px 12px;
   }
 }
+
+
+/* Alta de cuentas docentes en el panel del profesor */
+.teacher-accounts {background: linear-gradient(135deg,#f3ecff,#f9f6ff); border-color:#d7c7ff;}
+.teacher-accounts-header {display:flex; align-items:start; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+.teacher-accounts-header h3 {margin:0 0 6px;}
+.teacher-accounts-header .note {margin:0; color:#554a7d;}
+#createTeacherForm {padding:16px; border:1px solid #e0d6f7; border-radius:14px; background:#ffffffac; margin:16px 0; display:flex; flex-direction:column; align-items:stretch;}
+#createTeacherForm h4 {margin:0;}
+.teacher-accounts-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;}
+.teacher-accounts-grid label {min-width:0;}
+.teacher-accounts-secret {display:block; max-width:540px;}
+.teacher-accounts-secret input {margin-top:7px;}
+@media(max-width:650px){.teacher-accounts-grid{grid-template-columns:1fr}}
+
+/* Registro docente integrado en Acceso docente (sin pantalla independiente al iniciar Electron). */
+.teacher-create-entry {max-width:430px; margin:14px auto 0; text-align:center;}
+.teacher-create-entry p {margin:0 0 10px; color:#584b7e; font-weight:700;}
+.teacher-create-entry .secondary-button {width:100%; white-space:normal;}
+.teacher-register {max-width:610px; margin:8px auto 18px;}
+.teacher-register-form {display:flex; flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:14px; padding:22px; border-radius:21px;
+  background:linear-gradient(145deg,rgba(255,255,255,.65),rgba(239,231,255,.84));
+  border:1px solid #cfbbfb; box-shadow:0 12px 28px rgba(66,45,119,.08);}
+.teacher-register-form > label, .teacher-register-form fieldset label {display:flex; flex:0 0 auto; min-width:0; width:100%; flex-direction:column; gap:6px; font-weight:800;}
+.teacher-register-form label small {font-size:.78rem; font-weight:500; color:#65568b;}
+.teacher-register-form input {width:100%; min-width:0;}
+.teacher-register-auth {margin:0; padding:15px; border:1px solid #cdbaf9; border-radius:14px;}
+.teacher-register-auth legend {font-weight:900; color:#4b35a0; padding:0 6px;}
+.teacher-register-auth p.note {margin:4px 0 13px;}
+.teacher-register-auth label + label {margin-top:12px;}
+.teacher-register-actions {display:flex; flex-wrap:wrap; gap:10px;}
+.teacher-register-actions button {flex:1 1 190px; min-height:47px; white-space:normal;}
+.teacher-register-status {min-height:1.3em;}
+@media (max-width:650px) {.teacher-register-form{padding:16px;}}

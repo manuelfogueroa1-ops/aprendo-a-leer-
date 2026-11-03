@@ -86,6 +86,38 @@
         <label class="remember"><input type="checkbox" id="rememberUser"> Recordar mi usuario</label>
         <button type="submit" id="teacherSubmit">Iniciar sesión</button>
       </form>
+      <div class="teacher-create-entry" id="teacherCreateEntry">
+        <p>¿Necesitas registrar un profesor?</p>
+        <button type="button" id="showTeacherRegister" class="secondary-button">+ Crear cuenta de profesor</button>
+      </div>
+      <div id="teacherRegister" class="teacher-register hidden" aria-labelledby="teacherRegisterTitle">
+        <div class="section-intro teacher-intro">
+          <span class="section-kicker">🦉 REGISTRO DOCENTE</span>
+          <h2 id="teacherRegisterTitle">Crear cuenta de profesor</h2>
+          <p id="teacherRegisterInfo">Completa tus datos para acceder al panel de profesores.</p>
+        </div>
+        <form id="teacherRegisterForm" class="teacher-register-form" autocomplete="off">
+          <div class="teacher-accounts-grid">
+            <label>Nombre<input name="nombre" required maxlength="80" autocomplete="given-name" placeholder="Nombre"></label>
+            <label>Apellido<input name="apellido" required maxlength="80" autocomplete="family-name" placeholder="Apellido"></label>
+          </div>
+          <label>Usuario docente
+            <input name="usuario" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_.-]{3,50}" autocapitalize="none" spellcheck="false" autocomplete="username" placeholder="Ej.: profesora">
+            <small>Usa letras sin tildes, números, punto, guion o guion bajo.</small>
+          </label>
+          <label>Contraseña nueva
+            <input name="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" placeholder="Al menos 12 caracteres">
+          </label>
+          <label>Confirmar contraseña
+            <input name="confirmacion" type="password" required minlength="12" maxlength="128" autocomplete="new-password">
+          </label>
+          <p id="teacherRegisterStatus" class="status" role="alert" aria-live="polite"></p>
+          <div class="teacher-register-actions">
+            <button type="submit" id="teacherRegisterSubmit">Crear cuenta</button>
+            <button type="button" id="backTeacherLogin" class="secondary-button">← Volver a iniciar sesión</button>
+          </div>
+        </form>
+      </div>
     </div>
     <p id="teacherStatus" class="status" role="status"></p>
     <div id="report" class="hidden">
