@@ -42,6 +42,8 @@ MJ.registrar('mitades', {
       if (boton.classList.contains('unida')) return;
       const silaba = boton.textContent.trim();
       if (!seleccionada) { ctx.aviso('Primero toca una pieza con dibujo 👈'); ctx.hablar(silaba); return; }
+      // La sílaba de la derecha suena con la misma voz humana que las de la izquierda.
+      if (seleccionada.dataset.palabra !== boton.dataset.palabra) ctx.hablar(silaba);
       const izquierda = seleccionada;
       if (izquierda.dataset.palabra === boton.dataset.palabra) {
         const p = elegidas.find(x => x.palabra === boton.dataset.palabra);
@@ -50,7 +52,7 @@ MJ.registrar('mitades', {
         const item = document.createElement('li');
         item.textContent = `${p.imagen} ${p.palabra}`;
         ctx.escena.querySelector('#miFormadas').appendChild(item);
-        ctx.hablar(p.palabra);
+        ctx.hablarSilabas(p.silabas, p.palabra); // une las grabaciones: "ca" + "sa"
         ctx.confeti(10);
         ctx.aviso(`¡Formaste ${p.palabra.toUpperCase()}!`, 'bien');
         unidas++;

@@ -1,6 +1,6 @@
 // Lluvia de letras: caen sílabas y el búho (que se mueve con el dedo o las flechas) atrapa solo la pedida.
 MJ.registrar('lluvia', {
-  iniciar(ctx) {
+  async iniciar(ctx) {
     const W = 360, H = 520, OW = 62, PASO = 1000 / 60, META = 8;
     const { CONSONANTES, VOCALES } = ctx.banco;
     const consonante = ctx.elegir(CONSONANTES), vocal = ctx.elegir(VOCALES);
@@ -31,10 +31,13 @@ MJ.registrar('lluvia', {
     pintarMarcador();
     const alto = ctx.buho.naturalWidth ? OW * ctx.buho.naturalHeight / ctx.buho.naturalWidth : OW;
     const buho = { x: W / 2 };
-    const decir = () => ctx.hablar(`Atrapa la sílaba ${objetivo}`);
+    const partesVoz = [
+      { texto: 'Atrapa la sílaba' },
+      { clave: `silaba-${objetivo}`, texto: objetivo },
+      { texto: `Mueve al búho con tu dedo o con las flechas. ¡Atrapa solo esa sílaba! Cuando atrapes ${META}, ganas.` }
+    ];
+    const decir = () => ctx.hablarPartes(partesVoz);
     ctx.instruccion(`Mueve al búho y atrapa solo la sílaba ${objetivo.toUpperCase()}`);
-    ctx.alEscuchar(decir);
-    setTimeout(decir, 400);
 
     const mapa = { ArrowLeft: 'izq', a: 'izq', A: 'izq', ArrowRight: 'der', d: 'der', D: 'der' };
     window.addEventListener('keydown', e => { const t = mapa[e.key]; if (t) { e.preventDefault(); teclas[t] = true; puntero = null; } });
@@ -106,6 +109,19 @@ MJ.registrar('lluvia', {
       const dx = sacudida ? Math.sin(sacudida * 1.5) * 4 : 0;
       c.drawImage(ctx.buho, buho.x - OW / 2 + dx, H - 8 - alto, OW, alto);
     }
+    // El juego no empieza solo: primero se explica (con voz) y se espera el botón "Jugar".
+    dibujar();
+    await ctx.pantallaInicio({
+      icono: '🌧️',
+      titulo: 'Lluvia de letras',
+      pasos: [
+        { icono: '👆', texto: 'Mueve al búho con el dedo, el mouse o las flechas ◀ ▶' },
+        { icono: '🎯', texto: `Atrapa solo la sílaba <b>${objetivo.toUpperCase()}</b>` },
+        { icono: '⭐', texto: `Atrapa ${META} para ganar` }
+      ],
+      partes: partesVoz
+    });
+    ctx.alEscuchar(decir);
     let ultimo = performance.now(), acumulado = 0;
     function bucle(ahora) {
       if (!vivo) { dibujar(); return; }
@@ -115,6 +131,5 @@ MJ.registrar('lluvia', {
       requestAnimationFrame(bucle);
     }
     requestAnimationFrame(bucle);
-    ctx.aviso('Mueve el dedo o el mouse (o usa las flechas) para mover al búho.');
   }
 });

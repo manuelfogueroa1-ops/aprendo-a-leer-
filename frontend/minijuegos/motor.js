@@ -26,11 +26,15 @@
     caja.className = `mj-aviso ${tipo}`;
   };
 
+  // Cada vez que se habla se invalida lo anterior, para que dos voces nunca se pisen.
+  let turnoVoz = 0;
+
   // Usa la voz de la app: grabaciones humanas para letras y sílabas (si existen) y,
   // si no, la voz elegida por la profesora (Piper o la del sistema).
   function hablar(texto, tipo) {
     const texto2 = String(texto || '').trim();
     if (!texto2) return;
+    turnoVoz++;
     const voz = window.VozInfantil;
     if (voz?.disponible?.()) {
       const minuscula = texto2.toLowerCase();
@@ -51,6 +55,45 @@
     sintetizada.lang = 'es-CL';
     sintetizada.rate = 0.85;
     window.speechSynthesis.speak(sintetizada);
+  }
+
+  // Dice varias partes una tras otra. Cada parte es un texto o { clave: 'silaba-pa' } (grabación humana).
+  // Si no hay grabación para la clave, se usa la voz normal con { texto }.
+  async function hablarPartes(partes) {
+    const voz = window.VozInfantil;
+    if (!voz?.disponible?.()) { hablar(partes.map(p => p.texto ?? p).filter(Boolean).join(' ')); return; }
+    voz.cancelar();
+    const mio = ++turnoVoz;
+    for (const parte of partes) {
+      if (mio !== turnoVoz) return;
+      const datos = typeof parte === 'string' ? { texto: parte } : parte;
+      const habla = datos.clave && voz.tieneGrabacion(datos.clave)
+        ? voz.crearGrabacion(datos.clave)
+        : datos.texto ? voz.crear(datos.texto, { tipo: 'animo' }) : null;
+      if (!habla) continue;
+      const seguir = await new Promise(resolver => {
+        const aviso = setTimeout(() => resolver(true), 9000); // por si el navegador no avisa el final
+        const fin = valor => () => { clearTimeout(aviso); resolver(valor); };
+        habla.addEventListener('end', fin(true), { once: true });
+        habla.addEventListener('error', fin(true), { once: true });
+        habla.addEventListener('cancel', fin(false), { once: true });
+        voz.reproducir(habla);
+      });
+      if (!seguir || mio !== turnoVoz) return;
+    }
+  }
+
+  // Dice una palabra uniendo las grabaciones de sus sílabas (misma voz humana en todo el juego).
+  // Si falta alguna grabación, usa la voz normal para la palabra completa.
+  function hablarSilabas(silabas, palabra) {
+    const claves = silabas.map(silaba => `silaba-${String(silaba).toLowerCase()}`);
+    const voz = window.VozInfantil;
+    if (voz?.secuencia && claves.every(clave => voz.tieneGrabacion(clave))) {
+      turnoVoz++;
+      voz.secuencia(claves);
+      return;
+    }
+    hablar(palabra);
   }
 
   function confeti(cantidad = 24) {
@@ -149,6 +192,38 @@
     intentar();
   }
 
+  // Pantalla previa a los juegos con tiempo: explica con dibujos y voz, y espera el botón "Jugar".
+  function pantallaInicio({ icono = '🎮', titulo, pasos = [], partes = [], boton = '▶ ¡Jugar!' }) {
+    return new Promise(resolver => {
+      const tarjeta = document.createElement('div');
+      tarjeta.className = 'mj-inicio';
+      tarjeta.setAttribute('role', 'dialog');
+      tarjeta.setAttribute('aria-modal', 'true');
+      tarjeta.setAttribute('aria-label', titulo);
+      tarjeta.innerHTML = `<div class="mj-inicio-tarjeta">
+        <div class="mj-inicio-icono" aria-hidden="true">${icono}</div>
+        <h2>${titulo}</h2>
+        <ol class="mj-inicio-pasos">${pasos.map(paso => `<li><span class="mj-paso-icono" aria-hidden="true">${paso.icono}</span><span>${paso.texto}</span></li>`).join('')}</ol>
+        <button type="button" class="mj-boton mj-boton-grande" id="mjJugar">${boton}</button>
+        <button type="button" class="mj-boton-suave" id="mjOirDeNuevo">🔊 Escuchar de nuevo</button>
+      </div>`;
+      $('#mjEscena').appendChild(tarjeta);
+      const decir = () => hablarPartes(partes);
+      alEscuchar = decir;
+      tarjeta.querySelector('#mjOirDeNuevo').addEventListener('click', decir);
+      tarjeta.querySelector('#mjJugar').addEventListener('click', () => {
+        turnoVoz++;
+        window.VozInfantil?.cancelar?.();
+        window.speechSynthesis?.cancel();
+        tarjeta.remove();
+        inicio = performance.now(); // el tiempo empieza a contar al tocar "Jugar"
+        resolver();
+      }, { once: true });
+      tarjeta.querySelector('#mjJugar').focus({ preventScroll: true });
+      setTimeout(decir, 350);
+    });
+  }
+
   const MJ = {
     registrar(id, definicion) { registro[id] = definicion; },
     mezclar: items => window.Banco.mezclar(items),
@@ -185,7 +260,7 @@
       document.documentElement.style.setProperty('--mj-h', tema.hue);
       document.body.dataset.tema = tema.nombre || '';
       const ctx = {
-        escena: $('#mjEscena'), tema, buho, quieto, origen, aviso, hablar, confeti,
+        escena: $('#mjEscena'), tema, buho, quieto, origen, aviso, hablar, hablarPartes, hablarSilabas, pantallaInicio, confeti,
         banco: window.Banco,
         mezclar: MJ.mezclar,
         elegir: MJ.elegir,
@@ -194,7 +269,7 @@
         ganar() { terminar(buho); }
       };
       inicio = performance.now();
-      registro[juegoId].iniciar(ctx);
+      await registro[juegoId].iniciar(ctx);
     } catch (error) {
       $('#mjInstruccion').textContent = error.message;
     }

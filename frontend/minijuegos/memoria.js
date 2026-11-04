@@ -8,7 +8,7 @@ MJ.registrar('memoria', {
       cartas = letras.flatMap((l, i) => [{ id: i, texto: l.toUpperCase(), habla: l }, { id: i, texto: l, habla: l }]);
     } else {
       const palabras = ctx.mezclar(ctx.banco.PALABRAS).slice(0, 6);
-      cartas = palabras.flatMap((p, i) => [{ id: i, emoji: p.imagen, habla: p.palabra }, { id: i, texto: p.palabra, habla: p.palabra }]);
+      cartas = palabras.flatMap((p, i) => [{ id: i, emoji: p.imagen, habla: p.palabra, silabas: p.silabas }, { id: i, texto: p.palabra, habla: p.palabra, silabas: p.silabas }]);
     }
     cartas = ctx.mezclar(cartas);
     const instruccion = modo === 'letras'
@@ -31,7 +31,7 @@ MJ.registrar('memoria', {
       if (bloqueado || boton.classList.contains('volteada') || boton.classList.contains('acertada')) return;
       boton.classList.add('volteada');
       boton.setAttribute('aria-label', descripcion(cartas[i], i));
-      ctx.hablar(cartas[i].habla);
+      if (cartas[i].silabas) ctx.hablarSilabas(cartas[i].silabas, cartas[i].habla); else ctx.hablar(cartas[i].habla);
       abiertas.push(i);
       if (abiertas.length < 2) return;
       bloqueado = true;

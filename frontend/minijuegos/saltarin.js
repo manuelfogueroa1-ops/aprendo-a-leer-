@@ -1,7 +1,7 @@
 // Búho saltarín: el búho rebota solo por las plataformas y el niño lo guía para atrapar,
 // en orden, las letras de una palabra. Si cae, una nube lo rescata (no se pierde nada).
 MJ.registrar('saltarin', {
-  iniciar(ctx) {
+  async iniciar(ctx) {
     const W = 360, H = 560, OW = 46, G = 0.42, SALTO = -11.5, PASO = 1000 / 60;
     const objetivo = ctx.elegir(ctx.banco.PALABRAS.filter(p => p.palabra.length <= 5));
     const letras = objetivo.palabra.split('');
@@ -9,7 +9,6 @@ MJ.registrar('saltarin', {
     const plataformas = [], items = [];
     const teclas = { izq: false, der: false };
     let puntero = null;
-
     ctx.escena.innerHTML = `
       <div class="mj-meta">
         <span class="mj-pista-emoji" aria-hidden="true">${objetivo.imagen}</span>
@@ -37,9 +36,9 @@ MJ.registrar('saltarin', {
     const buho = { x: W / 2, y: H - 30, vy: SALTO, vx: 0, h: alto };
 
     const azar = (a, b) => a + Math.random() * (b - a);
-    const decir = () => ctx.hablar(`Atrapa las letras de la palabra ${objetivo.palabra}`);
+    const partesVoz = [{ texto: `Guía al búho con tu dedo o con las flechas. Atrapa las letras de la palabra ${objetivo.palabra}, en orden.` }];
+    const decir = () => ctx.hablarPartes(partesVoz);
     ctx.instruccion(`Guía al búho para atrapar las letras en orden: ${objetivo.palabra.toUpperCase()}`);
-    ctx.alEscuchar(decir);
 
     function letraDistinta() {
       const necesaria = letras[siguiente];
@@ -175,6 +174,19 @@ MJ.registrar('saltarin', {
       c.drawImage(ctx.buho, buho.x - ancho / 2, buho.y - camY - altura, ancho, altura);
     }
 
+        // El juego no empieza solo: primero se explica (con voz) y se espera el botón "Jugar".
+    dibujar();
+    await ctx.pantallaInicio({
+      icono: '🦉',
+      titulo: 'Búho saltarín',
+      pasos: [
+        { icono: '👆', texto: 'Guía al búho con el dedo, el mouse o las flechas ◀ ▶' },
+        { icono: '🔤', texto: `Atrapa las letras de <b>${objetivo.palabra.toUpperCase()}</b>, en orden` },
+        { icono: '⭐', texto: 'Si caes, una nube te rescata. ¡No pasa nada!' }
+      ],
+      partes: partesVoz
+    });
+    ctx.alEscuchar(decir);
     let ultimo = performance.now(), acumulado = 0;
     function bucle(ahora) {
       if (!vivo) { dibujar(); return; }
@@ -185,6 +197,5 @@ MJ.registrar('saltarin', {
       requestAnimationFrame(bucle);
     }
     requestAnimationFrame(bucle);
-    ctx.aviso('Mueve el dedo o el mouse (o usa las flechas) para guiar al búho.');
   }
 });

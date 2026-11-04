@@ -115,10 +115,19 @@
       </div>
       <div class="tb-escena" style="aspect-ratio:${lay.ancho} / ${lay.alto}">
         <svg viewBox="0 0 ${lay.ancho} ${lay.alto}" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs>
+            <pattern id="tbLadrillos" width="56" height="28" patternUnits="userSpaceOnUse">
+              <rect width="56" height="28" class="tb-mortero"/>
+              <rect x="1.5" y="1.5" width="25" height="11" rx="3" class="tb-ladrillo"/>
+              <rect x="29.5" y="1.5" width="25" height="11" rx="3" class="tb-ladrillo"/>
+              <rect x="-12.5" y="15.5" width="25" height="11" rx="3" class="tb-ladrillo tb-ladrillo-b"/>
+              <rect x="15.5" y="15.5" width="25" height="11" rx="3" class="tb-ladrillo tb-ladrillo-b"/>
+              <rect x="43.5" y="15.5" width="25" height="11" rx="3" class="tb-ladrillo tb-ladrillo-b"/>
+            </pattern>
+          </defs>
           ${deco}
           <polyline points="${trazo}" class="tb-camino-borde"/>
           <polyline points="${trazo}" class="tb-camino"/>
-          <polyline points="${trazo}" class="tb-camino-linea"/>
           <polyline id="tbRecorrido" points="${trazo}" class="tb-recorrido" pathLength="${largoTotal}" stroke-dasharray="0 ${largoTotal}"/>
           ${rellenos}
         </svg>
