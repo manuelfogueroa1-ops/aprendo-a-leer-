@@ -89,3 +89,78 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
+
+
+// Premio: cada 5 aciertos aparece un botón opcional para jugar un minijuego un ratito.
+(() => {
+  const CADA = 5;
+  const JUEGOS = ['saltarin', 'mitades', 'lluvia', 'memoria'];
+  const iniciar = () => {
+    if (!document.body.classList.contains('game-page')) return;
+    const feedback = document.querySelector('#feedback');
+    const terminado = document.querySelector('#finished');
+    if (!feedback) return;
+    let aciertos = 0, turno = Math.floor(Math.random() * JUEGOS.length);
+    let boton = null, capa = null, latido = null;
+
+    const quitarBoton = () => { boton?.remove(); boton = null; };
+    const mostrarBoton = () => {
+      if (boton || capa) return;
+      boton = document.createElement('button');
+      boton.type = 'button';
+      boton.className = 'premio-boton';
+      boton.textContent = '🎮 ¡Premio! Jugar un ratito';
+      boton.addEventListener('click', abrir);
+      document.body.appendChild(boton);
+    };
+    const cerrarCapa = () => {
+      if (!capa) return;
+      capa.remove(); capa = null;
+      clearInterval(latido); latido = null;
+      document.body.style.overflow = '';
+    };
+    function abrir() {
+      if (capa) return;
+      const juego = JUEGOS[turno++ % JUEGOS.length];
+      quitarBoton();
+      window.VozInfantil?.cancelar?.();
+      window.speechSynthesis?.cancel();
+      window.speechSynthesis?.cancel();
+      capa = document.createElement('div');
+      capa.className = 'premio-capa';
+      capa.setAttribute('role', 'dialog');
+      capa.setAttribute('aria-modal', 'true');
+      capa.setAttribute('aria-label', 'Minijuego de premio');
+      capa.innerHTML = `<div class="premio-tarjeta">
+        <button type="button" class="premio-cerrar">✕ Volver a mi actividad</button>
+        <iframe class="premio-marco" title="Minijuego de premio" src="/minijuegos/jugar.html?juego=${juego}&origen=premio"></iframe>
+      </div>`;
+      capa.querySelector('.premio-cerrar').addEventListener('click', cerrarCapa);
+      document.body.appendChild(capa);
+      document.body.style.overflow = 'hidden';
+      capa.querySelector('.premio-cerrar').focus();
+      // Mientras juega, la actividad no debe pensar que el niño dejó de interactuar.
+      latido = setInterval(() => document.dispatchEvent(new Event('pointermove')), 5000);
+    }
+    window.addEventListener('message', event => {
+      if (event.origin !== location.origin || event.data?.tipo !== 'minijuego-cerrar') return;
+      cerrarCapa();
+      window.mascota?.decir('¡Qué bien jugaste! Sigamos aprendiendo.', { voz: false, duracion: 3500 });
+    });
+    new MutationObserver(registros => {
+      for (const registro of registros) {
+        const antes = (registro.oldValue || '').split(/\s+/);
+        if (!registro.target.classList.contains('correct') || antes.includes('correct')) continue;
+        aciertos++;
+        const pausada = window.actividadLectura?.estaPausada?.();
+        if (aciertos % CADA === 0 && !pausada && !(terminado && !terminado.classList.contains('hidden'))) mostrarBoton();
+      }
+    }).observe(feedback, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    if (terminado) {
+      new MutationObserver(() => { if (!terminado.classList.contains('hidden')) { quitarBoton(); cerrarCapa(); } })
+        .observe(terminado, { attributes: true, attributeFilter: ['class'] });
+    }
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+  else iniciar();
+})();

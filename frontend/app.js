@@ -204,51 +204,14 @@ api('/api/estudiantes/me')
 
 async function loadActivities() {
   const box = $('#activities');
-  box.innerHTML = 'Cargando actividades…';
+  box.innerHTML = 'Cargando tu camino…';
   try {
     const data = await api('/api/actividades');
-    const activityPages = {
-      'Reconozco las letras': '/actividades/letras-iniciales.html',
-      'Formo sílabas': '/actividades/silabas-iniciales.html',
-      'Uno la palabra con su imagen': '/actividades/unir-palabra-imagen.html',
-      'Aprendo las sílabas': '/actividades/silabas.html',
-      'Practico la pronunciación': '/actividades/pronunciar.html',
-      'Encuentro la letra': '/actividades/letra.html',
-      'Completo el cuento': '/actividades/cuento.html'
-    };
-    const activityStyles = {
-      'Reconozco las letras': { icon: '🔠', theme: 'theme-purple' },
-      'Formo sílabas': { icon: '🔡', theme: 'theme-yellow' },
-      'Uno la palabra con su imagen': { icon: '🖼️', theme: 'theme-blue' },
-      'Aprendo las sílabas': { icon: '🧩', theme: 'theme-yellow' },
-      'Practico la pronunciación': { icon: '🎤', theme: 'theme-blue' },
-      'Encuentro la letra': { icon: '🔤', theme: 'theme-pink' },
-      'Completo el cuento': { icon: '📖', theme: 'theme-purple' }
-    };
-    // Solo mostramos actividades con juego de lectura implementado.
-    const available = data.actividades
-      .filter(activity => activityPages[activity.Nombre])
-      .sort((a, b) => Number(a.NivelDificultad) - Number(b.NivelDificultad));
-    if (!available.length) {
+    if (!data.actividades.length) {
       box.innerHTML = '<p>No hay actividades disponibles por el momento.</p>';
       return;
     }
-    box.innerHTML = available.map(activity => {
-      const style = activityStyles[activity.Nombre];
-      const level = activity.NivelDificultad ? `Nivel ${esc(activity.NivelDificultad)}` : 'Actividad';
-      const locked = activity.Bloqueada;
-      return `<article class="activity ${style.theme}${locked ? ' activity-locked' : ''}">
-        <div class="activity-top">
-          <span class="activity-icon" aria-hidden="true">${style.icon}</span>
-          <span class="activity-level">${level}</span>
-        </div>
-        <h3>${esc(activity.Nombre)}</h3>
-        <p>${esc(activity.Descripcion || '¡Descubre un nuevo desafío de lectura!')}</p>
-        ${locked
-          ? `<button type="button" disabled>🔒 Completa "${esc(activity.ActividadPrevia)}" primero</button>`
-          : `<a class="button-link" href="${activityPages[activity.Nombre]}">¡Comenzar! <span aria-hidden="true">→</span></a>`}
-      </article>`;
-    }).join('');
+    await Tablero.mostrar(box, data.actividades);
   } catch (error) {
     box.textContent = error.message;
   }

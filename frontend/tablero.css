@@ -1,0 +1,80 @@
+/* Tablero del búho. Usa --h (color favorito) de tema.css. */
+.tablero-caja { margin-top: 6px; }
+.tb-cabecera { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.tb-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; font-weight: 800; font-size: .95rem;
+  background: var(--kicker-bg, #efe9ff); color: var(--acento-texto, #4e3da1); border: 2px solid var(--borde-tarjeta, #e4daff);
+}
+.tb-siguiente { background: hsl(48 100% 88%); color: #6b4a00; border-color: hsl(45 90% 65%); }
+:root[data-modo="oscuro"] .tb-siguiente { background: hsl(45 60% 24%); color: #ffe9a8; border-color: hsl(45 60% 45%); }
+
+.tb-escena {
+  position: relative; width: 100%; border-radius: 28px; overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 18%, hsl(calc(var(--h) + 40) 90% 92% / .9) 0 90px, transparent 91px),
+    radial-gradient(circle at 88% 82%, hsl(calc(var(--h) - 30) 90% 90% / .9) 0 110px, transparent 111px),
+    linear-gradient(160deg, hsl(var(--h) 85% 93%), hsl(calc(var(--h) + 30) 75% 87%));
+  border: 4px solid #fff; box-shadow: 0 16px 36px hsl(var(--h) 45% 35% / .22);
+}
+:root[data-modo="oscuro"] .tb-escena {
+  background: linear-gradient(160deg, hsl(var(--h) 38% 20%), hsl(calc(var(--h) + 30) 34% 26%)); border-color: hsl(var(--h) 30% 40%);
+}
+.tb-escena svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tb-escena polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.tb-camino-borde { stroke: hsl(var(--h) 40% 42%); stroke-width: 36; }
+.tb-camino { stroke: hsl(var(--h) 80% 97%); stroke-width: 28; }
+.tb-camino-linea { stroke: hsl(var(--h) 55% 78%); stroke-width: 3; stroke-dasharray: 3 12; }
+.tb-recorrido { stroke: #ffc933; stroke-width: 12; transition: stroke-dasharray .3s ease; }
+
+.tb-est {
+  --d: 66px;
+  position: absolute; width: var(--d); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  padding: 0; cursor: pointer; z-index: 3;
+  display: grid; place-items: center; font: inherit; border: 4px solid #fff; color: #fff;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .18), 0 10px 18px rgba(0, 0, 0, .15);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.tb-actividad { border-radius: 50%; background: linear-gradient(145deg, hsl(var(--h) 65% 66%), hsl(var(--h) 60% 52%)); }
+.tb-minijuego { border-radius: 22px; background: linear-gradient(145deg, #ffa24d, #ff6f91); }
+.tb-minijuego::before { content: '🎮'; position: absolute; left: -12px; top: -12px; font-size: 1.15rem; background: #fff; border-radius: 50%; width: 28px; height: 28px; display: grid; place-items: center; box-shadow: 0 2px 4px rgba(0,0,0,.2); }
+.tb-final { --d: 84px; border-radius: 28px; background: linear-gradient(145deg, #ffd34d, #ff9d2e); }
+.tb-final .tb-ico { font-size: 2.6rem; }
+.tb-ico { font-size: 1.9rem; line-height: 1; }
+.tb-est:hover:not(:disabled) { transform: translateY(-4px) scale(1.06); }
+.tb-est:active:not(:disabled) { transform: translateY(2px) scale(.98); }
+.tb-est:focus-visible { outline: 4px solid #ffb703; outline-offset: 4px; }
+.tb-hecha.tb-actividad { background: linear-gradient(145deg, #5fd38d, #2fa862); }
+.tb-hecha.tb-minijuego { background: linear-gradient(145deg, #7fdc9e, #3bb36f); }
+.tb-hecha.tb-minijuego::before { content: '🎮'; }
+.tb-check { position: absolute; right: -8px; bottom: -8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #1e8a4c; font-weight: 900; font-size: .9rem; box-shadow: 0 2px 4px rgba(0,0,0,.25); }
+.tb-actual { animation: tb-pulso 1.6s ease-in-out infinite; }
+.tb-bloqueada, .tb-bloqueada:disabled { opacity: .95; background: linear-gradient(145deg, #c9c6d6, #a9a5bd); cursor: not-allowed; box-shadow: 0 5px 0 rgba(0,0,0,.14); }
+.tb-bloqueada.tb-minijuego::before { opacity: .6; }
+
+.tb-etq {
+  position: absolute; transform: translate(-50%, 40px); z-index: 2; pointer-events: none; text-align: center; max-width: 112px;
+  font-size: .76rem; font-weight: 800; line-height: 1.15; padding: 3px 9px; border-radius: 12px;
+  background: rgba(255, 255, 255, .94); color: hsl(var(--h) 50% 26%); box-shadow: 0 2px 6px rgba(0,0,0,.12);
+}
+.tb-final + .tb-etq { transform: translate(-50%, 52px); }
+
+.tb-buho { position: absolute; z-index: 6; width: 54px; transform: translate(-50%, calc(-100% - 20px)); pointer-events: none; }
+.tb-buho img { display: block; width: 100%; height: auto; filter: drop-shadow(0 5px 4px rgba(0, 0, 0, .3)); animation: tb-flota 2.2s ease-in-out infinite; }
+.tb-animando .tb-buho img { animation: none; }
+.tb-leyenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; margin: 12px 0 0; font-weight: 700; font-size: .9rem; color: var(--acento-texto, #4e3da1); }
+
+@keyframes tb-pulso {
+  0%, 100% { box-shadow: 0 6px 0 rgba(0,0,0,.18), 0 0 0 0 rgba(255, 201, 51, .75); }
+  50% { box-shadow: 0 6px 0 rgba(0,0,0,.18), 0 0 0 14px rgba(255, 201, 51, 0); }
+}
+@keyframes tb-flota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (max-width: 639px) {
+  .tb-est { --d: 60px; }
+  .tb-final { --d: 76px; }
+  .tb-etq { font-size: .72rem; max-width: 96px; transform: translate(-50%, 36px); }
+  .tb-chip { font-size: .85rem; padding: 7px 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tb-actual, .tb-buho img { animation: none; }
+  .tb-est, .tb-recorrido { transition: none; }
+}

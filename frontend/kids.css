@@ -160,3 +160,19 @@ html.student-cursor, html.student-cursor * {
 @media (max-width: 600px) {
   .cursor-preference { position: static; display: block; margin: 8px auto; }
 }
+
+
+/* ---------- Premio: minijuego opcional cada 5 aciertos ---------- */
+.premio-boton {
+  position: fixed; left: 16px; bottom: 16px; z-index: 40; border: 0; cursor: pointer; font: inherit; font-weight: 800;
+  padding: 12px 18px; border-radius: 999px; color: #fff; background: linear-gradient(145deg, #ffa24d, #ff6f91);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .2), 0 10px 22px rgba(0, 0, 0, .2); animation: premio-salta 1.4s ease-in-out infinite;
+}
+.premio-boton:focus-visible { outline: 4px solid #ffb703; outline-offset: 3px; }
+.premio-capa { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(40, 25, 80, .6); padding: 10px; }
+.premio-tarjeta { display: flex; flex-direction: column; gap: 8px; width: min(96vw, 560px); height: min(94vh, 820px); }
+.premio-cerrar { align-self: flex-end; border: 0; cursor: pointer; font: inherit; font-weight: 800; padding: 9px 16px; border-radius: 999px; background: #fff; color: #4e3da1; }
+.premio-cerrar:focus-visible { outline: 4px solid #ffb703; }
+.premio-marco { flex: 1; width: 100%; border: 0; border-radius: 24px; background: #fff; }
+@keyframes premio-salta { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .premio-boton { animation: none; } }
