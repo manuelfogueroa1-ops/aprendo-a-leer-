@@ -283,10 +283,29 @@ function crearDecoracionesDeActividad() {
     pauseButton.addEventListener('click', () => pausar());
     resumeButton.addEventListener('click', reanudar);
 
+    // Suspensión silenciosa (sin diálogo): la usa el premio mientras el niño juega un minijuego.
+    // Corta la voz y los audios, congela los temporizadores y evita que salte la pausa por inactividad.
+    let suspendida = false;
+    const suspender = () => {
+      if (paused || suspendida) return false;
+      suspendida = true;
+      VozInfantil.cancelar();
+      document.querySelectorAll('audio, video').forEach(media => media.pause());
+      window.dispatchEvent(new CustomEvent('actividad-pausada'));
+      return true;
+    };
+    const continuar = () => {
+      if (!suspendida) return;
+      suspendida = false;
+      window.dispatchEvent(new CustomEvent('actividad-reanudada'));
+    };
+
     window.__actividadPause = {
-      estaPausada: () => paused,
+      estaPausada: () => paused || suspendida,
       pausar,
       reanudar,
+      suspender,
+      continuar,
       clonarBuho
     };
     instalarAcompanamiento(game, pausar);

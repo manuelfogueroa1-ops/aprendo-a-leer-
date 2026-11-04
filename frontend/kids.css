@@ -160,3 +160,31 @@ html.student-cursor, html.student-cursor * {
 @media (max-width: 600px) {
   .cursor-preference { position: static; display: block; margin: 8px auto; }
 }
+
+
+/* ---------- Premio: minijuego opcional cada 5 aciertos ---------- */
+.premio-aviso { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(40, 25, 80, .62); }
+.premio-aviso-tarjeta {
+  width: min(94vw, 460px); padding: 28px 22px 24px; text-align: center; background: #fff; color: #36285f;
+  border: 6px solid #ffd23f; border-radius: 36px; box-shadow: 0 10px 0 rgba(0, 0, 0, .15), 0 30px 60px rgba(0, 0, 0, .4);
+  animation: premio-aparece .55s cubic-bezier(.34, 1.56, .64, 1);
+}
+.premio-aviso-icono { font-size: clamp(4.5rem, 20vw, 6.5rem); line-height: 1.1; animation: premio-salta 1.2s ease-in-out infinite; }
+.premio-aviso-tarjeta h2 { margin: 6px 0 4px; font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.1; }
+.premio-aviso-tarjeta p { margin: 0 0 20px; font-size: clamp(1.25rem, 5vw, 1.6rem); font-weight: 600; }
+.premio-aviso-botones { display: grid; gap: 12px; }
+.premio-jugar, .premio-luego { border: 0; cursor: pointer; font: inherit; font-weight: 800; border-radius: 24px; }
+.premio-jugar { min-height: 76px; font-size: clamp(1.7rem, 7vw, 2.2rem); color: #fff; background: linear-gradient(145deg, #ffa24d, #ff6f91); box-shadow: 0 8px 0 rgba(0, 0, 0, .2); }
+.premio-jugar:active { transform: translateY(5px); box-shadow: 0 3px 0 rgba(0, 0, 0, .2); }
+.premio-luego { min-height: 52px; font-size: 1.15rem; color: #4e3da1; background: #efe9ff; }
+.premio-jugar:focus-visible, .premio-luego:focus-visible { outline: 4px solid #ffb703; outline-offset: 3px; }
+.premio-capa { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(40, 25, 80, .7); padding: 8px; }
+.premio-tarjeta { display: flex; flex-direction: column; gap: 8px; width: min(100%, 860px); height: 100%; max-height: 100dvh; }
+.premio-cerrar { align-self: flex-end; border: 0; cursor: pointer; font: inherit; font-weight: 800; padding: 9px 16px; border-radius: 999px; background: #fff; color: #4e3da1; }
+.premio-cerrar:focus-visible { outline: 4px solid #ffb703; }
+.premio-marco { flex: 1; width: 100%; min-height: 0; border: 0; border-radius: 24px; background: #fff; }
+@keyframes premio-aparece { 0% { transform: scale(.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes premio-salta { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-10px) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .premio-aviso-tarjeta, .premio-aviso-icono { animation: none; } }
+/* Mientras hay un premio abierto, no se muestra el botón de cursor grande (estorba al de "Volver"). */
+body:has(.premio-capa) .cursor-preference, body:has(.premio-aviso) .cursor-preference { visibility: hidden; }

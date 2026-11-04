@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minijuego | Aprendo a Leer</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/tema.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/minijuegos/minijuegos.css">
+  <script src="/tema.js"></script>
+</head>
+<body class="minijuego-page">
+<main class="mj-wrap">
+  <header class="mj-cabecera">
+    <button type="button" id="mjSalir" class="mj-boton-suave">← Salir</button>
+    <div class="mj-titulo">
+      <span id="mjIcono" aria-hidden="true">🎮</span>
+      <h1 id="mjTitulo">Minijuego</h1>
+    </div>
+    <button type="button" id="mjEscuchar" class="mj-boton-suave">🔊 Escuchar</button>
+  </header>
+  <p id="mjInstruccion" class="mj-instruccion" role="status"></p>
+  <section id="mjEscena" class="mj-escena" aria-live="polite"></section>
+  <p id="mjAviso" class="mj-aviso" role="status"></p>
+
+  <section id="mjFin" class="mj-fin hidden" role="dialog" aria-modal="true" aria-labelledby="mjFinTitulo">
+    <div class="mj-fin-tarjeta">
+      <img id="mjFinBuho" class="mj-fin-buho" alt="" width="110">
+      <h2 id="mjFinTitulo">¡Lo lograste!</h2>
+      <p id="mjFinEstrellas" class="mj-fin-estrellas"></p>
+      <p id="mjFinEstado" class="mj-fin-estado" role="status"></p>
+      <div class="mj-fin-botones">
+        <button type="button" id="mjContinuar" class="mj-boton">Seguir →</button>
+        <button type="button" id="mjRepetir" class="mj-boton-suave">↻ Jugar otra vez</button>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="/grabaciones.js"></script>
+<script src="/voz.js"></script>
+<script src="/banco-lectura.js"></script>
+<script src="/minijuegos/motor.js"></script>
+</body>
+</html>

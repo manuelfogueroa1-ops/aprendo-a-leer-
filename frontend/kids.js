@@ -89,3 +89,117 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
+
+
+// Premio: cada 5 aciertos aparece un aviso grande en el centro para jugar un minijuego un ratito.
+// Mientras el aviso o el juego están abiertos, la actividad queda congelada (sin voz, audios ni clics).
+(() => {
+  const CADA = 5;
+  const JUEGOS = ['saltarin', 'mitades', 'lluvia', 'memoria'];
+  const iniciar = () => {
+    if (!document.body.classList.contains('game-page')) return;
+    const feedback = document.querySelector('#feedback');
+    const terminado = document.querySelector('#finished');
+    if (!feedback) return;
+    let aciertos = 0, turno = Math.floor(Math.random() * JUEGOS.length);
+    let aviso = null, capa = null, suspendida = false, bloqueados = [];
+
+    // Congela la actividad: corta su voz, detiene sus temporizadores y bloquea clics y teclado.
+    const congelar = () => {
+      if (suspendida) return true;
+      const pausa = window.__actividadPause;
+      if (pausa?.suspender && !pausa.suspender()) return false; // ya estaba en pausa: no molestar
+      window.VozInfantil?.cancelar?.();
+      window.speechSynthesis?.cancel();
+      document.querySelectorAll('audio, video').forEach(medio => medio.pause());
+      bloqueados = [...document.body.children].filter(el => !el.inert && !['SCRIPT', 'STYLE', 'LINK'].includes(el.tagName));
+      bloqueados.forEach(el => { el.inert = true; });
+      suspendida = true;
+      return true;
+    };
+    const descongelar = () => {
+      if (!suspendida) return;
+      suspendida = false;
+      bloqueados.forEach(el => { el.inert = false; });
+      bloqueados = [];
+      window.__actividadPause?.continuar?.();
+    };
+    const callar = () => { window.VozInfantil?.cancelar?.(); window.speechSynthesis?.cancel(); };
+
+    const quitarAviso = () => { aviso?.remove(); aviso = null; callar(); };
+    const cerrarCapa = () => {
+      if (!capa) return;
+      capa.remove(); capa = null;
+      document.body.style.overflow = '';
+      descongelar();
+    };
+
+    function mostrarAviso() {
+      if (aviso || capa || !congelar()) return;
+      aviso = document.createElement('div');
+      aviso.className = 'premio-aviso';
+      aviso.setAttribute('role', 'dialog');
+      aviso.setAttribute('aria-modal', 'true');
+      aviso.setAttribute('aria-labelledby', 'premioTitulo');
+      aviso.innerHTML = `<div class="premio-aviso-tarjeta">
+        <div class="premio-aviso-icono" aria-hidden="true">🎁</div>
+        <h2 id="premioTitulo">¡Ganaste un premio!</h2>
+        <p>¿Quieres jugar un ratito?</p>
+        <div class="premio-aviso-botones">
+          <button type="button" class="premio-jugar">🎮 ¡Jugar!</button>
+          <button type="button" class="premio-luego">Ahora no</button>
+        </div>
+      </div>`;
+      aviso.querySelector('.premio-jugar').addEventListener('click', abrir);
+      aviso.querySelector('.premio-luego').addEventListener('click', () => {
+        quitarAviso();
+        descongelar();
+        window.mascota?.decir('¡Sigamos aprendiendo!', { voz: false, duracion: 2500 });
+      });
+      aviso.addEventListener('keydown', evento => { if (evento.key === 'Escape') aviso.querySelector('.premio-luego').click(); });
+      document.body.appendChild(aviso);
+      aviso.querySelector('.premio-jugar').focus();
+      window.VozInfantil?.hablar?.('¡Ganaste un premio! ¿Quieres jugar un ratito?', { tipo: 'animo' });
+    }
+
+    function abrir() {
+      if (capa) return;
+      const juego = JUEGOS[turno++ % JUEGOS.length];
+      quitarAviso();
+      capa = document.createElement('div');
+      capa.className = 'premio-capa';
+      capa.setAttribute('role', 'dialog');
+      capa.setAttribute('aria-modal', 'true');
+      capa.setAttribute('aria-label', 'Minijuego de premio');
+      capa.innerHTML = `<div class="premio-tarjeta">
+        <button type="button" class="premio-cerrar">✕ Volver a mi actividad</button>
+        <iframe class="premio-marco" title="Minijuego de premio" src="/minijuegos/jugar.html?juego=${juego}&origen=premio"></iframe>
+      </div>`;
+      capa.querySelector('.premio-cerrar').addEventListener('click', cerrarCapa);
+      document.body.appendChild(capa);
+      document.body.style.overflow = 'hidden';
+      capa.querySelector('.premio-marco').focus();
+    }
+
+    window.addEventListener('message', evento => {
+      if (evento.origin !== location.origin || evento.data?.tipo !== 'minijuego-cerrar') return;
+      cerrarCapa();
+      window.mascota?.decir('¡Qué bien jugaste! Sigamos aprendiendo.', { voz: false, duracion: 3500 });
+    });
+    new MutationObserver(registros => {
+      for (const registro of registros) {
+        const antes = (registro.oldValue || '').split(/\s+/);
+        if (!registro.target.classList.contains('correct') || antes.includes('correct')) continue;
+        aciertos++;
+        const pausada = window.actividadLectura?.estaPausada?.();
+        if (aciertos % CADA === 0 && !pausada && !(terminado && !terminado.classList.contains('hidden'))) mostrarAviso();
+      }
+    }).observe(feedback, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    if (terminado) {
+      new MutationObserver(() => { if (!terminado.classList.contains('hidden')) { quitarAviso(); cerrarCapa(); descongelar(); } })
+        .observe(terminado, { attributes: true, attributeFilter: ['class'] });
+    }
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+  else iniciar();
+})();

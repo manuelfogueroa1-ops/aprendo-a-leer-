@@ -251,6 +251,7 @@ app.put('/api/estudiantes/me/preferencias', (req, res) => {
   }
 });
 
+require('./tablero')(app, db, MODO_PRUEBA);
 app.get('/api/actividades', (req, res) => {
   try {
     const actividades = db.prepare(`SELECT ActividadID, Nombre, Descripcion, NivelDificultad
@@ -269,6 +270,7 @@ app.get('/api/actividades', (req, res) => {
           return {
             ...actividad,
             ActividadPrevia: actividadPrevia,
+            Completada: completadas.has(actividad.Nombre),
             Bloqueada: !MODO_PRUEBA && Boolean(actividadPrevia && !completadas.has(actividadPrevia))
           };
         })

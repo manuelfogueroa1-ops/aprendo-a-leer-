@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#7161d8">
   <title>Aprendo a Leer | ¡Vamos a aprender!</title>
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css">
+  <link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css"><link rel="stylesheet" href="/tablero.css">
   <script src="/tema.js"></script>
   <script src="/mascota.js" defer></script>
   <script src="/grabaciones.js"></script>
@@ -60,8 +60,8 @@
           <button id="changeStudent" class="secondary-button" type="button">↩ Cambiar estudiante</button>
         </div>
       </div>
-      <div class="activity-section-note">Elige la aventura que quieras comenzar hoy.</div>
-      <div id="activities" class="activities-grid"></div>
+      <div class="activity-section-note">Toca la casilla que brilla y sigue el camino. ¡El búho avanza cuando terminas cada actividad o minijuego!</div>
+      <div id="activities" class="tablero-caja"></div>
     </div>
   </section>
 
@@ -167,6 +167,7 @@
     <button type="button" id="teacherLink" class="teacher-link" data-panel="profesor">🔒 Acceso docente</button>
   </footer>
 </main>
+<script src="/tablero.js"></script>
 <script src="/app.js"></script>
 <script src="/kids.js"></script>
 </body>
