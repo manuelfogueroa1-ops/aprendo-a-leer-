@@ -1,6 +1,6 @@
 {
   "name": "aprendo-a-leer",
-  "version": "1.2.4",
+  "version": "1.2.6",
   "private": true,
   "description": "Aprendo a Leer · aplicación educativa para Windows",
   "main": "electron/main.js",

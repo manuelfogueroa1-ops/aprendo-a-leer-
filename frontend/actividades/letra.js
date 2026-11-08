@@ -33,6 +33,12 @@ function saveProgress() {
 let round = 0;
 let correct = 0;
 let locked = false;
+let saving = false;
+let saved = false;
+let bienvenidaPendiente = true;
+let ultimaCorrecta = false;
+let advanceTimer;
+const narracion = crearNarracionActividad();
 const responses = [];
 const pista = crearPistaActividad(() => {
   if (locked) return null;
@@ -41,7 +47,31 @@ const pista = crearPistaActividad(() => {
     elemento: [...$('#choices').children].find(button => button.textContent === letter),
     mensaje: `Mira la letra ${letter}. Es la que falta en ${questions[round].word}.`
   };
-});
+}, () => narracion.reproducir(['encuentra-pista']));
+
+async function escucharInstruccion() {
+  pista.cancelar();
+  const actual = round;
+  const claves = bienvenidaPendiente ? ['encuentra-bienvenida', 'encuentra-instruccion'] : ['encuentra-instruccion'];
+  if (await narracion.reproducir(claves)) {
+    bienvenidaPendiente = false;
+    if (round === actual && !locked) pista.reiniciar();
+  }
+}
+
+async function escucharRespuesta() {
+  cancelarEsperaActividad(advanceTimer);
+  const actual = round;
+  $('#next').disabled = true;
+  const elegida = responses.at(-1)?.letraElegida;
+  const claves = [`letras-nombre-${elegida}`, ultimaCorrecta ? 'encuentra-acierto' : 'encuentra-apoyo'];
+  if (round < questions.length - 1) claves.push('encuentra-siguiente');
+  if (!await narracion.reproducir(claves) || actual !== round || !locked) return;
+  if (round === questions.length - 1) advanceTimer = programarActividad(finish, 350);
+  else $('#next').disabled = false;
+}
+
+$('#listenInstructions').addEventListener('click', () => locked ? escucharRespuesta() : escucharInstruccion());
 
 function renderQuestion() {
   const question = questions[round];
@@ -56,6 +86,7 @@ function renderQuestion() {
   $('#feedback').textContent = '';
   $('#feedback').className = 'feedback';
   $('#next').classList.add('hidden');
+  $('#next').disabled = false;
   $('#choices').replaceChildren(...question.choices.map(letter => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -64,15 +95,17 @@ function renderQuestion() {
     button.addEventListener('click', () => choose(letter));
     return button;
   }));
-  pista.reiniciar();
+  escucharInstruccion();
 }
 
 function choose(letter) {
   if (locked) return;
   pista.cancelar();
   locked = true;
+  bienvenidaPendiente = false;
   const question = questions[round];
   const isCorrect = letter === question.word[question.missing];
+  ultimaCorrecta = isCorrect;
   responses.push({ palabra: question.word, letraElegida: letter, letraCorrecta: question.word[question.missing], correcta: isCorrect });
   if (isCorrect) correct++;
   saveProgress();
@@ -87,33 +120,44 @@ function choose(letter) {
   if (round === questions.length - 1) {
     $('#next').textContent = 'Volviendo a tus actividades…';
     $('#next').disabled = true;
-    programarActividad(finish, 1200);
     $('#next').classList.remove('hidden');
+    escucharRespuesta();
     return;
   }
   $('#next').textContent = 'Siguiente palabra';
   $('#next').classList.remove('hidden');
+  escucharRespuesta();
 }
 
 async function finish() {
+  if (saving || saved) return;
+  saving = true;
+  pista.cancelar();
+  narracion.cancelar();
   $('#progressBar').style.width = '100%';
   game.classList.add('hidden');
   $('#finished').classList.remove('hidden');
   try {
-    const saved = await window.actividadLectura.guardar(resultadoId, correct, questions.length, {
+    const resultado = await window.actividadLectura.guardar(resultadoId, correct, questions.length, {
       actividad: 'letras',
       respuestas: responses
+    }, undefined, {
+      antesDeVolver: window.VozInfantil?.tieneGrabacion('encuentra-final')
+        ? () => narracion.reproducir(['encuentra-final']) : undefined
     });
+    saved = true;
     if (progressKey) localStorage.removeItem(progressKey);
-    $('#result').textContent = `Elegiste ${correct} de ${questions.length} letras correctamente. Duración: ${saved.duracionSegundos} segundos.`;
+    $('#result').textContent = `Elegiste ${correct} de ${questions.length} letras correctamente. Duración: ${resultado.duracionSegundos} segundos.`;
   } catch (error) {
     $('#result').textContent = `No se pudo guardar el resultado: ${error.message}`;
     $('#retrySave').classList.remove('hidden');
+  } finally {
+    saving = false;
   }
 }
 
 $('#next').addEventListener('click', async () => {
-  if (!locked) return;
+  if (!locked || $('#next').disabled) return;
   round++;
   saveProgress();
   if (round === questions.length) {

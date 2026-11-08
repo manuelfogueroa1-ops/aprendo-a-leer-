@@ -1,0 +1,1117 @@
+{
+  "perfil": "grave",
+  "semitonos": -2.5,
+  "tempo": 1,
+  "clips": [
+    {
+      "clave": "letras-acierto",
+      "duracion": 3.5,
+      "pico": 0.5354,
+      "sha256": "a111dfae7b4d"
+    },
+    {
+      "clave": "letras-final",
+      "duracion": 5.0,
+      "pico": 0.6138,
+      "sha256": "253cc8092925"
+    },
+    {
+      "clave": "letras-nombre-a",
+      "duracion": 0.6,
+      "pico": 0.4778,
+      "sha256": "4cd4fa1854bf"
+    },
+    {
+      "clave": "letras-nombre-b",
+      "duracion": 0.74,
+      "pico": 0.5593,
+      "sha256": "3c96992b0e3f"
+    },
+    {
+      "clave": "letras-nombre-c",
+      "duracion": 0.86,
+      "pico": 0.6731,
+      "sha256": "e03d4cd2a85a"
+    },
+    {
+      "clave": "letras-nombre-d",
+      "duracion": 0.9,
+      "pico": 0.5494,
+      "sha256": "f8e61e8acf2d"
+    },
+    {
+      "clave": "letras-nombre-e",
+      "duracion": 0.568,
+      "pico": 0.6008,
+      "sha256": "4095e96f011b"
+    },
+    {
+      "clave": "letras-nombre-f",
+      "duracion": 0.78,
+      "pico": 0.3839,
+      "sha256": "3514cb659374"
+    },
+    {
+      "clave": "letras-nombre-g",
+      "duracion": 0.76,
+      "pico": 0.5044,
+      "sha256": "545f573baffc"
+    },
+    {
+      "clave": "letras-nombre-h",
+      "duracion": 0.8,
+      "pico": 0.5115,
+      "sha256": "c12bcf89c5b6"
+    },
+    {
+      "clave": "letras-nombre-i",
+      "duracion": 0.76,
+      "pico": 0.5957,
+      "sha256": "40810da89a5a"
+    },
+    {
+      "clave": "letras-nombre-j",
+      "duracion": 0.9,
+      "pico": 0.5657,
+      "sha256": "155a4a977c3b"
+    },
+    {
+      "clave": "letras-nombre-k",
+      "duracion": 0.568,
+      "pico": 0.4628,
+      "sha256": "f85cf052af71"
+    },
+    {
+      "clave": "letras-nombre-l",
+      "duracion": 0.76,
+      "pico": 0.4362,
+      "sha256": "28a93b0a00d1"
+    },
+    {
+      "clave": "letras-nombre-m",
+      "duracion": 0.74,
+      "pico": 0.4628,
+      "sha256": "5bbd777a5986"
+    },
+    {
+      "clave": "letras-nombre-n",
+      "duracion": 0.68,
+      "pico": 0.4485,
+      "sha256": "ff3c87bc96e4"
+    },
+    {
+      "clave": "letras-nombre-o",
+      "duracion": 0.58,
+      "pico": 0.5432,
+      "sha256": "5a3e9382c33f"
+    },
+    {
+      "clave": "letras-nombre-p",
+      "duracion": 0.62,
+      "pico": 0.5351,
+      "sha256": "b54051c0dbf3"
+    },
+    {
+      "clave": "letras-nombre-q",
+      "duracion": 0.68,
+      "pico": 0.4774,
+      "sha256": "5469892e04d2"
+    },
+    {
+      "clave": "letras-nombre-r",
+      "duracion": 0.9,
+      "pico": 0.3575,
+      "sha256": "6213ad3c76f9"
+    },
+    {
+      "clave": "letras-nombre-s",
+      "duracion": 0.84,
+      "pico": 0.4131,
+      "sha256": "db9f16799c59"
+    },
+    {
+      "clave": "letras-nombre-t",
+      "duracion": 0.66,
+      "pico": 0.4907,
+      "sha256": "4c8dc1f95d32"
+    },
+    {
+      "clave": "letras-nombre-u",
+      "duracion": 0.66,
+      "pico": 0.4868,
+      "sha256": "863540f8d430"
+    },
+    {
+      "clave": "letras-nombre-v",
+      "duracion": 0.8,
+      "pico": 0.6694,
+      "sha256": "253a30d96fb7"
+    },
+    {
+      "clave": "letras-nombre-w",
+      "duracion": 1.2,
+      "pico": 0.5294,
+      "sha256": "67797a3b4c5f"
+    },
+    {
+      "clave": "letras-nombre-x",
+      "duracion": 0.92,
+      "pico": 0.4709,
+      "sha256": "382730d201b1"
+    },
+    {
+      "clave": "letras-nombre-y",
+      "duracion": 0.84,
+      "pico": 0.7126,
+      "sha256": "8fc1737f8ff1"
+    },
+    {
+      "clave": "letras-nombre-z",
+      "duracion": 0.92,
+      "pico": 0.6679,
+      "sha256": "1fed77653885"
+    },
+    {
+      "clave": "letras-nombre-ñ",
+      "duracion": 0.72,
+      "pico": 0.3796,
+      "sha256": "3bb5877f9e97"
+    },
+    {
+      "clave": "letras-pregunta-a",
+      "duracion": 5.82,
+      "pico": 0.6053,
+      "sha256": "331efdf1b905"
+    },
+    {
+      "clave": "letras-pregunta-b",
+      "duracion": 5.58,
+      "pico": 0.5116,
+      "sha256": "49c959e73cbf"
+    },
+    {
+      "clave": "letras-pregunta-c",
+      "duracion": 6.42,
+      "pico": 0.592,
+      "sha256": "0b993cfa38a2"
+    },
+    {
+      "clave": "letras-pregunta-d",
+      "duracion": 6.331,
+      "pico": 0.6045,
+      "sha256": "8ae1198c23cf"
+    },
+    {
+      "clave": "letras-pregunta-e",
+      "duracion": 6.332,
+      "pico": 0.4503,
+      "sha256": "c66848a4a13b"
+    },
+    {
+      "clave": "letras-pregunta-f",
+      "duracion": 6.5,
+      "pico": 0.5659,
+      "sha256": "a6eef9f8e719"
+    },
+    {
+      "clave": "letras-pregunta-g",
+      "duracion": 5.88,
+      "pico": 0.4974,
+      "sha256": "dfede4a372f1"
+    },
+    {
+      "clave": "letras-pregunta-h",
+      "duracion": 6.32,
+      "pico": 0.671,
+      "sha256": "79e5eb1657ec"
+    },
+    {
+      "clave": "letras-pregunta-i",
+      "duracion": 5.96,
+      "pico": 0.5039,
+      "sha256": "cdedbbe47b94"
+    },
+    {
+      "clave": "letras-pregunta-j",
+      "duracion": 6.3,
+      "pico": 0.4988,
+      "sha256": "496480a83f65"
+    },
+    {
+      "clave": "letras-pregunta-k",
+      "duracion": 6.32,
+      "pico": 0.66,
+      "sha256": "67b0cd58cf4a"
+    },
+    {
+      "clave": "letras-pregunta-l",
+      "duracion": 6.66,
+      "pico": 0.5785,
+      "sha256": "e3691746d6db"
+    },
+    {
+      "clave": "letras-pregunta-m",
+      "duracion": 6.64,
+      "pico": 0.5893,
+      "sha256": "04e4257a3eac"
+    },
+    {
+      "clave": "letras-pregunta-n",
+      "duracion": 7.32,
+      "pico": 0.6134,
+      "sha256": "0aaee43bbc22"
+    },
+    {
+      "clave": "letras-pregunta-o",
+      "duracion": 5.82,
+      "pico": 0.6547,
+      "sha256": "0294d42af9f6"
+    },
+    {
+      "clave": "letras-pregunta-p",
+      "duracion": 6.72,
+      "pico": 0.6955,
+      "sha256": "b5b753b08d55"
+    },
+    {
+      "clave": "letras-pregunta-q",
+      "duracion": 6.72,
+      "pico": 0.5753,
+      "sha256": "49249afdb208"
+    },
+    {
+      "clave": "letras-pregunta-r",
+      "duracion": 6.5,
+      "pico": 0.466,
+      "sha256": "8985522732d7"
+    },
+    {
+      "clave": "letras-pregunta-s",
+      "duracion": 6.72,
+      "pico": 0.706,
+      "sha256": "06d48036399b"
+    },
+    {
+      "clave": "letras-pregunta-t",
+      "duracion": 6.66,
+      "pico": 0.8657,
+      "sha256": "44b6b5132255"
+    },
+    {
+      "clave": "letras-pregunta-u",
+      "duracion": 7.72,
+      "pico": 0.593,
+      "sha256": "32668de1df76"
+    },
+    {
+      "clave": "letras-pregunta-v",
+      "duracion": 6.74,
+      "pico": 0.5887,
+      "sha256": "4b62415fa603"
+    },
+    {
+      "clave": "letras-pregunta-w",
+      "duracion": 6.5,
+      "pico": 0.6629,
+      "sha256": "678624c23a5e"
+    },
+    {
+      "clave": "letras-pregunta-x",
+      "duracion": 6.68,
+      "pico": 0.5296,
+      "sha256": "ae02f7faff27"
+    },
+    {
+      "clave": "letras-pregunta-y",
+      "duracion": 6.72,
+      "pico": 0.6417,
+      "sha256": "a652a9d8a755"
+    },
+    {
+      "clave": "letras-pregunta-z",
+      "duracion": 6.04,
+      "pico": 0.7052,
+      "sha256": "fe268583814c"
+    },
+    {
+      "clave": "letras-pregunta-ñ",
+      "duracion": 6.18,
+      "pico": 0.5298,
+      "sha256": "4768b2e614e5"
+    },
+    {
+      "clave": "letras-reintento",
+      "duracion": 6.7,
+      "pico": 0.5782,
+      "sha256": "3ae1d916c207"
+    },
+    {
+      "clave": "silabas-acierto",
+      "duracion": 5.02,
+      "pico": 0.499,
+      "sha256": "bb61731e5f50"
+    },
+    {
+      "clave": "silabas-bienvenida",
+      "duracion": 11.34,
+      "pico": 0.6646,
+      "sha256": "ec13cb5784bd"
+    },
+    {
+      "clave": "silaba-ba",
+      "duracion": 0.86,
+      "pico": 0.6299,
+      "sha256": "1c872f5dd9b4"
+    },
+    {
+      "clave": "silaba-be",
+      "duracion": 0.9,
+      "pico": 0.3989,
+      "sha256": "5b7f92fb44ce"
+    },
+    {
+      "clave": "silaba-bi",
+      "duracion": 0.92,
+      "pico": 0.6173,
+      "sha256": "b00681ec73de"
+    },
+    {
+      "clave": "silaba-bo",
+      "duracion": 0.8,
+      "pico": 0.6552,
+      "sha256": "97c538a89669"
+    },
+    {
+      "clave": "silaba-bu",
+      "duracion": 0.74,
+      "pico": 0.6432,
+      "sha256": "55f1e464bcf8"
+    },
+    {
+      "clave": "silaba-ca",
+      "duracion": 0.76,
+      "pico": 0.5256,
+      "sha256": "21a36a859270"
+    },
+    {
+      "clave": "silaba-ce",
+      "duracion": 0.9,
+      "pico": 0.5862,
+      "sha256": "69f431968f83"
+    },
+    {
+      "clave": "silaba-ci",
+      "duracion": 0.84,
+      "pico": 0.5701,
+      "sha256": "7cce5da1d4cb"
+    },
+    {
+      "clave": "silaba-co",
+      "duracion": 0.74,
+      "pico": 0.493,
+      "sha256": "1d86475937de"
+    },
+    {
+      "clave": "silaba-cu",
+      "duracion": 0.7,
+      "pico": 0.7329,
+      "sha256": "b4067e1f9721"
+    },
+    {
+      "clave": "silaba-da",
+      "duracion": 0.86,
+      "pico": 0.6141,
+      "sha256": "02be9b60921a"
+    },
+    {
+      "clave": "silaba-de",
+      "duracion": 0.78,
+      "pico": 0.4869,
+      "sha256": "5897670c728f"
+    },
+    {
+      "clave": "silaba-di",
+      "duracion": 0.72,
+      "pico": 0.5957,
+      "sha256": "19dcb8a990ff"
+    },
+    {
+      "clave": "silaba-do",
+      "duracion": 0.78,
+      "pico": 0.5943,
+      "sha256": "114251fb4a72"
+    },
+    {
+      "clave": "silaba-du",
+      "duracion": 0.72,
+      "pico": 0.4417,
+      "sha256": "a5a88073aa11"
+    },
+    {
+      "clave": "silaba-fa",
+      "duracion": 0.8,
+      "pico": 0.6077,
+      "sha256": "2f1104310003"
+    },
+    {
+      "clave": "silaba-fe",
+      "duracion": 0.72,
+      "pico": 0.4407,
+      "sha256": "aa46216cdda6"
+    },
+    {
+      "clave": "silaba-fi",
+      "duracion": 0.76,
+      "pico": 0.4429,
+      "sha256": "55975d08bd62"
+    },
+    {
+      "clave": "silaba-fo",
+      "duracion": 0.72,
+      "pico": 0.6918,
+      "sha256": "a33de005a66f"
+    },
+    {
+      "clave": "silaba-fu",
+      "duracion": 0.76,
+      "pico": 0.4281,
+      "sha256": "cc824d5add43"
+    },
+    {
+      "clave": "silaba-ga",
+      "duracion": 1.0,
+      "pico": 0.5588,
+      "sha256": "40f4cb40de39"
+    },
+    {
+      "clave": "silaba-ge",
+      "duracion": 0.94,
+      "pico": 0.6642,
+      "sha256": "59f094d92fba"
+    },
+    {
+      "clave": "silaba-gi",
+      "duracion": 0.88,
+      "pico": 0.4508,
+      "sha256": "7029ae9ba19f"
+    },
+    {
+      "clave": "silaba-go",
+      "duracion": 0.84,
+      "pico": 0.7283,
+      "sha256": "5a69f1d4e2a0"
+    },
+    {
+      "clave": "silaba-gu",
+      "duracion": 0.56,
+      "pico": 0.5373,
+      "sha256": "51861fe35d95"
+    },
+    {
+      "clave": "silaba-ja",
+      "duracion": 0.88,
+      "pico": 0.6098,
+      "sha256": "873b22003c16"
+    },
+    {
+      "clave": "silaba-je",
+      "duracion": 0.96,
+      "pico": 0.6765,
+      "sha256": "2fb8d9578a72"
+    },
+    {
+      "clave": "silaba-ji",
+      "duracion": 0.9,
+      "pico": 0.5621,
+      "sha256": "0b8a6a1ce4e9"
+    },
+    {
+      "clave": "silaba-jo",
+      "duracion": 0.78,
+      "pico": 0.567,
+      "sha256": "8b19cc3c37f3"
+    },
+    {
+      "clave": "silaba-ju",
+      "duracion": 0.66,
+      "pico": 0.472,
+      "sha256": "f19b6aedd4d1"
+    },
+    {
+      "clave": "silaba-ka",
+      "duracion": 0.86,
+      "pico": 0.5992,
+      "sha256": "aa16e4423215"
+    },
+    {
+      "clave": "silaba-ke",
+      "duracion": 0.9,
+      "pico": 0.4865,
+      "sha256": "d5376db32881"
+    },
+    {
+      "clave": "silaba-ki",
+      "duracion": 0.8,
+      "pico": 0.4998,
+      "sha256": "550c8527ab3d"
+    },
+    {
+      "clave": "silaba-ko",
+      "duracion": 0.76,
+      "pico": 0.7422,
+      "sha256": "48e790e53272"
+    },
+    {
+      "clave": "silaba-ku",
+      "duracion": 0.74,
+      "pico": 0.5897,
+      "sha256": "bf70f778fe60"
+    },
+    {
+      "clave": "silaba-la",
+      "duracion": 0.92,
+      "pico": 0.527,
+      "sha256": "17b701437364"
+    },
+    {
+      "clave": "silaba-le",
+      "duracion": 0.92,
+      "pico": 0.4005,
+      "sha256": "65182f582100"
+    },
+    {
+      "clave": "silaba-li",
+      "duracion": 0.82,
+      "pico": 0.4858,
+      "sha256": "eec837ff74b3"
+    },
+    {
+      "clave": "silaba-lo",
+      "duracion": 0.96,
+      "pico": 0.4475,
+      "sha256": "3c39f835a1f4"
+    },
+    {
+      "clave": "silaba-lu",
+      "duracion": 0.84,
+      "pico": 0.4268,
+      "sha256": "d40646d803ac"
+    },
+    {
+      "clave": "silaba-ma",
+      "duracion": 0.9,
+      "pico": 0.7148,
+      "sha256": "1b0f583ca9f8"
+    },
+    {
+      "clave": "silaba-me",
+      "duracion": 0.94,
+      "pico": 0.4856,
+      "sha256": "8899878fd23a"
+    },
+    {
+      "clave": "silaba-mi",
+      "duracion": 0.86,
+      "pico": 0.3914,
+      "sha256": "13e1d9c40c8a"
+    },
+    {
+      "clave": "silaba-mo",
+      "duracion": 0.8,
+      "pico": 0.6636,
+      "sha256": "253925b86aec"
+    },
+    {
+      "clave": "silaba-mu",
+      "duracion": 0.68,
+      "pico": 0.6452,
+      "sha256": "b9634ca646fa"
+    },
+    {
+      "clave": "silaba-na",
+      "duracion": 0.94,
+      "pico": 0.5987,
+      "sha256": "e6dcabef0a3c"
+    },
+    {
+      "clave": "silaba-ne",
+      "duracion": 0.84,
+      "pico": 0.4953,
+      "sha256": "5b207bdeb07c"
+    },
+    {
+      "clave": "silaba-ni",
+      "duracion": 0.8,
+      "pico": 0.6237,
+      "sha256": "f4b28438b462"
+    },
+    {
+      "clave": "silaba-no",
+      "duracion": 0.82,
+      "pico": 0.5428,
+      "sha256": "636a75f844f6"
+    },
+    {
+      "clave": "silaba-nu",
+      "duracion": 1.0,
+      "pico": 0.4291,
+      "sha256": "dab063446f52"
+    },
+    {
+      "clave": "silaba-pa",
+      "duracion": 0.6,
+      "pico": 0.5641,
+      "sha256": "4852f96dbc90"
+    },
+    {
+      "clave": "silaba-pe",
+      "duracion": 0.62,
+      "pico": 0.3849,
+      "sha256": "a2de043052b9"
+    },
+    {
+      "clave": "silaba-pi",
+      "duracion": 0.62,
+      "pico": 0.3803,
+      "sha256": "8ef83a71ace4"
+    },
+    {
+      "clave": "silaba-po",
+      "duracion": 0.6,
+      "pico": 0.5421,
+      "sha256": "65f221ce402f"
+    },
+    {
+      "clave": "silaba-pu",
+      "duracion": 0.5,
+      "pico": 0.334,
+      "sha256": "1c3a0051526a"
+    },
+    {
+      "clave": "silaba-ra",
+      "duracion": 0.84,
+      "pico": 0.7895,
+      "sha256": "e3f512667c8e"
+    },
+    {
+      "clave": "silaba-re",
+      "duracion": 0.96,
+      "pico": 0.4755,
+      "sha256": "ca785afa998e"
+    },
+    {
+      "clave": "silaba-ri",
+      "duracion": 0.9,
+      "pico": 0.5089,
+      "sha256": "09f6abcbc881"
+    },
+    {
+      "clave": "silaba-ro",
+      "duracion": 0.9,
+      "pico": 0.6259,
+      "sha256": "9f609db25a39"
+    },
+    {
+      "clave": "silaba-ru",
+      "duracion": 0.82,
+      "pico": 0.5741,
+      "sha256": "1c87e1c7b15b"
+    },
+    {
+      "clave": "silaba-sa",
+      "duracion": 0.86,
+      "pico": 0.6234,
+      "sha256": "3dbd10fe5376"
+    },
+    {
+      "clave": "silaba-se",
+      "duracion": 1.0,
+      "pico": 0.7062,
+      "sha256": "bf1ae9055d4d"
+    },
+    {
+      "clave": "silaba-si",
+      "duracion": 0.82,
+      "pico": 0.3629,
+      "sha256": "3201671b29f6"
+    },
+    {
+      "clave": "silaba-so",
+      "duracion": 0.74,
+      "pico": 0.3245,
+      "sha256": "3274315eb979"
+    },
+    {
+      "clave": "silaba-su",
+      "duracion": 0.74,
+      "pico": 0.2742,
+      "sha256": "48dc7cf7e138"
+    },
+    {
+      "clave": "silaba-ta",
+      "duracion": 0.72,
+      "pico": 0.7597,
+      "sha256": "5ff13672948b"
+    },
+    {
+      "clave": "silaba-te",
+      "duracion": 0.76,
+      "pico": 0.5511,
+      "sha256": "df379faab0c5"
+    },
+    {
+      "clave": "silaba-ti",
+      "duracion": 0.76,
+      "pico": 0.4846,
+      "sha256": "07162e3bf10a"
+    },
+    {
+      "clave": "silaba-to",
+      "duracion": 0.8,
+      "pico": 0.4537,
+      "sha256": "d57629d00dfc"
+    },
+    {
+      "clave": "silaba-tu",
+      "duracion": 0.568,
+      "pico": 0.232,
+      "sha256": "df1f2cbe8f9b"
+    },
+    {
+      "clave": "silaba-va",
+      "duracion": 0.84,
+      "pico": 0.6082,
+      "sha256": "8ba59c29cd68"
+    },
+    {
+      "clave": "silaba-ve",
+      "duracion": 0.9,
+      "pico": 0.5872,
+      "sha256": "d57e04ddb032"
+    },
+    {
+      "clave": "silaba-vi",
+      "duracion": 0.96,
+      "pico": 0.7262,
+      "sha256": "8fae6426b3e8"
+    },
+    {
+      "clave": "silaba-vo",
+      "duracion": 0.86,
+      "pico": 0.6443,
+      "sha256": "49e3d1ed4bbb"
+    },
+    {
+      "clave": "silaba-vu",
+      "duracion": 0.88,
+      "pico": 0.5343,
+      "sha256": "4e1e5fcaf1d7"
+    },
+    {
+      "clave": "silaba-ya",
+      "duracion": 0.82,
+      "pico": 0.53,
+      "sha256": "a901ebf24527"
+    },
+    {
+      "clave": "silaba-ye",
+      "duracion": 0.88,
+      "pico": 0.6841,
+      "sha256": "26f658a2a1c2"
+    },
+    {
+      "clave": "silaba-yi",
+      "duracion": 0.92,
+      "pico": 0.4569,
+      "sha256": "3c64fbc7e1eb"
+    },
+    {
+      "clave": "silaba-yo",
+      "duracion": 0.92,
+      "pico": 0.7293,
+      "sha256": "cda548f3110f"
+    },
+    {
+      "clave": "silaba-yu",
+      "duracion": 0.76,
+      "pico": 0.4356,
+      "sha256": "e096e3d3baa2"
+    },
+    {
+      "clave": "silaba-za",
+      "duracion": 0.92,
+      "pico": 0.6765,
+      "sha256": "5e041200d502"
+    },
+    {
+      "clave": "silaba-ze",
+      "duracion": 0.82,
+      "pico": 0.4489,
+      "sha256": "00e3a7b32fd4"
+    },
+    {
+      "clave": "silaba-zi",
+      "duracion": 0.86,
+      "pico": 0.6656,
+      "sha256": "ddfefc420156"
+    },
+    {
+      "clave": "silaba-zo",
+      "duracion": 0.82,
+      "pico": 0.8486,
+      "sha256": "279820d04523"
+    },
+    {
+      "clave": "silaba-zu",
+      "duracion": 0.76,
+      "pico": 0.4277,
+      "sha256": "d47eb8b40813"
+    },
+    {
+      "clave": "silaba-ña",
+      "duracion": 0.86,
+      "pico": 0.5948,
+      "sha256": "b034580e47eb"
+    },
+    {
+      "clave": "silaba-ñe",
+      "duracion": 0.88,
+      "pico": 0.5761,
+      "sha256": "453ec312a2f8"
+    },
+    {
+      "clave": "silaba-ñi",
+      "duracion": 0.8,
+      "pico": 0.5141,
+      "sha256": "48c9c46a67ac"
+    },
+    {
+      "clave": "silaba-ño",
+      "duracion": 0.86,
+      "pico": 0.5306,
+      "sha256": "7e948a7370e5"
+    },
+    {
+      "clave": "silaba-ñu",
+      "duracion": 0.76,
+      "pico": 0.4034,
+      "sha256": "396b0689d4aa"
+    },
+    {
+      "clave": "silabas-final",
+      "duracion": 4.26,
+      "pico": 0.5848,
+      "sha256": "90746de79b62"
+    },
+    {
+      "clave": "silabas-pista",
+      "duracion": 4.88,
+      "pico": 0.7096,
+      "sha256": "28002855210c"
+    },
+    {
+      "clave": "silabas-pregunta",
+      "duracion": 7.12,
+      "pico": 0.5769,
+      "sha256": "bc9af9586ee6"
+    },
+    {
+      "clave": "silabas-reintento",
+      "duracion": 4.58,
+      "pico": 0.5612,
+      "sha256": "1184a5ff4baa"
+    },
+    {
+      "clave": "silabas-repetir",
+      "duracion": 2.78,
+      "pico": 0.5275,
+      "sha256": "01f626b8ab88"
+    },
+    {
+      "clave": "encuentra-acierto",
+      "duracion": 2.04,
+      "pico": 0.4896,
+      "sha256": "843730769720"
+    },
+    {
+      "clave": "encuentra-apoyo",
+      "duracion": 2.3,
+      "pico": 0.3982,
+      "sha256": "2df6547f60f9"
+    },
+    {
+      "clave": "encuentra-bienvenida",
+      "duracion": 3.5,
+      "pico": 0.4228,
+      "sha256": "7e55a1c0ef4b"
+    },
+    {
+      "clave": "encuentra-final",
+      "duracion": 2.88,
+      "pico": 0.4492,
+      "sha256": "d67f538661ed"
+    },
+    {
+      "clave": "encuentra-instruccion",
+      "duracion": 3.52,
+      "pico": 0.4601,
+      "sha256": "d2227c07bd54"
+    },
+    {
+      "clave": "encuentra-pista",
+      "duracion": 3.46,
+      "pico": 0.556,
+      "sha256": "f0e8c5bc4cb0"
+    },
+    {
+      "clave": "encuentra-siguiente",
+      "duracion": 2.2,
+      "pico": 0.3975,
+      "sha256": "ad6bf80e1cc8"
+    },
+    {
+      "clave": "ordeno-acierto",
+      "duracion": 1.8,
+      "pico": 0.5265,
+      "sha256": "2517949a3c66"
+    },
+    {
+      "clave": "ordeno-bienvenida",
+      "duracion": 2.88,
+      "pico": 0.4927,
+      "sha256": "f5b2c7c6abd5"
+    },
+    {
+      "clave": "ordeno-faltan",
+      "duracion": 3.78,
+      "pico": 0.5974,
+      "sha256": "d83d8e2161b3"
+    },
+    {
+      "clave": "ordeno-final",
+      "duracion": 3.26,
+      "pico": 0.4181,
+      "sha256": "927fba90f499"
+    },
+    {
+      "clave": "ordeno-instruccion",
+      "duracion": 5.28,
+      "pico": 0.5111,
+      "sha256": "ce5589a5371d"
+    },
+    {
+      "clave": "ordeno-pista-quitar",
+      "duracion": 4.5,
+      "pico": 0.4398,
+      "sha256": "006d8e9f3730"
+    },
+    {
+      "clave": "ordeno-pista",
+      "duracion": 3.96,
+      "pico": 0.3571,
+      "sha256": "37df2832e30e"
+    },
+    {
+      "clave": "ordeno-quitar",
+      "duracion": 3.14,
+      "pico": 0.5264,
+      "sha256": "293ba300ecf7"
+    },
+    {
+      "clave": "ordeno-reintento",
+      "duracion": 4.26,
+      "pico": 0.3914,
+      "sha256": "9460cf5fedcc"
+    },
+    {
+      "clave": "ordeno-revisar",
+      "duracion": 2.72,
+      "pico": 0.4577,
+      "sha256": "0f6ed5f3e244"
+    },
+    {
+      "clave": "parejas-acierto",
+      "duracion": 1.9,
+      "pico": 0.4955,
+      "sha256": "99d86852aa4c"
+    },
+    {
+      "clave": "parejas-bienvenida",
+      "duracion": 5.24,
+      "pico": 0.5304,
+      "sha256": "9ec2f20d17e3"
+    },
+    {
+      "clave": "parejas-elegir-palabra",
+      "duracion": 2.76,
+      "pico": 0.4839,
+      "sha256": "fdc3b78b0feb"
+    },
+    {
+      "clave": "parejas-final",
+      "duracion": 3.24,
+      "pico": 0.5049,
+      "sha256": "271e04518d92"
+    },
+    {
+      "clave": "parejas-primero-imagen",
+      "duracion": 3.5,
+      "pico": 0.55,
+      "sha256": "d9077a4da2aa"
+    },
+    {
+      "clave": "parejas-reintento",
+      "duracion": 4.34,
+      "pico": 0.4627,
+      "sha256": "39a374038a35"
+    },
+    {
+      "clave": "silaba-col",
+      "duracion": 0.8,
+      "pico": 0.5461,
+      "sha256": "331e5aa299f1"
+    },
+    {
+      "clave": "silaba-es",
+      "duracion": 0.96,
+      "pico": 0.6316,
+      "sha256": "fd228bdbd66a"
+    },
+    {
+      "clave": "silaba-fan",
+      "duracion": 0.7,
+      "pico": 0.6606,
+      "sha256": "6d754cfa1177"
+    },
+    {
+      "clave": "silaba-he",
+      "duracion": 0.74,
+      "pico": 0.6658,
+      "sha256": "bfc1faaa36ef"
+    },
+    {
+      "clave": "silaba-lla",
+      "duracion": 0.8,
+      "pico": 0.4927,
+      "sha256": "f31a4d7b80b6"
+    },
+    {
+      "clave": "silaba-llo",
+      "duracion": 0.76,
+      "pico": 0.5762,
+      "sha256": "7cee838f6b47"
+    },
+    {
+      "clave": "silaba-man",
+      "duracion": 0.74,
+      "pico": 0.5582,
+      "sha256": "199f45d2932f"
+    },
+    {
+      "clave": "silaba-tre",
+      "duracion": 1.14,
+      "pico": 0.5416,
+      "sha256": "c28b346934e5"
+    }
+  ]
+}

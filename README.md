@@ -55,13 +55,21 @@ El recorrido de lectura tiene seis niveles progresivos: **Reconozco las letras**
 
 El endpoint `GET /api/health` comprueba que la base local pueda responder.
 
+En **Completo el cuento**, los espacios tienen colores del tema del estudiante y el seleccionado se destaca; las letras completadas se integran al texto. Cada palabra se mantiene unida al cambiar de línea, también en pantallas pequeñas y modo oscuro. `node tests/cuento-visual.cjs` comprueba los tres cuentos y genera capturas en `dist/revision-cuento/`.
+
 ## Acompañamiento con el búho
 
 ### Voz de las actividades
 
-**Grabaciones humanas incorporadas:** «Reconozco las letras» y «Formo sílabas» usan las notas de WhatsApp del guion, independientemente del selector de voz sintética. Se importaron **82 notas**, con **27 preguntas**, **27 nombres de letras**, **90 sílabas individuales** y mensajes de bienvenida, repetición, ayuda, acierto y cierre: **154 clips WAV** en total. La bienvenida de letras no estaba en la entrega; esa actividad comienza directamente con la pregunta grabada. El botón docente **Escuchar grabación humana** permite probar una toma.
+**Grabaciones humanas incorporadas:** cinco actividades usan las notas de WhatsApp del guion, independientemente del selector de voz sintética. Las primeras **82 notas** contienen **27 preguntas**, **27 nombres de letras**, **90 sílabas individuales** y mensajes de bienvenida, repetición, ayuda, acierto y cierre para «Reconozco las letras» y «Formo sílabas». Se agregaron **23 notas** para guiar «Uno la palabra con su imagen», «Encuentro la letra» y «Aprendo las sílabas»: **113 originales y 185 clips WAV**, incluidas las ocho sílabas adicionales recibidas después en total. La bienvenida de letras no estaba en la entrega; esa actividad comienza directamente con la pregunta grabada. El botón docente **Escuchar grabación humana** permite probar una toma.
 
-Los originales se conservan junto a las versiones preparadas en `frontend/assets/audio/grabaciones/originales/`; la carpeta de origen no se modifica. Se ajustaron el volumen y los silencios de los bordes sin modificar tono ni velocidad. Cada familia se separó en cinco tomas, siguiendo A, E, I, O, U. El informe `informe-importacion.json` conserva los tiempos de los cortes. `frontend/grabaciones.js` relaciona cada etiqueta con su archivo y duración. No se solicitan voces generadas para los audios ya grabados de estas actividades; las demás secciones conservan el motor de voz seleccionado.
+Las tres actividades con nuevas instrucciones incluyen un botón **Escuchar instrucciones**. Las pistas grabadas respetan la espera de 10 segundos después de la instrucción y cambian según corresponda elegir, quitar o revisar sílabas. La pausa corta la reproducción y al reanudar repite la secuencia pendiente; los aciertos que avanzan automáticamente y los cierres esperan a que termine el audio. Las instrucciones nuevas son generales: no se generan nombres de palabras que no se hayan grabado.
+
+En «Encuentro la letra» la elección reproduce primero el nombre grabado de la letra y luego el acierto o apoyo. En «Aprendo las sílabas» se escucha la sílaba al elegirla o quitarla; la última termina antes de la instrucción de revisar. Se reutilizan los clips con filtro grave, incluidas las vocales solas desde los nombres de letras. Las sílabas `llo`, `man`, `he`, `es`, `tre`, `lla`, `col` y `fan` no tienen toma humana todavía y permanecen sin pronunciación; no se sustituyen por voz sintética ni por nombres de letras unidos. La actividad conserva sus palabras y opciones.
+
+Los originales se conservan junto a las versiones preparadas en `frontend/assets/audio/grabaciones/originales/`; la carpeta de origen no se modifica. La importación ajusta el volumen y los silencios de los bordes sin modificar tono ni velocidad. Cada familia se separó en cinco tomas, siguiendo A, E, I, O, U. El informe `informe-importacion.json` conserva los tiempos de los cortes. `frontend/grabaciones.js` relaciona cada etiqueta con su archivo y duración. No se solicitan voces generadas para los audios ya grabados de estas actividades; las demás secciones conservan el motor de voz seleccionado.
+
+La voz grabada activa usa el perfil **grave** aprobado: −2,5 semitonos, con resonancias desplazadas y sin cambiar el ritmo. Sus 185 archivos están en `frontend/assets/audio/grabaciones/grave/`; los WAV de partida permanecen intactos en la carpeta superior. El informe `grave/informe-conversion.json` registra duración, nivel y hash de cada resultado. Las URLs incluyen el hash para renovar la caché. Este procesamiento funciona sin internet y no garantiza anonimizar a quien habla.
 
 Las preguntas, opciones, reintentos y pausas usan el mismo reproductor; los mensajes de acierto terminan antes de avanzar y el cierre grabado se escucha antes del regreso automático. La pista de sílabas se programa después de las instrucciones para evitar que tape la bienvenida o la pregunta.
 
@@ -70,9 +78,12 @@ Para importar otra entrega con las mismas etiquetas:
 ```powershell
 ./.venv-piper/Scripts/python.exe -m pip install -r scripts/requirements-audios.txt
 ./.venv-piper/Scripts/python.exe scripts/importar-grabaciones.py 'RUTA_A_LAS_NOTAS'
+./.venv-piper/Scripts/python.exe scripts/aplicar-voz-grave.py
 ```
 
-Las notas de familia deben tener cinco sílabas en orden A, E, I, O, U, separadas por pausas. Si no se detectan cinco segmentos, la importación se detiene para revisar esa toma. `node tests/grabaciones.cjs`, con Playwright disponible, prueba los archivos reales sin síntesis de voz, las pausas, los reintentos y los cierres, sin usar SQLite ni datos de alumnos.
+Para agregar otra carpeta sin retirar las grabaciones anteriores, usa `scripts/importar-grabaciones.py 'RUTA_A_LAS_NOTAS_NUEVAS' --complementar` y vuelve a ejecutar `scripts/aplicar-voz-grave.py`. El filtro siempre parte de los WAV sin efecto, por lo que no acumula cambios de tono al repetirlo.
+
+Las notas de familia deben tener cinco sílabas en orden A, E, I, O, U, separadas por pausas. Si no se detectan cinco segmentos, la importación se detiene para revisar esa toma. `node tests/grabaciones.cjs` prueba los archivos reales y los dos primeros niveles; `node tests/grabaciones-guia.cjs` verifica que se usen las 23 instrucciones nuevas, las pistas según la respuesta, las pausas y los cierres completos. Ambos requieren Playwright, no usan síntesis de voz, SQLite ni datos de alumnos.
 
 **Voz local actual: Kokoro**, con las voces españolas **Dora** y **Alex**. La selección automática prefiere Dora cuando están instalados sus archivos. Se conserva Piper como alternativa mediante `LOCAL_TTS_ENGINE=piper`; `LOCAL_TTS_ENGINE=kokoro` permite seleccionarlo explícitamente. Una selección anterior de Piper en el navegador pasa a la opción automática al actualizar. El cambio modifica el motor y el timbre, no solamente la velocidad. Las muestras para comparar están en `frontend/assets/audio/kokoro/`. La naturalidad y la pronunciación de sílabas cortas deben revisarse con las profesoras.
 

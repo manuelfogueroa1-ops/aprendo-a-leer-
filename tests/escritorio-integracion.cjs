@@ -54,15 +54,16 @@ const db = {
 };
 const original = Module._load;
 Module._load = function(id, parent, main) {
+  const desdeMain = parent?.filename.replace(/\\/g, '/').endsWith('electron/main.js');
   if (id === 'electron') return electron;
-  if (id === '../backend/database' && parent?.filename.endsWith('electron/main.js')) return db;
-  if (id === '../backend/server' && parent?.filename.endsWith('electron/main.js')) {
+  if (id === '../backend/database' && desdeMain) return db;
+  if (id === '../backend/server' && desdeMain) {
     return { startServer: async (port, host) => {
       listeningPort = port; listeningHost = host;
       return { address: () => ({port: 51234}), close() {} };
     } };
   }
-  if (id === 'bcryptjs' && parent?.filename.endsWith('electron/main.js')) return { hash: async () => 'hashed-ok' };
+  if (id === 'bcryptjs' && desdeMain) return { hash: async () => 'hashed-ok' };
   return original.apply(this, arguments);
 };
 require('../electron/main');

@@ -104,7 +104,8 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert.equal(JSON.parse(saved.at(-1).detalleResultado).actividad, 'silabas_iniciales');
     // Todos los clips del manifiesto apuntan a archivos servidos y decodificables.
     const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../frontend/grabaciones.js'), 'utf8').replace('window.GrabacionesLectura = ', '').replace(/;\s*$/, ''));
-    assert.equal(Object.keys(manifest.clips).length, 154);
+    assert.equal(Object.keys(manifest.clips).length, 185);
+    assert.equal(manifest.perfilVoz.nombre, 'grave');
     for (const recording of Object.values(manifest.clips)) {
       const response = await context.request.get(recording.url);
       assert.equal(response.status(), 200, recording.url);
@@ -112,6 +113,6 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     }
     assert.deepEqual(artificial, [], 'Las dos actividades no solicitan síntesis de voz.');
     assert.deepEqual(errors, []);
-    console.log('OK: 154 audios, preguntas y letras, pausa, reintento, bienvenida, sílabas, pista, acierto completo y cierres antes de regresar. Sin síntesis.');
+    console.log('OK: 185 audios con perfil grave; preguntas y letras, pausa, reintento, bienvenida, sílabas, pista, acierto completo y cierres antes de regresar. Sin síntesis.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => server.close());

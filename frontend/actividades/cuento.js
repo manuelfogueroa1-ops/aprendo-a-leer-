@@ -85,8 +85,27 @@ function optionsFor(letter) {
 }
 
 function renderStory() {
-  $('#story').replaceChildren(...story.parts.map(part => {
-    if (part.type === 'text') return document.createTextNode(part.value);
+  const content = document.createDocumentFragment();
+  let word;
+  const wordContainer = () => {
+    if (!word) {
+      word = document.createElement('span');
+      word.className = 'story-word';
+      content.append(word);
+    }
+    return word;
+  };
+  story.parts.forEach(part => {
+    if (part.type === 'text') {
+      for (const piece of part.value.split(/(\s+)/u)) {
+        if (!piece) continue;
+        if (/^\s+$/u.test(piece)) {
+          content.append(document.createTextNode(piece));
+          word = null;
+        } else wordContainer().append(document.createTextNode(piece));
+      }
+      return;
+    }
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'story-blank';
@@ -97,8 +116,9 @@ function renderStory() {
       renderBlanks();
       renderChoices();
     });
-    return button;
-  }));
+    wordContainer().append(button);
+  });
+  $('#story').replaceChildren(content);
   renderBlanks();
 }
 
@@ -109,7 +129,8 @@ function renderBlanks() {
     el.disabled = Boolean(blank.filled);
     el.classList.toggle('filled', Boolean(blank.filled));
     el.classList.toggle('active', index === active && !blank.filled);
-    el.setAttribute('aria-label', blank.filled ? `Letra ${blank.letter}` : 'Letra que falta');
+    el.setAttribute('aria-label', blank.filled ? `Letra ${blank.letter}` : `Letra que falta en ${blank.word}`);
+    el.setAttribute('aria-pressed', String(index === active && !blank.filled));
   });
   const filled = blanks.filter(blank => blank.filled).length;
   $('#progress').textContent = `Letras completadas: ${filled} de ${blanks.length}`;

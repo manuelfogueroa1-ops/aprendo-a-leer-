@@ -24,6 +24,12 @@ let matchedPairs = 0;
 let errors = 0;
 let saving = false;
 let saved = false;
+const narracion = crearNarracionActividad();
+
+function escucharInstruccion() {
+  return narracion.reproducir([seleccionada ? 'parejas-elegir-palabra' : 'parejas-bienvenida']);
+}
+$('#listenInstructions').addEventListener('click', escucharInstruccion);
 
 function mezclar(items) {
   const result = [...items];
@@ -56,6 +62,7 @@ function render() {
       $('#feedback').textContent = seleccionada ? 'Ahora elige la palabra correspondiente.' : '';
       $('#feedback').className = 'feedback';
       render();
+      narracion.reproducir([seleccionada ? 'parejas-elegir-palabra' : 'parejas-primero-imagen']);
     });
     return button;
   }));
@@ -81,6 +88,7 @@ async function chooseWord(word, button) {
     if (!seleccionada) {
       $('#feedback').textContent = 'Primero toca una imagen.';
       $('#feedback').className = 'feedback incorrect';
+      narracion.reproducir(['parejas-primero-imagen']);
     }
     return;
   }
@@ -94,6 +102,7 @@ async function chooseWord(word, button) {
     $('#feedback').className = 'feedback incorrect';
     seleccionada = null;
     render();
+    narracion.reproducir(['parejas-reintento']);
     return;
   }
 
@@ -109,11 +118,13 @@ async function chooseWord(word, button) {
   render();
 
   if (matchedPairs === pairs.length) await finish();
+  else narracion.reproducir(['parejas-acierto']);
 }
 
 async function finish() {
   if (saving || saved) return;
   saving = true;
+  narracion.cancelar();
   $('#game').classList.add('hidden');
   $('#finished').classList.remove('hidden');
   try {
@@ -121,7 +132,10 @@ async function finish() {
       actividad: 'unir-palabra-imagen',
       respuestas: responses,
       intentosIncorrectos: errors
-    }, errors);
+    }, errors, {
+      antesDeVolver: window.VozInfantil?.tieneGrabacion('parejas-final')
+        ? () => narracion.reproducir(['parejas-acierto', 'parejas-final']) : undefined
+    });
     saved = true;
     if (progressKey) localStorage.removeItem(progressKey);
     $('#retrySave').classList.add('hidden');
@@ -143,10 +157,13 @@ $('#retrySave').addEventListener('click', finish);
     try { restored = JSON.parse(localStorage.getItem(progressKey) || 'null'); } catch {}
     resultadoId = await window.actividadLectura.iniciar('Uno la palabra con su imagen');
     if (restored && Array.isArray(restored.responses)) { responses.push(...restored.responses); matchedPairs=responses.length; correctFirstTry=restored.correctFirstTry || 0; errors=restored.errors || 0; (restored.attempts || []).forEach(([word, count])=>attempts.set(word,count)); }
-    $('#progress').textContent = `Parejas unidas: 0 de ${pairs.length}`;
+    $('#progress').textContent = `Parejas unidas: ${matchedPairs} de ${pairs.length}`;
+    $('#progressBar').style.width = `${matchedPairs / pairs.length * 100}%`;
     render();
     game.classList.remove('hidden');
     saveProgress();
+    if (matchedPairs === pairs.length) await finish();
+    else escucharInstruccion();
   } catch (error) {
     window.actividadLectura.mostrarError(error);
   }

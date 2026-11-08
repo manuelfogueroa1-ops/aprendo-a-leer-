@@ -1,0 +1,27 @@
+{
+  "fuentes": [
+    "letras-pregunta-a",
+    "letras-nombre-a",
+    "silaba-pa",
+    "silaba-pe",
+    "silaba-pi",
+    "silaba-po",
+    "silaba-pu",
+    "letras-acierto"
+  ],
+  "muestras": [
+    {
+      "archivo": "voz-mas-grave.wav",
+      "semitonos": -2.5,
+      "duracion": 16.06,
+      "pico": 0.6964
+    },
+    {
+      "archivo": "voz-mas-aguda.wav",
+      "semitonos": 2.5,
+      "duracion": 16.06,
+      "pico": 0.7553
+    }
+  ],
+  "advertencia": "Cambiar el timbre no garantiza anonimizar la voz."
+}

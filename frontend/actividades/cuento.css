@@ -1,0 +1,64 @@
+/* Los espacios forman parte del texto y usan los colores del estudiante. */
+.page-story .story-title { color: var(--titulo); margin: 24px 0 16px; }
+.page-story .story-text {
+  max-width: 48ch;
+  margin: 24px auto;
+  padding: clamp(16px, 3vw, 30px);
+  border: 2px solid var(--borde-panel);
+  border-radius: 22px;
+  background: var(--panel-1);
+  color: var(--texto);
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 600;
+  line-height: 2.35;
+  text-align: left;
+}
+.page-story .story-word { display: inline-block; white-space: nowrap; }
+.page-story .story-blank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: baseline;
+  min-width: 1.55em;
+  min-height: 1.65em;
+  margin: 0 .06em;
+  padding: 0 .12em;
+  border: 2px dashed var(--borde-hover);
+  border-radius: .3em;
+  background: var(--panel-3);
+  color: var(--acento-texto);
+  font: inherit;
+  font-weight: 900;
+  line-height: 1.4;
+  box-shadow: none;
+  cursor: pointer;
+  opacity: 1;
+}
+.page-story .story-blank.active {
+  border: 2px solid var(--boton-sombra);
+  background: var(--boton-sombra);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--borde-panel);
+}
+.page-story .story-blank:not(:disabled):hover { border-style: solid; }
+.page-story .story-blank:focus-visible {
+  outline: 3px solid #bf7900;
+  outline-offset: 4px;
+}
+.page-story .story-blank.filled {
+  display: inline;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid var(--slot-lleno-borde);
+  border-radius: 0;
+  background: transparent;
+  color: var(--slot-lleno-texto);
+  font-weight: inherit;
+  box-shadow: none;
+  cursor: default;
+  opacity: 1;
+  -webkit-text-fill-color: currentColor;
+}

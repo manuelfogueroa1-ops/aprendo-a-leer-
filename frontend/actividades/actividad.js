@@ -376,6 +376,44 @@ function borrarGuardadoLocal(clave) {
   }
 }
 
+// Una instrucción nueva reemplaza a la anterior. La pausa conserva la secuencia
+// pendiente y su promesa: al volver, se repite sin adelantar la actividad.
+function crearNarracionActividad() {
+  let actual = null;
+  let revision = 0;
+  const pausada = () => Boolean(window.__actividadPause?.estaPausada());
+  const ejecutar = async () => {
+    if (!actual || pausada()) return;
+    const operacion = actual;
+    const turno = ++revision;
+    const completa = await (window.VozInfantil?.secuencia(operacion.claves) ?? Promise.resolve(true));
+    if (actual !== operacion || turno !== revision || pausada()) return;
+    actual = null;
+    operacion.resolver(completa);
+  };
+  const cancelar = () => {
+    revision++;
+    const anterior = actual;
+    actual = null;
+    window.VozInfantil?.cancelar();
+    anterior?.resolver(false);
+  };
+  const reproducir = claves => {
+    cancelar();
+    return new Promise(resolver => {
+      actual = { claves, resolver };
+      ejecutar();
+    });
+  };
+  window.addEventListener('actividad-pausada', () => {
+    revision++;
+    window.VozInfantil?.cancelar();
+  });
+  window.addEventListener('actividad-reanudada', ejecutar);
+  window.addEventListener('pagehide', cancelar);
+  return { reproducir, cancelar };
+}
+
 // Una pista por turno; utiliza el mismo reloj que se detiene durante las pausas.
 function crearPistaActividad(obtenerPista, alMostrar) {
   let timer;

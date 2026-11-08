@@ -13,13 +13,19 @@ from imageio_ffmpeg import get_ffmpeg_exe
 
 parser = argparse.ArgumentParser()
 parser.add_argument('carpeta', type=Path)
+parser.add_argument('--complementar', action='store_true', help='Agrega audios sin retirar los clips ya importados.')
+parser.add_argument('--archivos', nargs='+', help='Procesa solo estos nombres de archivo dentro de la carpeta.')
 args = parser.parse_args()
 root = Path(__file__).resolve().parent.parent
 destination = root / 'frontend/assets/audio/grabaciones'
 originals = destination / 'originales'
 originals.mkdir(parents=True, exist_ok=True)
-clips = {}
-report = []
+manifest_path = root / 'frontend/grabaciones.js'
+previous = json.loads(manifest_path.read_text(encoding='utf-8').removeprefix('window.GrabacionesLectura = ').strip().removesuffix(';')) if args.complementar else {}
+clips = previous.get('clips', {}).copy()
+report_path = destination / 'informe-importacion.json'
+previous_report = json.loads(report_path.read_text(encoding='utf-8')) if args.complementar and report_path.exists() else {}
+report = previous_report.get('clips', []).copy()
 
 def speech_ranges(samples, sample_rate, factor=.005):
     frame = int(sample_rate * .02)
@@ -47,14 +53,20 @@ def save(key, samples, sample_rate, source, start=0, end=None):
     version = hashlib.sha256((destination / filename).read_bytes()).hexdigest()[:12]
     duration = round(len(samples) / sample_rate, 3)
     clips[key] = {'url': f'/assets/audio/grabaciones/{filename}?v={version}', 'duracion': duration}
+    report[:] = [item for item in report if item['clave'] != key]
     report.append({'clave': key, 'origen': source, 'inicio': round(start / sample_rate, 3),
                    'fin': round((end if end is not None else start + len(samples)) / sample_rate, 3),
                    'duracion': duration, 'ganancia': round(gain, 3)})
 
-files = sorted(args.carpeta.glob('*.ogg'))
-families = []
+if args.archivos and any(Path(name).name != name for name in args.archivos):
+    parser.error('--archivos acepta nombres sin ruta; usa carpeta para indicar su ubicación.')
+files = sorted(args.carpeta / name for name in args.archivos) if args.archivos else sorted(args.carpeta.glob('*.ogg'))
+missing_files = [str(file) for file in files if not file.is_file()]
+if missing_files:
+    parser.error('No se encontraron los archivos: ' + ', '.join(missing_files))
+families = previous_report.get('familias', []).copy()
 for file in files:
-    if not re.fullmatch(r'(letras|silabas)-[\w-]+', file.stem):
+    if not re.fullmatch(r'(letras|silabas|silaba|parejas|encuentra|ordeno)-[\w-]+', file.stem):
         continue
     shutil.copy2(file, originals / file.name)
     try:
@@ -77,7 +89,8 @@ for file in files:
                 break
         if len(ranges) != 5:
             raise ValueError(f'Revisar {file.name}: se detectaron {len(ranges)} segmentos, se necesitan 5. No se divide automáticamente.')
-        families.append(family)
+        if family not in families:
+            families.append(family)
         for vowel, (start, end) in zip('aeiou', ranges):
             save(f'silaba-{family}{vowel}', samples[start:end].copy(), sample_rate, file.name, start, end)
     else:
@@ -95,5 +108,5 @@ if missing:
     raise ValueError(f'Faltan grabaciones necesarias: {missing}')
 manifest = {'version': 1, 'clips': clips}
 (root / 'frontend/grabaciones.js').write_text('window.GrabacionesLectura = ' + json.dumps(manifest, ensure_ascii=False, indent=2) + ';\n', encoding='utf-8')
-(destination / 'informe-importacion.json').write_text(json.dumps({'archivosOriginales': len(files), 'familias': families, 'clips': report, 'bienvenidaLetrasDisponible': 'letras-bienvenida' in clips}, ensure_ascii=False, indent=2), encoding='utf-8')
-print(f'Importados {len(files)} originales, {len(clips)} clips; {len(families) * 5} sílabas. Preguntas y nombres completos.')
+report_path.write_text(json.dumps({'archivosOriginales': len(list(originals.glob('*.ogg'))), 'familias': families, 'clips': report, 'bienvenidaLetrasDisponible': 'letras-bienvenida' in clips}, ensure_ascii=False, indent=2), encoding='utf-8')
+print(f'Procesados {len(files)} archivos; catálogo de {len(clips)} clips y {len(families) * 5} sílabas. Preguntas y nombres completos.')
