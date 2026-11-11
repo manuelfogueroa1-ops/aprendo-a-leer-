@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#7161d8">
   <title>Aprendo a Leer | ¡Vamos a aprender!</title>
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/tema.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/kids.css"><link rel="stylesheet" href="/tablero.css">
+  <link rel="stylesheet" href="/tema.css"><link rel="stylesheet" href="/fuentes.css"><link rel="stylesheet" href="/kids.css"><link rel="stylesheet" href="/tablero.css">
   <script src="/tema.js"></script>
   <script src="/mascota.js" defer></script>
   <script src="/grabaciones.js"></script>
@@ -133,6 +133,21 @@
         <p class="note">Las grabaciones humanas con voz más grave acompañan «Reconozco las letras», «Formo sílabas», «Uno la palabra con su imagen», «Encuentro la letra» y «Aprendo las sílabas». La voz seleccionada se usa en los contenidos que todavía no tienen grabación.</p>
         <p id="readingVoiceStatus" class="note" role="status"></p>
       </section>
+      <section class="voice-settings sync-settings" aria-labelledby="syncTitle">
+        <h3 id="syncTitle">☁️ Servidor central</h3>
+        <div id="syncSummary" role="status" aria-live="polite"><p class="note">Consultando el estado de la sincronización…</p></div>
+        <form id="syncLinkForm" class="sync-form hidden" autocomplete="off">
+          <p class="note">Con internet, los avances de este computador se envían al servidor central para consultarlos desde cualquier lugar. Sin conexión todo sigue funcionando y se envía después, automáticamente. La vinculación se hace una sola vez y necesita internet.</p>
+          <label>Código de conexión<input name="codigo" required maxlength="300" placeholder="aprendo.miescuela.cl/ABCD-EFGH-JKLM" spellcheck="false" autocapitalize="none" autocomplete="off"><small>Cópialo completo desde el panel central (Administración → Generar código).</small></label>
+          <label>Nombre de este computador <small>(opcional)</small><input name="nombreEquipo" maxlength="80" placeholder="Ej.: Sala 2 · PC 3"></label>
+          <button type="submit" id="syncLinkSubmit">Vincular este computador</button>
+        </form>
+        <div id="syncActions" class="sync-actions hidden">
+          <button type="button" id="syncNow" class="secondary-button">⟳ Sincronizar ahora</button>
+          <button type="button" id="syncUnlink" class="secondary-button danger-button">Desvincular</button>
+        </div>
+        <p id="syncStatus" class="note" role="alert"></p>
+      </section>
       <div id="studentList">
         <div class="list-head">
           <input type="search" id="studentSearch" placeholder="Buscar estudiante" aria-label="Buscar estudiante" autocomplete="off">
@@ -167,6 +182,7 @@
     <button type="button" id="teacherLink" class="teacher-link" data-panel="profesor">🔒 Acceso docente</button>
   </footer>
 </main>
+<script src="/informe-docente.js"></script>
 <script src="/tablero.js"></script>
 <script src="/app.js"></script>
 <script src="/kids.js"></script>

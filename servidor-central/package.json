@@ -1,0 +1,23 @@
+{
+  "name": "aprendo-a-leer-servidor-central",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servidor central de Aprendo a Leer: recibe los avances de los computadores y ofrece el panel docente web.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "crear-admin": "node crear-admin.js",
+    "respaldo": "node respaldo.js",
+    "probar": "node probar-local.js"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0"
+  }
+}

@@ -3,7 +3,7 @@
 const MINIJUEGOS = ['saltarin', 'mitades', 'lluvia', 'memoria'];
 const ORIGENES = ['tablero', 'premio'];
 
-module.exports = function instalarTablero(app, db, modoPrueba = false) {
+module.exports = function instalarTablero(app, db, modoPrueba = false, avisarCambio = () => {}) {
   db.exec(`CREATE TABLE IF NOT EXISTS MinijuegosEstudiante (
     MinijuegoID INTEGER PRIMARY KEY,
     EstudianteID INTEGER NOT NULL REFERENCES Estudiantes(EstudianteID) ON DELETE CASCADE,
@@ -52,6 +52,7 @@ module.exports = function instalarTablero(app, db, modoPrueba = false) {
         db.prepare(`INSERT INTO MinijuegosEstudiante (EstudianteID, Minijuego, Origen, DuracionSegundos, Estrellas)
           VALUES (?, ?, ?, ?, ?)`).run(estudianteId, minijuego, origen, duracion, ganadas);
         db.exec('COMMIT');
+        avisarCambio();
         res.json({ ok: true, ganadas, estrellas: totalEstrellas(estudianteId) });
       } catch (error) {
         db.exec('ROLLBACK');

@@ -15,7 +15,10 @@
     "test:desktop": "node tests/escritorio-integracion.cjs",
     "test:teachers": "node tests/crear-profesores-simple.cjs",
     "test:registro": "node tests/registro-docente-login.cjs",
-    "test:reset": "node tests/reinicio-docente.cjs"
+    "test:reset": "node tests/reinicio-docente.cjs",
+    "test:sync": "node tests/sincronizacion.cjs",
+    "central": "node servidor-central/server.js",
+    "central:prueba": "node servidor-central/probar-local.js"
   },
   "engines": {
     "node": ">=22.5.0"

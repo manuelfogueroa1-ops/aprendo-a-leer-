@@ -116,3 +116,28 @@ CREATE TABLE IF NOT EXISTS AudiosPronunciacion (
   FechaRegistro TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 CREATE INDEX IF NOT EXISTS IX_Audios_Estudiante ON AudiosPronunciacion(EstudianteID, FechaRegistro DESC);
+
+-- Minijuegos del tablero (también se crea desde tablero.js; la definición es idéntica).
+CREATE TABLE IF NOT EXISTS MinijuegosEstudiante (
+  MinijuegoID INTEGER PRIMARY KEY,
+  EstudianteID INTEGER NOT NULL REFERENCES Estudiantes(EstudianteID) ON DELETE CASCADE,
+  Minijuego TEXT NOT NULL CHECK (Minijuego IN ('saltarin', 'mitades', 'lluvia', 'memoria')),
+  Origen TEXT NOT NULL CHECK (Origen IN ('tablero', 'premio')),
+  DuracionSegundos INTEGER NOT NULL DEFAULT 0 CHECK (DuracionSegundos >= 0),
+  Estrellas INTEGER NOT NULL CHECK (Estrellas BETWEEN 0 AND 3),
+  Fecha TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+CREATE INDEX IF NOT EXISTS IX_Minijuegos_Estudiante ON MinijuegosEstudiante(EstudianteID, Minijuego);
+
+-- Sincronización con el servidor central: configuración del equipo y estudiantes
+-- quitados en este computador que todavía deben informarse al servidor.
+CREATE TABLE IF NOT EXISTS SyncEstado (
+  Clave TEXT PRIMARY KEY,
+  Valor TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS SyncEliminaciones (
+  Tipo TEXT NOT NULL CHECK (Tipo IN ('estudiante')),
+  UUID TEXT NOT NULL,
+  Fecha TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  PRIMARY KEY (Tipo, UUID)
+);

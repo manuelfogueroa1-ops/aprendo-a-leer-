@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const piper = require('./piper');
 const db = require('./database');
+const sync = require('./sync')(db, { versionApp: require('../package.json').version });
 const { encryptStudentName, decryptStudent, encryptBinary, decryptBinary} = require('./student-name-crypto');
 const MODO_PRUEBA = process.env.DESBLOQUEAR_TODO === '1';
 if (MODO_PRUEBA) console.warn('⚠️  DESBLOQUEAR_TODO activo: todas las actividades están desbloqueadas.');
@@ -156,6 +157,7 @@ app.post('/api/profesor/estudiantes', requireTeacher, (req, res) => {
       return decryptStudent(db.prepare(`SELECT EstudianteID, Nombre, Apellido FROM Estudiantes
         WHERE EstudianteID = ?`).get(insert.lastInsertRowid));
     });
+    sync.avisarCambio();
     res.json({ estudiante });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo guardar al estudiante.');
@@ -167,12 +169,16 @@ app.delete('/api/profesor/estudiantes/:id', requireTeacher, (req, res) => {
   if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Estudiante no válido.' });
   try {
     const eliminados = withTransaction(() => {
+      // El servidor central también debe quitarlo (y los demás computadores, al sincronizar).
+      const uuid = db.prepare('SELECT UUID FROM Estudiantes WHERE EstudianteID = ?').get(id)?.UUID;
+      if (uuid) db.prepare("INSERT OR IGNORE INTO SyncEliminaciones (Tipo, UUID) VALUES ('estudiante', ?)").run(uuid);
       db.prepare('DELETE FROM AudiosPronunciacion WHERE EstudianteID = ?').run(id);
       db.prepare('DELETE FROM ResultadosActividades WHERE EstudianteID = ?').run(id);
       db.prepare('DELETE FROM ProgresoEstudiante WHERE EstudianteID = ?').run(id);
       return db.prepare('DELETE FROM Estudiantes WHERE EstudianteID = ?').run(id).changes;
     });
     if (!eliminados) return res.status(404).json({ error: 'No se encontró al estudiante.' });
+    sync.avisarCambio();
     res.json({ eliminado: true });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo quitar al estudiante.');
@@ -231,7 +237,9 @@ app.put('/api/estudiantes/me/preferencias', (req, res) => {
         TemaInteres = COALESCE(?, TemaInteres),
         ModoOscuro = COALESCE(?, ModoOscuro),
         BuhoColor = COALESCE(?, BuhoColor),
-        BuhoAccesorio = COALESCE(?, BuhoAccesorio)
+        BuhoAccesorio = COALESCE(?, BuhoAccesorio),
+        ActualizadoEn = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+        SyncVersion = SyncVersion + 1
       WHERE EstudianteID = ? AND Activo = 1`)
       .run(
         colorFavorito ?? null,
@@ -245,13 +253,14 @@ app.put('/api/estudiantes/me/preferencias', (req, res) => {
       WHERE EstudianteID = ?`).get(studentId);
     if (!estudiante) return res.status(404).json({ error: 'No se encontró al estudiante de esta sesión.' });
     Object.assign(estudiante, decryptStudent(estudiante));
+    sync.avisarCambio();
     res.json({ estudiante });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudieron guardar tus preferencias.');
   }
 });
 
-require('./tablero')(app, db, MODO_PRUEBA);
+require('./tablero')(app, db, MODO_PRUEBA, () => sync.avisarCambio());
 app.get('/api/actividades', (req, res) => {
   try {
     const actividades = db.prepare(`SELECT ActividadID, Nombre, Descripcion, NivelDificultad
@@ -331,6 +340,7 @@ app.post('/api/actividades/:id/iniciar', (req, res) => {
         error: `Primero completa "${intento.actividadPrevia}" para desbloquear esta actividad.`
       });
     }
+    sync.avisarCambio();
     res.json({ intento });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo iniciar la actividad.');
@@ -353,9 +363,9 @@ app.post('/api/resultados/:id/avance', (req, res) => {
   }
   try {
     const intento = db.prepare(`SELECT 1 FROM ResultadosActividades
-      WHERE ResultadoID = ? AND EstudianteID = ? AND Estado = 'En progreso'`).get(id, studentId);
+      WHERE ResultadoID = ? AND EstudianteID = ? AND Estado = 'En progreso' AND EquipoOrigen IS NULL`).get(id, studentId);
     if (!intento) return res.status(404).json({ error: 'No se encontró un intento en progreso de este estudiante.' });
-    db.prepare(`INSERT INTO AvanceActividad
+    const avance = db.prepare(`INSERT INTO AvanceActividad
       (ResultadoID, PreguntaActual, TotalPreguntas, Completadas, Consigna, RespuestaActual, Pausada, Revision, FechaActualizacion)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
       ON CONFLICT(ResultadoID) DO UPDATE SET
@@ -365,6 +375,10 @@ app.post('/api/resultados/:id/avance', (req, res) => {
         Revision = excluded.Revision, FechaActualizacion = excluded.FechaActualizacion
       WHERE excluded.Revision > AvanceActividad.Revision`)
       .run(id, preguntaActual, totalPreguntas, completadas, consigna, respuestaActual, Number(pausada), revision);
+    if (avance.changes) {
+      db.prepare('UPDATE ResultadosActividades SET SyncVersion = SyncVersion + 1 WHERE ResultadoID = ?').run(id);
+      sync.avisarCambio();
+    }
     res.json({ guardado: true });
   } catch (error) {
     respondDatabaseError(res, error, 'No se pudo guardar el avance.');
@@ -446,8 +460,9 @@ app.post('/api/resultados/:id/terminar', (req, res) => {
         SET FechaTermino = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
             DuracionSegundos = MAX(0, CAST(strftime('%s', 'now') AS INTEGER) - CAST(strftime('%s', FechaInicio) AS INTEGER)),
             Puntuacion = ?, Aciertos = ?, Errores = ?, Estado = 'Completada',
-            DetalleResultado = ?, FechaEnvio = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
-        WHERE ResultadoID = ? AND EstudianteID = ? AND Estado = 'En progreso'`)
+            DetalleResultado = ?, FechaEnvio = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+            SyncVersion = SyncVersion + 1
+        WHERE ResultadoID = ? AND EstudianteID = ? AND Estado = 'En progreso' AND EquipoOrigen IS NULL`)
         .run(puntuacion, aciertos, errores, detalle, resultadoId, studentId);
       if (update.changes === 0) {
         const existente = db.prepare(`SELECT EstudianteID, FechaTermino, DuracionSegundos,
@@ -487,6 +502,7 @@ app.post('/api/resultados/:id/terminar', (req, res) => {
     if (!resultado) {
       return res.status(404).json({ error: 'No se encontró un intento pendiente de este estudiante.' });
     }
+    if (!resultado.yaGuardado) sync.avisarCambio();
     res.json({
       guardado: true,
       yaGuardado: resultado.yaGuardado,
@@ -691,7 +707,8 @@ app.get('/api/profesor/estudiantes/:id/resultados', requireTeacher, (req, res) =
     if (!estudiante) return res.status(404).json({ error: 'No se encontró este estudiante.' });
     Object.assign(estudiante, decryptStudent(estudiante));
     const filas = db.prepare(`SELECT R.ResultadoID, A.Nombre AS Actividad, R.FechaInicio, R.FechaTermino,
-        R.DuracionSegundos, R.Puntuacion, R.Aciertos, R.Errores, R.Estado, R.DetalleResultado
+        R.DuracionSegundos, R.Puntuacion, R.Aciertos, R.Errores, R.Estado, R.DetalleResultado,
+        R.EquipoOrigen AS Equipo
       FROM ResultadosActividades R JOIN Actividades A ON A.ActividadID = R.ActividadID
       WHERE R.EstudianteID = ? ORDER BY R.FechaInicio DESC LIMIT 200`).all(studentId);
     const resultados = filas.map(({ DetalleResultado, ...fila }) => {
@@ -733,12 +750,55 @@ app.get('/api/profesor/resultados', requireTeacher, (req, res) => {
   }
 });
 
+// ---------- Sincronización con el servidor central (panel docente local) ----------
+app.get('/api/profesor/sincronizacion', requireTeacher, (_req, res) => {
+  try {
+    res.set('Cache-Control', 'no-store').json(sync.estado());
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo consultar la sincronización.');
+  }
+});
+
+app.post('/api/profesor/sincronizacion/vincular', requireTeacher, async (req, res) => {
+  const { servidor, codigo, nombreEquipo } = req.body || {};
+  if ([servidor, codigo, nombreEquipo].some(valor => valor !== undefined && (typeof valor !== 'string' || valor.length > 300))) {
+    return res.status(400).json({ error: 'Datos de vinculación no válidos.' });
+  }
+  try {
+    res.json(await sync.vincular({ servidor, codigo, nombreEquipo }));
+  } catch (error) {
+    res.status(error.status === 401 || error.status === 403 ? 403 : 400).json({ error: error.message });
+  }
+});
+
+app.post('/api/profesor/sincronizacion/ahora', requireTeacher, async (_req, res) => {
+  try {
+    await sync.sincronizarAhora();
+    res.json(sync.estado());
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/profesor/sincronizacion/desvincular', requireTeacher, (_req, res) => {
+  try {
+    sync.desvincular();
+    res.json(sync.estado());
+  } catch (error) {
+    respondDatabaseError(res, error, 'No se pudo desvincular este computador.');
+  }
+});
+
 // Electron puede iniciar este mismo servidor en el equipo local sin cambiar las rutas API.
 // Cuando se ejecuta con `npm start`, se conserva el comportamiento web original.
 function startServer(port = PORT, host = '127.0.0.1') {
   return new Promise((resolve, reject) => {
-    const server = app.listen(port, host, () => resolve(server));
+    const server = app.listen(port, host, () => {
+      sync.iniciar();
+      resolve(server);
+    });
     server.once('error', reject);
+    server.once('close', () => sync.detener());
   });
 }
 
@@ -748,4 +808,4 @@ if (require.main === module) {
     .catch(error => { console.error('No se pudo iniciar el servidor:', error); process.exitCode = 1; });
 }
 
-module.exports = { app, startServer };
+module.exports = { app, startServer, sync };
