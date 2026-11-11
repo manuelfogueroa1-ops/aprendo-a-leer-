@@ -1,0 +1,3 @@
+Fredoka — Copyright 2016 The Fredoka Project Authors (https://github.com/hafontia/Fredoka-One)
+Distribuida bajo la SIL Open Font License, versión 1.1: https://openfontlicense.org
+Archivos obtenidos de Google Fonts (subconjuntos latin y latin-ext) para que la aplicación funcione sin conexión.

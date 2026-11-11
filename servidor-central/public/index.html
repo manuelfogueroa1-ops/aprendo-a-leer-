@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Aprendo a Leer · Panel central</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/compartido/styles.css">
+  <link rel="stylesheet" href="/fuentes.css">
+  <link rel="stylesheet" href="/panel.css">
+</head>
+<body>
+<header class="barra">
+  <div class="barra-marca"><span aria-hidden="true">🦉</span> Aprendo a Leer <small id="nombreServidor">Panel central</small></div>
+  <div id="barraUsuario" class="barra-usuario hidden">
+    <span id="usuarioNombre"></span>
+    <button type="button" id="salir" class="secondary-button">Cerrar sesión</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="vistaLogin" class="panel login-central">
+    <h1>Panel docente central</h1>
+    <p class="note">Ingresa con la cuenta que te entregó el administrador para ver los avances de todos los estudiantes.</p>
+    <form id="formLogin" novalidate>
+      <label>Usuario<input name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+      <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="boton" id="botonLogin">Iniciar sesión</button>
+      <p id="estadoLogin" class="status" role="alert"></p>
+    </form>
+  </section>
+
+  <section id="vistaPanel" class="panel hidden">
+    <nav class="pestanas" aria-label="Secciones">
+      <button type="button" class="pestana activa" data-vista="estudiantes">📚 Estudiantes</button>
+      <button type="button" class="pestana" data-vista="equipos">💻 Computadores</button>
+      <button type="button" class="pestana" data-vista="cuenta">👤 Mi cuenta</button>
+      <button type="button" class="pestana hidden" data-vista="admin" id="pestanaAdmin">🛠️ Administración</button>
+    </nav>
+
+    <div id="vista-estudiantes" class="vista">
+      <div id="listaEstudiantes">
+        <div class="list-head">
+          <input type="search" id="buscar" placeholder="Buscar estudiante" aria-label="Buscar estudiante" autocomplete="off">
+          <button type="button" id="actualizar" class="secondary-button">↻ Actualizar</button>
+        </div>
+        <p class="aviso-sincronizacion">ℹ️ Este reporte muestra lo que cada computador ya envió. Si un computador está sin internet, sus avances nuevos siguen guardados en ese equipo y aparecerán aquí cuando se reconecte.</p>
+        <p id="estadoLista" class="status" role="status"></p>
+        <div id="tarjetas" class="student-cards"></div>
+      </div>
+      <div id="detalleEstudiante" class="hidden">
+        <div class="record-actions">
+          <button type="button" id="volver" class="back-student">← Volver a los estudiantes</button>
+          <button type="button" id="actualizarDetalle" class="secondary-button">↻ Actualizar</button>
+        </div>
+        <div id="contenidoDetalle"></div>
+      </div>
+    </div>
+
+    <div id="vista-equipos" class="vista hidden">
+      <h2>Computadores vinculados</h2>
+      <p class="note">«Último envío» es cuándo se recibieron datos nuevos de ese computador. Un computador sin contacto reciente puede estar apagado o sin internet: lo que se haya hecho ahí aún no aparece en los reportes.</p>
+      <div class="tabla-caja"><table id="tablaEquipos"></table></div>
+      <p id="estadoEquipos" class="status" role="status"></p>
+    </div>
+
+    <div id="vista-cuenta" class="vista hidden">
+      <h2>Cambiar mi contraseña</h2>
+      <form id="formClave" class="formulario">
+        <label>Contraseña actual<input name="actual" type="password" autocomplete="current-password" required></label>
+        <label>Contraseña nueva<input name="nueva" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+        <button type="submit" class="boton">Guardar contraseña</button>
+        <p id="estadoClave" class="status" role="status"></p>
+      </form>
+    </div>
+
+    <div id="vista-admin" class="vista hidden">
+      <section class="bloque-admin">
+        <h2>Vincular un computador</h2>
+        <p class="note">Genera un código de conexión y pégalo en cada computador, en <b>Acceso docente → Servidor central</b>. Es un solo campo: ya incluye la dirección del servidor. Un mismo código sirve para varios computadores mientras esté vigente.</p>
+        <form id="formCodigo" class="formulario fila">
+          <label>Descripción<input name="descripcion" maxlength="120" placeholder="Ej.: Sala de computación"></label>
+          <label>Vigencia (días)<input name="dias" type="number" min="1" max="30" value="7" required></label>
+          <button type="submit" class="boton">Generar código</button>
+        </form>
+        <div id="codigoNuevo" class="codigo-nuevo hidden" role="status"></div>
+        <div class="tabla-caja"><table id="tablaCodigos"></table></div>
+      </section>
+
+      <section class="bloque-admin">
+        <h2>Cuentas del panel</h2>
+        <form id="formUsuario" class="formulario fila">
+          <label>Nombre<input name="nombre" maxlength="80" required></label>
+          <label>Apellido<input name="apellido" maxlength="80" required></label>
+          <label>Usuario<input name="usuario" pattern="[A-Za-z0-9_.\-]{3,50}" maxlength="50" autocapitalize="none" required></label>
+          <label>Contraseña inicial<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+          <label>Permiso
+            <select name="rol"><option value="profesor">Profesor/a (ver reportes)</option><option value="admin">Administrador/a</option></select>
+          </label>
+          <button type="submit" class="boton">Crear cuenta</button>
+        </form>
+        <p id="estadoUsuario" class="status" role="status"></p>
+        <div class="tabla-caja"><table id="tablaUsuarios"></table></div>
+      </section>
+
+      <section class="bloque-admin">
+        <h2>Copias de respaldo</h2>
+        <p class="note">El servidor crea una copia diaria de la base de datos. Copia también esa carpeta a otro lugar y guarda aparte la clave <code>CENTRAL_DATA_KEY</code>: sin ella no se pueden leer los nombres.</p>
+        <div id="listaRespaldos"></div>
+      </section>
+      <p id="estadoAdmin" class="status" role="alert"></p>
+    </div>
+  </section>
+</main>
+<script src="/compartido/informe-docente.js"></script>
+<script src="/panel.js"></script>
+</body>
+</html>

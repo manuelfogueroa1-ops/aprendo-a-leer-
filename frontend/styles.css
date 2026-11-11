@@ -710,3 +710,13 @@ footer {display: flex; flex-wrap: wrap; align-items: center; justify-content: sp
 .teacher-register-actions button {flex:1 1 190px; min-height:47px; white-space:normal;}
 .teacher-register-status {min-height:1.3em;}
 @media (max-width:650px) {.teacher-register-form{padding:16px;}}
+
+/* Servidor central: vinculación y estado de la sincronización (panel docente local). */
+.sync-settings .sync-form {display:grid; gap:4px; max-width:560px;}
+.sync-settings .sync-form input {width:100%; padding:11px 12px; border:2px solid #b6a4d8; border-radius:12px; font:inherit;}
+.sync-settings .sync-form small {display:block; font-weight:500; color:#65568b; margin-top:4px;}
+.sync-settings .sync-form button {justify-self:start; margin-top:14px;}
+.sync-actions {display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;}
+.sync-state {display:grid; gap:4px; margin:0; padding:0; list-style:none; line-height:1.5;}
+.sync-state .sync-ok {color:#1d6b40; font-weight:800;}
+.sync-state .sync-warn {color:#8a4b00; font-weight:800;}

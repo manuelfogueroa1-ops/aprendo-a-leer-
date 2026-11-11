@@ -1,0 +1,34 @@
+# Servidor central + Caddy (HTTPS automático con Let's Encrypt).
+# Uso, desde la carpeta servidor-central/ y con el archivo .env completo:
+#   docker compose up -d --build
+services:
+  aprendo:
+    build:
+      context: ..
+      dockerfile: servidor-central/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - datos_central:/datos
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMINIO=${DOMINIO:?Configura DOMINIO en .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - aprendo
+
+volumes:
+  datos_central:
+  caddy_data:
+  caddy_config:

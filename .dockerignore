@@ -1,0 +1,12 @@
+**/node_modules
+**/.env
+**/*.sqlite
+**/*.sqlite-*
+servidor-central/datos
+dist
+release
+.venv-piper
+backend/voices
+backend/data
+tests
+.git

@@ -1,0 +1,6 @@
+# Caddy obtiene y renueva solo el certificado HTTPS del dominio y redirige HTTP a HTTPS.
+{$DOMINIO} {
+	encode gzip
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy aprendo:8080
+}

@@ -14,3 +14,9 @@ __pycache__/
 dist/
 release/
 *.blockmap
+
+# Servidor central: datos y respaldos locales de prueba
+servidor-central/datos/
+servidor-central/node_modules/
+
+servidor-central/datos-prueba/

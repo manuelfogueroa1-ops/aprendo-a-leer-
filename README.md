@@ -133,3 +133,19 @@ Prueba automática de navegador (usa datos ficticios, sin tocar SQLite): instala
 ## Uso en red local
 
 El servidor escucha en todas las interfaces de red en el puerto `3000`. Desde otro computador de la misma red, abre `http://IP-LOCAL-DEL-SERVIDOR:3000`. Los navegadores solo permiten usar el micrófono en una conexión segura: usa `http://localhost:3000` en el mismo equipo o configura HTTPS para acceder desde otro dispositivo. El audio de la actividad de pronunciación se reproduce localmente y no se sube ni se guarda. Permite el puerto en el firewall solo en una red privada de confianza; SQLite guarda los datos únicamente en el computador que ejecuta Node.js.
+
+## Servidor central y trabajo sin conexión
+
+Cada computador sigue guardando todo en su SQLite local. Además, puede vincularse a un **servidor central** en internet para que la profesora o el administrador consulten los reportes de todos los alumnos desde cualquier computador, en un panel web con su propia cuenta.
+
+- **Con internet**, los estudiantes, intentos, avances y minijuegos se envían en segundo plano (`backend/sync.js`).
+- **Sin internet**, las actividades, imágenes, audios grabados y la fuente Fredoka (incluida en `frontend/assets/fuentes/`) están dentro de la aplicación instalada, así que todo sigue funcionando. Los avances quedan pendientes en el computador.
+- **Al volver la conexión**, los pendientes se envían solos, con reintentos automáticos (5 a 60 segundos). El alumno no hace nada.
+- Cada estudiante, intento y minijuego tiene un **identificador único (UUID)**. Si un envío se repite por un corte, el servidor actualiza el mismo intento: no hay duplicados.
+- El computador también recibe lo hecho en otros equipos: un alumno que cambia de computador conserva sus niveles desbloqueados y sus estrellas.
+
+Para vincular un computador: **Acceso docente → Servidor central**, pegando el **código de conexión** (un solo texto, como `aprendo.miescuela.cl/ABCD-EFGH-JKLM`) que genera el administrador en el panel central. Esa sección muestra el último envío correcto y cuántos registros siguen pendientes. Las grabaciones de pronunciación no se envían.
+
+La base local pasa a la versión 2 del esquema al iniciar: se agregan los identificadores a los registros existentes, sin borrar nada, y quedan pendientes de envío para la primera vinculación. Una versión anterior de la aplicación no abre una base ya actualizada.
+
+Para probarlo en tu computador basta con `PROBAR_SERVIDOR_CENTRAL.bat` (o `npm run central:prueba`): crea un servidor de prueba y muestra el código listo para pegar. La guía [`servidor-central/GUIA_PASO_A_PASO.md`](servidor-central/GUIA_PASO_A_PASO.md) explica cómo levantar el servidor real. La instalación del servidor (Docker, HTTPS, cuentas, respaldos y restauración) y las decisiones sobre registros existentes, trabajo simultáneo en dos equipos y eliminación están en [`servidor-central/README.md`](servidor-central/README.md). La prueba `node tests/sincronizacion.cjs` levanta un servidor central y dos computadores con bases temporales y simula cortes de conexión, respuestas perdidas, cambio de computador, trabajo simultáneo, reinicio, restauración de un respaldo y permisos. No necesita navegador ni internet.
