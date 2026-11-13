@@ -31,11 +31,7 @@ if errorlevel 1 goto :error
 
 echo.
 echo OK. Instalador generado en la carpeta dist.
-if exist "dist\AprendoALeer-Setup-1.2.4.exe" (
-    explorer "%CD%\dist"
-) else (
-    echo Revisa la carpeta dist para buscar el instalador.
-)
+explorer "%CD%\dist"
 echo.
 pause
 exit /b 0

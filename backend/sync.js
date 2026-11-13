@@ -10,7 +10,14 @@
 //   SyncEnviada toma la versión enviada; si mientras tanto hubo otro cambio, sigue pendiente.
 'use strict';
 const os = require('node:os');
+const tls = require('node:tls');
 const { encryptStudentName, decryptStudentName } = require('./student-name-crypto');
+
+// Para los servidores del colegio, usa también las autoridades que el encargado
+// de informática haya instalado como confiables en Windows.
+if (process.platform === 'win32' && tls.setDefaultCACertificates) {
+  tls.setDefaultCACertificates([...tls.getCACertificates(), ...tls.getCACertificates('system')]);
+}
 
 const INTERVALO_NORMAL_MS = Number(process.env.SYNC_INTERVALO_MS) || 60 * 1000;
 const REINTENTO_INICIAL_MS = Number(process.env.SYNC_REINTENTO_MS) || 5 * 1000;

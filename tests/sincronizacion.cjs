@@ -209,7 +209,19 @@ function cliente(base) {
   r = await A.profe('GET', `/api/profesor/estudiantes/${anaA}/resultados`);
   assert.equal(r.data.resultados.filter(x => x.Estado === 'Completada').length, 2, 'PC-A guarda el avance localmente');
   assert.equal((await enCentral('Ana Soto')).Completadas, 1, 'sin conexión, el reporte central todavía no lo muestra');
+  const actividadLocal = await fetch(`${A.base}/actividades/silabas-iniciales.html`);
+  assert.match(await actividadLocal.text(), /Formo sílabas/, 'la actividad se abre desde el propio computador');
+  const audioLocal = await fetch(`${A.base}/assets/audio/grabaciones/grave/silaba-pa.wav`);
+  assert.equal(audioLocal.status, 200);
+  assert.equal(Buffer.from(await audioLocal.arrayBuffer()).toString('ascii', 0, 4), 'RIFF');
   console.log('✓ Sin internet, las actividades siguen funcionando y los avances quedan pendientes en el computador.');
+
+  await detener(A.proceso);
+  A.proceso = iniciarProceso('PC-A reiniciado sin conexión', 'backend/server.js', A.env);
+  await esperar('PC-A reinicia sin internet', async () => (await fetch(`${A.base}/api/health`)).ok);
+  assert.equal((await A.profe('POST', '/api/profesor/login', { usuario: 'profe', password: 'ClaveDocente1234' })).status, 200);
+  assert.ok((await estadoSync(A)).pendientes.intentos >= 1, 'la cola de resultados se conserva al reiniciar');
+  console.log('✓ Los resultados pendientes sobreviven al cierre y al reinicio de la aplicación.');
 
   // Vuelve la conexión: se envía solo, sin que nadie haga nada.
   red.caida = false;

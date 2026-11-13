@@ -8,6 +8,7 @@ cd "$(dirname "$0")"
 necesita() { command -v "$1" >/dev/null 2>&1 || { echo "Falta «$1». $2"; exit 1; }; }
 necesita openssl "Instálalo con: sudo apt install openssl"
 if [ "${SALTAR_DOCKER:-0}" != "1" ]; then
+  necesita curl "Instálalo con: sudo apt install curl"
   necesita docker "Instala Docker: https://docs.docker.com/engine/install/"
   docker compose version >/dev/null 2>&1 || { echo "Falta el plugin «docker compose». Instálalo junto con Docker."; exit 1; }
 fi
@@ -62,16 +63,32 @@ fi
 docker compose up -d --build
 
 echo "Esperando a que el servidor responda…"
+listo=0
 for _ in $(seq 1 60); do
   if docker compose exec -T aprendo wget -qO- http://127.0.0.1:8080/api/health >/dev/null 2>&1; then
     # La cuenta de administrador ya se creó: la contraseña inicial no debe quedar en el archivo.
     sed -i '/^ADMIN_CLAVE=/d' .env
-    echo
-    echo "Listo. Abre https://$(grep '^DOMINIO=' .env | cut -d= -f2) e inicia sesión."
-    echo "(La contraseña inicial ya se quitó del archivo .env. Cámbiala en «Mi cuenta».)"
-    exit 0
+    listo=1
+    break
   fi
   sleep 2
 done
-echo "El servidor no respondió a tiempo. Revisa los mensajes con: docker compose logs"
+if [ "$listo" != "1" ]; then
+  echo "El servidor no respondió a tiempo. Revisa: docker compose logs aprendo" >&2
+  exit 1
+fi
+
+dominio="$(sed -n 's/^DOMINIO=//p' .env)"
+url="https://$dominio"
+echo "Comprobando que el panel responda por HTTPS con un certificado válido…"
+for _ in $(seq 1 18); do
+  if curl --proto '=https' --fail --silent --max-time 5 "$url/api/health" | grep -Eq '"ok"[[:space:]]*:[[:space:]]*true'; then
+    echo "Panel disponible en $url. Entra y cambia la contraseña inicial en «Mi cuenta»."
+    exit 0
+  fi
+  sleep 3
+done
+echo "El servicio local responde, pero todavía no se pudo validar $url." >&2
+echo "Revisa el DNS, los puertos 80 y 443, y ejecuta: docker compose logs --tail 100 caddy" >&2
+echo "Una vez corregido, vuelve a ejecutar bash instalar.sh con el mismo .env y volumen de datos." >&2
 exit 1

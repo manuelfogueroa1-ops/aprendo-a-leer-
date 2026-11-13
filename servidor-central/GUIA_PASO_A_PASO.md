@@ -1,6 +1,6 @@
 # Guía paso a paso: levantar el servidor central
 
-Tienes dos caminos. Empieza por la **Parte 1** (prueba en tu propio computador, 5 minutos) para ver todo funcionando; después haz la **Parte 2** para dejarlo en internet de verdad.
+La **Parte 1** permite probarlo en tu propio computador. Sigue la **Parte 2** para instalarlo dentro del colegio o la **Parte 3** si necesitas acceso por internet.
 
 ---
 
@@ -27,7 +27,52 @@ Para empezar de cero, cierra la ventana y borra la carpeta `servidor-central/dat
 
 ---
 
-## Parte 2 · Servidor real en internet
+## Parte 2 · Panel dentro de la red del colegio
+
+Usa un computador Windows del colegio como servidor central. Los demás computadores se conectan por la red interna, aunque se caiga internet. Pide a informática que reserve una IP interna fija para ese computador y que compruebe que la red Wi-Fi y la red por cable se pueden comunicar con él.
+
+1. **En el computador central**, instala Node.js 24 y Git para Windows. Abre una terminal en la carpeta del proyecto y ejecuta `npm ci` una vez para descargar las dependencias. Luego abre `INICIAR_SERVIDOR_COLEGIO.bat`. Si hay varias interfaces de red, elige la IP que usa el colegio. El servidor guarda sus datos y respaldos en `%LOCALAPPDATA%\AprendoALeerCentral`.
+2. **Solo la primera vez**, el programa muestra la dirección del panel, el usuario `admin` y una contraseña inicial. Anótalos. Mantén la ventana abierta mientras se use el servicio. En reinicios, vuelve a abrir el mismo `.bat` con el mismo usuario de Windows.
+3. **El encargado de informática** habilita TCP 8443 en el firewall del computador central, solo para las redes del colegio. Para una sola subred y un perfil de red privado o de dominio, puede usar este ejemplo en PowerShell como administrador y sustituir la IP por la del servidor.
+
+   ```powershell
+   New-NetFirewallRule -DisplayName 'Aprendo a Leer - panel del colegio' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 8443 -LocalAddress 192.168.1.50 -RemoteAddress LocalSubnet -Profile Domain,Private
+   ```
+
+4. **En cada computador que abra el panel o sincronice avances**, informática instala `certificado-colegio.cer` en el almacén de **Entidades de certificación raíz de confianza** de Windows. Comparte únicamente ese archivo público. Compara primero su huella SHA-256 con la mostrada en el computador central (`Get-FileHash .\certificado-colegio.cer -Algorithm SHA256`). Luego, desde PowerShell como administrador, ejecuta lo siguiente y vuelve a abrir el navegador y Aprendo a Leer.
+
+   ```powershell
+   Import-Certificate -FilePath .\certificado-colegio.cer -CertStoreLocation Cert:\LocalMachine\Root
+   ```
+
+5. Desde otro computador del colegio, abre la dirección mostrada, por ejemplo `https://192.168.1.50:8443`. Inicia sesión y cambia la contraseña en **Mi cuenta**. En **Administración** genera un código. En cada equipo de alumnos, instala Aprendo a Leer **1.2.8 o posterior** y pega el código en **Acceso docente → Servidor central**.
+6. Haz una prueba con un alumno ficticio. Si un computador pierde acceso a la red interna, los avances permanecen pendientes en ese equipo. Al volver a conectarse a la red del colegio, se envían automáticamente.
+
+Mantén el puerto 8443 dentro de la red escolar. Si usas varias subredes, informática debe permitir las subredes concretas en el firewall. Guarda los respaldos fuera del equipo central y protege `claves.json` y las claves privadas del servidor. Reserva la IP en el router para que los computadores mantengan la misma dirección de sincronización.
+
+## Parte 3 · Servidor real en internet
+
+### Usar Oracle Cloud Always Free
+
+1. Crea una cuenta desde [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/). Elige la región principal en el registro, porque allí se crean las instancias gratuitas. Oracle puede pedir una tarjeta para verificar la cuenta. Para este proyecto basta con recursos **Always Free** dentro del cupo disponible. [Condiciones y capacidad de Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+2. En **Compute → Instances → Create instance**, elige **Ubuntu 24.04** y una máquina **VM.Standard.A1.Flex** con **1 OCPU y 6 GB de RAM**, si hay capacidad gratuita en tu región. Como alternativa, **VM.Standard.E2.1.Micro** tiene 1 GB de RAM. Usa el volumen de arranque predeterminado si cabe en el cupo gratuito. Selecciona una subred pública con acceso a internet, asigna una IPv4 pública y añade una clave pública SSH. Guarda la clave privada en tu computador. [Crear una instancia Linux](https://docs.oracle.com/en-us/iaas/Content/Compute/tutorials/first-linux-instance/overview.htm)
+3. En las reglas de entrada de la subred o del grupo de seguridad de la instancia, habilita **TCP 80 y 443** desde internet para la web y su certificado, y **TCP 22** desde tu IP de administración para SSH. Comprueba también el firewall de Ubuntu si la web no responde. Docker Compose deja el puerto 8080 del servicio dentro de su red. [Reglas de red de Oracle](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/creating-securitylist.htm)
+4. Pide un subdominio del colegio, por ejemplo `aprendo.miescuela.cl`, y apunta un registro **A** a la IPv4 pública de la máquina. Usa un nombre DNS que puedas administrar. Comprueba la resolución desde Windows con `Resolve-DnsName aprendo.miescuela.cl -Type A`.
+5. Conéctate desde PowerShell con `ssh -i RUTA_DE_TU_CLAVE ubuntu@IP_PUBLICA`. Instala en la máquina `git`, `curl` y `openssl` con `sudo apt update` y `sudo apt install -y git curl openssl`. Instala Docker Engine con el complemento `docker-compose-plugin` mediante el repositorio oficial para Ubuntu. Verifica con `sudo docker compose version`. [Instalar Docker en Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+6. Descarga el repositorio actualizado en la VM y ejecuta lo siguiente desde la carpeta `servidor-central`. Sustituye el dominio de ejemplo por el tuyo.
+
+   ```bash
+   git clone https://github.com/manuelfogueroa1-ops/aprendo-a-leer-.git
+   cd aprendo-a-leer-/servidor-central
+   sudo env DOMINIO=aprendo.miescuela.cl bash instalar.sh
+   ```
+
+   Guarda la clave de cifrado y la contraseña inicial que muestra el instalador. El script comprueba el servicio y después el certificado HTTPS. Si el DNS o el certificado aún no están listos, corrige la causa y vuelve a ejecutar `sudo bash instalar.sh` con la misma configuración. Para revisar los mensajes usa `sudo docker compose logs --tail 100 caddy aprendo`.
+7. Desde otro computador, abre el panel por HTTPS, cambia la contraseña inicial y prueba una vinculación con un alumno ficticio. Sigue los pasos 7 a 11 para crear cuentas, generar un código y comprobar el avance. Usa `sudo` para los comandos de Docker del apartado de mantenimiento si instalaste Docker para administrarlo así.
+
+Oracle puede recuperar máquinas Always Free con uso bajo. Conserva copias de la base fuera de la VM y guarda la clave de cifrado aparte. [Política de instancias inactivas](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+
+### Usar otro proveedor Linux
 
 ### Lo que necesitas antes de empezar
 

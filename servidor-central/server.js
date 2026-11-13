@@ -1,6 +1,8 @@
 // Inicio del servidor central. Configuración por variables de entorno (ver .env.example).
 'use strict';
 const path = require('node:path');
+const fs = require('node:fs');
+const https = require('node:https');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { abrirBaseCentral } = require('./src/database');
 const { crearCifrado } = require('./src/cifrado');
@@ -13,6 +15,9 @@ const archivoBase = path.resolve(carpetaDatos, env.DB_FILE || 'central.sqlite');
 const carpetaRespaldos = path.resolve(carpetaDatos, env.BACKUP_DIR || 'respaldos');
 
 async function iniciar() {
+  const tls = env.TLS_CERT || env.TLS_KEY;
+  if (tls && !(env.TLS_CERT && env.TLS_KEY)) throw new Error('Configura TLS_CERT y TLS_KEY juntos.');
+  const certificado = tls ? { cert: fs.readFileSync(env.TLS_CERT), key: fs.readFileSync(env.TLS_KEY) } : null;
   const db = abrirBaseCentral(archivoBase);
   const cifrado = crearCifrado(env.CENTRAL_DATA_KEY);
 
@@ -28,7 +33,7 @@ async function iniciar() {
     db,
     cifrado,
     secretoSesion: env.SESSION_SECRET,
-    cookieSegura: env.COOKIE_SECURE !== '0',
+    cookieSegura: Boolean(certificado) || env.COOKIE_SECURE !== '0',
     confiarProxy: env.TRUST_PROXY ? (/^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY) : false,
     nombreServidor: env.NOMBRE_SERVIDOR || 'Aprendo a Leer · Servidor central',
     carpetaFrontend: path.resolve(__dirname, env.FRONTEND_DIR || path.join('..', 'frontend')),
@@ -40,7 +45,12 @@ async function iniciar() {
 
   const puerto = Number(env.PORT || 8080);
   const host = env.HOST || '0.0.0.0';
-  const servidor = app.listen(puerto, host, () => console.log(`Servidor central disponible en http://${host}:${servidor.address().port}`));
+  const listo = () => console.log(`Servidor central disponible en ${certificado ? 'https' : 'http'}://${host}:${servidor.address().port}`);
+  const servidor = certificado ? https.createServer(certificado, app).listen(puerto, host, listo) : app.listen(puerto, host, listo);
+  servidor.once('error', error => {
+    console.error(`No se pudo abrir ${host}:${puerto}: ${error.message}`);
+    process.exit(1);
+  });
 
   const cerrar = () => {
     detenerRespaldos();

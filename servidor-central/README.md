@@ -12,7 +12,7 @@ Recibe los avances de todos los computadores de la escuela y ofrece un **panel w
 
 La primera instalación de la aplicación y la vinculación de cada computador necesitan internet.
 
-## Requisitos
+## Requisitos para el alojamiento en internet
 
 - Un servidor Linux con internet (un VPS pequeño basta: 1 CPU, 1 GB de RAM).
 - Docker con Docker Compose.
@@ -20,7 +20,9 @@ La primera instalación de la aplicación y la vinculación de cada computador n
 
 ## Instalación
 
-La guía completa, con cada paso, el mantenimiento y la solución de problemas, está en **[GUIA_PASO_A_PASO.md](GUIA_PASO_A_PASO.md)**. En resumen, en el servidor Linux con Docker y con el dominio ya apuntando a él:
+Si el panel se usa únicamente en el colegio, el [modo de red interna](GUIA_PASO_A_PASO.md#parte-2--panel-dentro-de-la-red-del-colegio) permite instalarlo en un computador Windows y acceder por HTTPS desde los demás equipos del establecimiento.
+
+La guía completa incluye [la instalación en Oracle Cloud Always Free](GUIA_PASO_A_PASO.md#usar-oracle-cloud-always-free), los pasos para otros proveedores Linux y el mantenimiento. En el servidor Linux con Docker y con el dominio ya apuntando a él:
 
 ```bash
 git clone https://github.com/manuelfogueroa1-ops/aprendo-a-leer-.git

@@ -11,7 +11,7 @@ const packaged = name => asar.extractFile(archive, path.normalize(name));
 const manifest = JSON.parse(packaged('frontend/grabaciones.js').toString().replace('window.GrabacionesLectura = ', '').replace(/;\s*$/, ''));
 assert.equal(Object.keys(manifest.clips).length, 185);
 assert.deepEqual(manifest.perfilVoz, { nombre: 'grave', semitonos: -2.5 });
-for (const file of ['frontend/grabaciones.js', 'frontend/voz.js', 'frontend/actividades/actividad.js', 'frontend/actividades/cuento.css',
+for (const file of ['backend/sync.js', 'frontend/index.html', 'frontend/fuentes.css', 'frontend/grabaciones.js', 'frontend/voz.js', 'frontend/actividades/actividad.js', 'frontend/actividades/cuento.css',
   ...['letra', 'silabas', 'unir-palabra-imagen', 'letras-iniciales', 'silabas-iniciales', 'cuento'].flatMap(name => [`frontend/actividades/${name}.js`, `frontend/actividades/${name}.html`])]) {
   assert.ok(packaged(file).equals(fs.readFileSync(path.join(root, file))), `Archivo desactualizado: ${file}`);
 }
@@ -32,6 +32,10 @@ const temporary = fs.mkdtempSync(path.join(temporaryParent, 'paquete-'));
 try {
   const code = `
     const path = require('node:path');
+    const tls = require('node:tls');
+    if (typeof tls.setDefaultCACertificates !== 'function' || !Array.isArray(tls.getCACertificates('system'))) {
+      throw new Error('El ejecutable debe poder leer los certificados de confianza de Windows.');
+    }
     const archive = process.env.PACKAGE_TEST_ASAR;
     const { startServer } = require(path.join(archive, 'backend/server.js'));
     const db = require(path.join(archive, 'backend/database.js'));
@@ -41,6 +45,8 @@ try {
         const base = 'http://127.0.0.1:' + server.address().port;
         const response = await fetch(base + '/api/health');
         if (!response.ok || !(await response.json()).ok) throw new Error('Falló SQLite empaquetado.');
+        const sync = await fetch(base + '/api/profesor/sincronizacion');
+        if (sync.status !== 401) throw new Error('Falta la ruta de sincronización protegida.');
         const audio = await fetch(base + '/assets/audio/grabaciones/grave/silaba-llo.wav');
         if (!audio.ok || Buffer.from(await audio.arrayBuffer()).toString('ascii', 0, 4) !== 'RIFF') throw new Error('Falta audio en el servidor empaquetado.');
         console.log('OK: ejecutable Windows inicia servidor y SQLite temporales y sirve la voz nueva.');
